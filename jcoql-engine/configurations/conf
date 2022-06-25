@@ -1,0 +1,13 @@
+servers=2
+
+server_1=mongo1
+host_1=localhost
+port_1=27017
+server_type_1=mongodb
+default_1=true
+
+server_2=es1
+host_2=localhost
+port_2=9200
+server_type_2=Elasticsearch
+default_2=false

@@ -1,0 +1,127 @@
+buildscript {
+	ext {
+	   springBootPlugin = 'org.springframework.boot:spring-boot-gradle-plugin'
+	   springBootVersion = '2.4.0'
+	   thinPlugin = 'org.springframework.boot.experimental:spring-boot-thin-gradle-plugin'
+	   thinVersion = '1.0.11.RELEASE'
+	}
+
+	repositories {
+	    mavenCentral()
+	    jcenter()
+		flatDir {
+			dirs 'libs/compile', 'libs/compile/downloaded',
+					'libs/testCompile', 'libs/testCompileDownloaded','lib'
+		}
+	}
+
+	dependencies {
+		classpath("${springBootPlugin}:${springBootVersion}")
+		classpath("${thinPlugin}:${thinVersion}")
+		classpath 'org.springframework.shell:spring-shell-starter:2.0.0.RELEASE'
+	}
+}
+
+
+plugins {
+	id 'org.springframework.boot' version '2.2.2.RELEASE'
+	id 'java'
+	id "org.springframework.boot.experimental.thin-launcher" version "1.0.27.RELEASE"
+}
+
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+apply plugin: 'eclipse'
+apply plugin: 'project-report'
+apply plugin: 'maven-publish'
+apply plugin: 'org.springframework.boot.experimental.thin-launcher'
+group = 'jco.ql.jcods'
+version = '1.0.0'
+
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor	
+	}
+
+	download
+    testDownload
+	someConfiguration
+}
+
+    
+repositories {
+    jcenter()
+    flatDir {
+        dirs 'libs/compile', 'libs/compile/downloaded',
+                'libs/testCompile', 'libs/testCompileDownloaded','lib'
+	}
+}
+
+
+bootJar {
+	manifest {
+		attributes 'Implementation-Version': version
+		attributes "Main-Class": "jco.ql.db.ds.server.Server"
+	}
+	launchScript()
+}
+
+
+tasks.withType(Jar) {
+	destinationDir = file("$rootDir/../jcoJars")
+}
+
+
+dependencies {
+	implementation 'org.springframework.shell:spring-shell-starter:2.0.0.RELEASE'
+	implementation project(':jcoql-ds-core')	
+    testImplementation 'junit:junit:4.12'
+}
+
+
+bootJar.dependsOn = [thinProperties]
+
+
+task cleanDownloadedDependencies(type: Delete) {
+    delete fileTree('libs/compile/downloaded')
+}
+
+
+task cleanDownloadedTestDependencies(type: Delete) {
+    delete fileTree('libs/testCompile/downloaded')
+}
+
+
+task downloadDependencies(type: Copy) {
+    from configurations.download
+    into 'libs/compile/downloaded/'
+}
+
+
+task downloadTestDependencies(type: Copy) {
+    from configurations.testDownload
+    into 'libs/testCompile/downloaded/'
+}
+
+
+task updateDependencies {
+    dependsOn cleanDownloadedDependencies, cleanDownloadedTestDependencies, downloadDependencies, downloadTestDependencies
+}
+
+
+fileTree(dir: 'libs/compile', include: '**/*.aar')
+	.each { File file ->
+    	dependencies.add("compile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+	}
+
+
+fileTree(dir: 'libs/testCompile', include: '**/*.aar')
+    .each { File file ->
+	    dependencies.add("testCompile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+	}

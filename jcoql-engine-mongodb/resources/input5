@@ -1,0 +1,51 @@
+SPATIAL JOIN OF COLLECTIONS
+PeopleSinglePlaces@VGI AS Trace , LineStopStations@VGI AS Stop
+ON DISTANCE (M) <= 500 SET GEOMETRY LEFT
+CASE WHERE WITH .Trace .userId , .Trace .Date , .Trace .startTime AND
+WITH .Stop .line , .Stop .order , .Stop .versus ,
+.Stop .stationName , .Stop .province
+GENERATE { UserId : .Trace .userId , Date : .Trace .Date ,
+startTime : .Trace .startTime , line : .Stop .line ,
+direction : .Stop .versus , order : .Stop .order ,
+stationName : .Stop .stationName , province : .Stop .province }
+KEEPING GEOMETRY
+DROP OTHERS ;
+SET INTERMEDIATE AS PeopleInStations ;
+JOIN OF COLLECTIONS PeopleInStations AS PS1 ,
+PeopleInStations AS PS2
+CASE
+WHERE .PS1 .userId = .PS2 .userId AND
+.PS1 .date = .PS2 .date AND
+.PS1 .line = .PS2 .line AND
+.PS1 .direction = .PS2 .direction AND
+.PS1 .startTime < .PS2 .startTime
+AND ((.PS1 .direction = "F" AND
+.PS1 .order < .PS2 .order )
+OR
+(.PS1 .direction = "B" AND
+.PS1 .order > .PS2 .order ))
+GENERATE { userId : .PS1.userId ,
+date : .PS1 .date ,
+line : .PS1 .line ,
+direction : .PS1 .direction }
+DROPPING GEOMETRY
+DROP OTHERS ;
+GROUP
+PARTITION WITH .userId , .Date ,
+.line , .versus
+BY .userId , .Date , .line , .direction
+INTO .list
+GENERATE {.userId , .date , .line , .versus }
+DROP OTHERS ;
+SET INTERMEDIATE AS PeopleByTrain ;
+JOIN OF COLLECTIONS PeopleByTrain AS PBT ,
+PeopleTraces@VGI AS T
+CASE
+WHERE .PBT.userId = .T .userId AND
+.PBT .date = .T.Date
+GENERATE { userId : .T.userId ,
+date : .T.date ,
+trace : .T.trace }
+SETTING GEOMETRY .T .~geometry
+DROP OTHERS;
+SAVE AS PeopleByTrain@VGI ;

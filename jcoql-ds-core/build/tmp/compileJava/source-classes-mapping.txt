@@ -1,0 +1,110 @@
+jco/ql/db/ds/core/message/request/CreateDynamicCollectionMessage.java
+ jco.ql.db.ds.core.message.request.CreateDynamicCollectionMessage
+jco/ql/db/ds/core/message/IMessage.java
+ jco.ql.db.ds.core.message.IMessage
+jco/ql/db/ds/core/message/response/CreateCollectionResponseMessage.java
+ jco.ql.db.ds.core.message.response.CreateCollectionResponseMessage
+jco/ql/db/ds/core/datatype/json/JcoValueDeserializer.java
+ jco.ql.db.ds.core.datatype.json.JcoValueDeserializer
+ jco.ql.db.ds.core.datatype.json.JcoValueDeserializer$1
+jco/ql/db/ds/core/message/response/PingResponseMessage.java
+ jco.ql.db.ds.core.message.response.PingResponseMessage
+jco/ql/db/ds/core/message/response/DeleteCollectionResponseMessage.java
+ jco.ql.db.ds.core.message.response.DeleteCollectionResponseMessage
+jco/ql/db/ds/core/message/response/SetUpdateTypeResponseMessage.java
+ jco.ql.db.ds.core.message.response.SetUpdateTypeResponseMessage
+jco/ql/db/ds/core/message/request/ListUrlMessage.java
+ jco.ql.db.ds.core.message.request.ListUrlMessage
+jco/ql/db/ds/core/message/response/SetFrequencyResponseMessage.java
+ jco.ql.db.ds.core.message.response.SetFrequencyResponseMessage
+jco/ql/db/ds/core/collectionsDescriptor/Url.java
+ jco.ql.db.ds.core.collectionsDescriptor.Url
+jco/ql/db/ds/core/message/SimpleMessage.java
+ jco.ql.db.ds.core.message.SimpleMessage
+jco/ql/db/ds/core/message/response/RemoveUrlResponseMessage.java
+ jco.ql.db.ds.core.message.response.RemoveUrlResponseMessage
+jco/ql/db/ds/core/message/request/SetFrequencyMessage.java
+ jco.ql.db.ds.core.message.request.SetFrequencyMessage
+jco/ql/db/ds/core/datatype/CollectionWrapper.java
+ jco.ql.db.ds.core.datatype.CollectionWrapper
+jco/ql/db/ds/core/message/request/CreateDatabaseMessage.java
+ jco.ql.db.ds.core.message.request.CreateDatabaseMessage
+jco/ql/db/ds/core/datatype/JcoDsCollection.java
+ jco.ql.db.ds.core.datatype.JcoDsCollection
+jco/ql/db/ds/core/message/response/SaveCollectionResponseMessage.java
+ jco.ql.db.ds.core.message.response.SaveCollectionResponseMessage
+jco/ql/db/ds/core/DSConstants.java
+ jco.ql.db.ds.core.DSConstants
+jco/ql/db/ds/core/datatype/JcoDsRemoteDatabase.java
+ jco.ql.db.ds.core.datatype.JcoDsRemoteDatabase
+jco/ql/db/ds/core/message/response/StopUpdateResponseMessage.java
+ jco.ql.db.ds.core.message.response.StopUpdateResponseMessage
+jco/ql/db/ds/core/message/request/SaveCollectionMessage.java
+ jco.ql.db.ds.core.message.request.SaveCollectionMessage
+jco/ql/db/ds/core/message/request/AddUrlMessage.java
+ jco.ql.db.ds.core.message.request.AddUrlMessage
+jco/ql/db/ds/core/annotation/JcoDsMessage.java
+ jco.ql.db.ds.core.annotation.JcoDsMessage
+jco/ql/db/ds/core/message/response/GetCollectionCountResponseMessage.java
+ jco.ql.db.ds.core.message.response.GetCollectionCountResponseMessage
+jco/ql/db/ds/core/message/request/GetCollectionCountMessage.java
+ jco.ql.db.ds.core.message.request.GetCollectionCountMessage
+jco/ql/db/ds/core/datatype/json/GeoJsonValueSerializer.java
+ jco.ql.db.ds.core.datatype.json.GeoJsonValueSerializer
+jco/ql/db/ds/core/message/request/RemoveUrlMessage.java
+ jco.ql.db.ds.core.message.request.RemoveUrlMessage
+jco/ql/db/ds/core/message/response/ErrorResponseMessage.java
+ jco.ql.db.ds.core.message.response.ErrorResponseMessage
+jco/ql/db/ds/core/message/response/CreateDynamicCollectionResponseMessage.java
+ jco.ql.db.ds.core.message.response.CreateDynamicCollectionResponseMessage
+jco/ql/db/ds/core/message/response/DeleteDatabaseResponseMessage.java
+ jco.ql.db.ds.core.message.response.DeleteDatabaseResponseMessage
+jco/ql/db/ds/core/message/request/SetUpdateTypeMessage.java
+ jco.ql.db.ds.core.message.request.SetUpdateTypeMessage
+jco/ql/db/ds/core/message/MessageHandler.java
+ jco.ql.db.ds.core.message.MessageHandler
+jco/ql/db/ds/core/message/response/AddUrlResponseMessage.java
+ jco.ql.db.ds.core.message.response.AddUrlResponseMessage
+jco/ql/db/ds/core/message/response/ListCollectionsResponseMessage.java
+ jco.ql.db.ds.core.message.response.ListCollectionsResponseMessage
+jco/ql/db/ds/core/message/response/ListDatabasesResponseMessage.java
+ jco.ql.db.ds.core.message.response.ListDatabasesResponseMessage
+jco/ql/db/ds/core/message/request/DeleteCollectionMessage.java
+ jco.ql.db.ds.core.message.request.DeleteCollectionMessage
+jco/ql/db/ds/core/message/AbstractMessage.java
+ jco.ql.db.ds.core.message.AbstractMessage
+ jco.ql.db.ds.core.message.AbstractMessage$1
+ jco.ql.db.ds.core.message.AbstractMessage$2
+jco/ql/db/ds/core/message/request/PingMessage.java
+ jco.ql.db.ds.core.message.request.PingMessage
+jco/ql/db/ds/core/message/request/ListDatabasesMessage.java
+ jco.ql.db.ds.core.message.request.ListDatabasesMessage
+jco/ql/db/ds/core/message/request/CreateCollectionMessage.java
+ jco.ql.db.ds.core.message.request.CreateCollectionMessage
+jco/ql/db/ds/core/message/request/StopUpdateMessage.java
+ jco.ql.db.ds.core.message.request.StopUpdateMessage
+jco/ql/db/ds/core/message/request/GetCollectionMessage.java
+ jco.ql.db.ds.core.message.request.GetCollectionMessage
+jco/ql/db/ds/core/message/response/ListUrlResponseMessage.java
+ jco.ql.db.ds.core.message.response.ListUrlResponseMessage
+jco/ql/db/ds/core/message/IMessageData.java
+ jco.ql.db.ds.core.message.IMessageData
+jco/ql/db/ds/core/message/request/ListCollectionsMessage.java
+ jco.ql.db.ds.core.message.request.ListCollectionsMessage
+jco/ql/db/ds/core/DocumentDefinitionUtils.java
+ jco.ql.db.ds.core.DocumentDefinitionUtils
+ jco.ql.db.ds.core.DocumentDefinitionUtils$1
+jco/ql/db/ds/core/message/response/CreateVirtualCollectionResponseMessage.java
+ jco.ql.db.ds.core.message.response.CreateVirtualCollectionResponseMessage
+jco/ql/db/ds/core/message/response/CreateDatabaseResponseMessage.java
+ jco.ql.db.ds.core.message.response.CreateDatabaseResponseMessage
+jco/ql/db/ds/core/message/MessageCodes.java
+ jco.ql.db.ds.core.message.MessageCodes
+jco/ql/db/ds/core/message/request/CreateVirtualCollectionMessage.java
+ jco.ql.db.ds.core.message.request.CreateVirtualCollectionMessage
+jco/ql/db/ds/core/message/request/DeleteDatabaseMessage.java
+ jco.ql.db.ds.core.message.request.DeleteDatabaseMessage
+jco/ql/db/ds/core/message/response/GetCollectionResponseMessage.java
+ jco.ql.db.ds.core.message.response.GetCollectionResponseMessage
+jco/ql/db/ds/core/client/service/ClientConnectionManager.java
+ jco.ql.db.ds.core.client.service.ClientConnectionManager

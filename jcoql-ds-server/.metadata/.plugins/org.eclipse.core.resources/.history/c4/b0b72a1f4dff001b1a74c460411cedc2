@@ -1,0 +1,23 @@
+package CollectionsInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CollectionsManager extends Collections {
+	
+	 
+	    public void initializeUrl()
+	    {
+	    	this.url = new ArrayList<Url>();
+	    }
+	    
+	    public void addUrl(Url url)
+	    {
+	    	if(this.url == null)
+	    	{
+	    		initializeUrl();
+	    	}
+	    	this.url.add(url);
+	    }
+
+}

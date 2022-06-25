@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/jcoql-engine-mongodb/src/main/java/net/fm/geco/engine/parser/utils/GenerateCommandCreator.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/jcoql-engine/src/main/java/net/fm/geco/engine/json/JSONHandler.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/jcoql-model/src/main/java/net/fm/geco/model/DocumentDefinition.java" charset="windows-1252" />
+  </component>
+</project>

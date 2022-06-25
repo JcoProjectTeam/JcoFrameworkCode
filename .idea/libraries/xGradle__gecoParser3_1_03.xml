@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: gecoParser3.1.03">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jcoql-model/lib/gecoParser3.1.03.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

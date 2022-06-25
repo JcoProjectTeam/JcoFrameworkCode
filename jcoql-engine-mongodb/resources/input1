@@ -1,0 +1,8 @@
+GET COLLECTION SourceTrainLines@VGI ;
+EXPAND
+UNPACK WITH ARRAY .stops AND WITH STRING .line
+ARRAY .stops TO .location
+GENERATE SETTING GEOMETRY
+POINT (.location .item .lon , .location .item .lat );
+DROP OTHERS ;
+SET INTERMEDIATE AS TrainStops ;

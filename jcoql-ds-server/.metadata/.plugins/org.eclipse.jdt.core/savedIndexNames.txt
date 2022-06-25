@@ -1,0 +1,7 @@
+INDEX VERSION 1.131+C:\Users\94alb\Desktop\relazionetriennale\JCO-Project-Materiale\codice\jcoql-ds-server\.metadata\.plugins\org.eclipse.jdt.core
+1818730371.index
+1210658807.index
+4090604496.index
+3194886702.index
+1857379310.index
+1154353613.index

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="gecoParser3.0.02">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jcoql-engine-mongodb/lib/gecoParser3.0.02.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

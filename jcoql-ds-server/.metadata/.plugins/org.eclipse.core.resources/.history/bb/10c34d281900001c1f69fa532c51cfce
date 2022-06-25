@@ -1,0 +1,34 @@
+package CollectionsDescriptor;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+//rinominare in collections-descriptor
+public class CollectionsDescriptor {
+
+	public String databaseName;
+	
+    public List<Collections> collections = new ArrayList<Collections>();
+
+    public List<Collections> getCollections() {
+        return collections;
+    }
+    
+    public String getdatabaseName()
+    {
+    	return databaseName;
+    }
+    
+    public void setdatabaseName(String databaseName)
+    {
+    	this.databaseName = databaseName;
+    }
+
+
+    public void setCollections(List<Collections> collections) {
+        this.collections = collections;
+    }
+    
+    
+}

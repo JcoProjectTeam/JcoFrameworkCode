@@ -1,0 +1,12 @@
+SPATIAL JOIN OF COLLECTIONS
+TrainStops AS Stop , TrainStations@VGI AS Station
+ON DISTANCE (M) <= 500 SET GEOMETRY LEFT
+CASE WHERE
+WITH .Stop .line , .Stop .location .position ,
+.Station .stationName , .Station .province
+GENERATE
+{ line : .Stop .line , order : .Stop .position ,
+stationName : .Station .stationName ,
+province : .station .province } KEEPING GEOMETRY
+DROP OTHERS ;
+SET INTERMEDIATE AS LineStopsCoded ;

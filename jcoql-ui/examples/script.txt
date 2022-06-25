@@ -1,0 +1,6 @@
+USE DB movie ON SERVER mongo1;
+GET COLLECTION movie@movie;
+FILTER
+CASE WHERE WITH .name
+KEEP OTHERS;
+SAVE AS tempmovie@movie;
