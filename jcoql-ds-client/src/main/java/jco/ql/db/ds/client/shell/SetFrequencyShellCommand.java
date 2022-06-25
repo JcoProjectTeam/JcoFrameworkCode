@@ -92,20 +92,15 @@ public class SetFrequencyShellCommand {
 		finalNumber = Integer.parseInt(number);
 		
 		
-		switch(category)
-		{
-		case 'H': case 'h':
-			return finalNumber*3600000;        //every hour is equal to 3600000 milliseconds
-			
-			
-		case 'D': case 'd':
-			return finalNumber*86400000;      //every day is equal to 86400000 milliseconds
-			
-			
-		case 'W': case 'w':
-			return finalNumber*604800000;     //every week is equal to 604800000 milliseconds
-			
-			
+		switch(category) {
+			case 'M': case 'm':
+				return finalNumber*60*1000;        //every hour is equal to 60000 milliseconds
+			case 'H': case 'h':
+				return finalNumber*60*60*1000;        //every hour is equal to 3600000 milliseconds
+			case 'D': case 'd':
+				return finalNumber*24*60*60*1000;      //every day is equal to 86400000 milliseconds
+			case 'W': case 'w':
+				return finalNumber*7*24*60*60*1000;     //every week is equal to 604800000 milliseconds
 		}
 		
 		return finalNumber;
