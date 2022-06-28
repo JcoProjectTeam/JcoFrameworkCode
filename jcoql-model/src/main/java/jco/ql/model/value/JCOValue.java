@@ -54,6 +54,30 @@ public interface JCOValue {
 		return false;
 	}
 	
+	public static boolean isArrayValue (JCOValue v) {
+		if (v == null)
+			return false;
+		if (v.getType() == EValueType.ARRAY)
+			return true;
+		return false;
+	}
+	
+	public static boolean isGeometryValue (JCOValue v) {
+		if (v == null)
+			return false;
+		if (v.getType() == EValueType.GEOMETRY)
+			return true;
+		return false;
+	}
+	
+	public static boolean isDocumentValue (JCOValue v) {
+		if (v == null)
+			return false;
+		if (v.getType() == EValueType.DOCUMENT)
+			return true;
+		return false;
+	}
+	
 	public static boolean isStringValue (JCOValue v) {
 		if (v == null)
 			return false;

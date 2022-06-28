@@ -47,30 +47,31 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
 				IDatabase database = databaseRegistry.getDatabase(command.getDbName());
 				if (database == null) {
 					JMH.addExceptionMessage("[GET COLLECTION]: Invalid database " + command.getDbName());
-					throw new ExecuteProcessException("[GET COLLECTION]: Invalid database " + command.getDbName());
+					throw new ExecuteProcessException("[GET COLLECTION]: Invalid database");
 				}
 	
 				outCollection = database.getCollection(command.getCollectionName());
-				pipeline.addCollection(outCollection);
 			} 
-			else {
-				// devo prendere la collezione temporanea
+			// temporary collection
+			else
 				outCollection = pipeline.getCollection(command.getCollectionName());
-				pipeline.addCollection(outCollection);
-			}
 		}
 		// PF. Get Collection from URL
-		else {   
+		else  
 			outCollection = getCollectionFromWeb(command.getUrlString());
-			pipeline.addCollection(outCollection);
-		}
 
-		if (outCollection == null)
-			JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t no documents loaded");
+		if (outCollection == null || outCollection.getDocumentList() == null) {
+			JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t no documents loaded " + command.getCollectionName());
+			outCollection = new SimpleDocumentCollection(command.getCollectionName());
+		}
 		else 
 			JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + outCollection.getDocumentList().size() + " documents loaded");
+
+		pipeline.addCollection(outCollection);
 	}
 
+	
+	
     private IDocumentCollection getCollectionFromWeb (String urlSt) {
         int timeout = 5000;
 
@@ -102,18 +103,14 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
 	    	rd.close();
 	    	client.close();
 
-//	    	String outSt = outStBuf.toString().trim();
-	    	// Avoid to generate further Strings in order not to consume Heap memory
-//	    	if (outSt.startsWith("[") && outSt.endsWith("]")) {
-	        	SimpleDateFormat formatter= new SimpleDateFormat(JCOConstants.DATE_FORMAT_EXT);
-	        	Date date = new Date(System.currentTimeMillis());
-	        	String dateSt = formatter.format(date);
-	        	String prefix = "{ \"" + JCOConstants.TIMESTAMP_FIELD_NAME + "\" : \"" + dateSt + "\", " +
-	        					" \"" + JCOConstants.URL_FIELD_NAME + "\" : \"" + urlSt.replace("\"", "\\\"") + "\", " +
-	        					" \"" + JCOConstants.DATA_FIELD_NAME + "\" : ";
-	        	outStBuf.insert(0, prefix);
-	            outStBuf.append(" }");
-//	    	}
+        	SimpleDateFormat formatter= new SimpleDateFormat(JCOConstants.DATE_FORMAT_EXT);
+        	Date date = new Date(System.currentTimeMillis());
+        	String dateSt = formatter.format(date);
+        	String prefix = "{ \"" + JCOConstants.TIMESTAMP_FIELD_NAME + "\" : \"" + dateSt + "\", " +
+        					" \"" + JCOConstants.URL_FIELD_NAME + "\" : \"" + urlSt.replace("\"", "\\\"") + "\", " +
+        					" \"" + JCOConstants.DATA_FIELD_NAME + "\" : ";
+        	outStBuf.insert(0, prefix);
+            outStBuf.append(" }");
 
 	    	List<DocumentDefinition> list = new ArrayList<>();
 			Document bson = Document.parse(outStBuf.toString());
@@ -122,7 +119,7 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
 			return collection;
 
         } catch (Exception e) {
-        	e.printStackTrace();
+			JMH.addExceptionMessage("[GET COLLECTION FROM WEB] exception.\t Error in url:\t" + e.getMessage());
         }
 	
         return null;

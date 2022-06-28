@@ -45,7 +45,7 @@ jco/ql/db/ds/client/shell/GetCollectionCountShellCommand.java
  jco.ql.db.ds.client.shell.GetCollectionCountShellCommand
 jco/ql/db/ds/client/shell/CreateDatabaseShellCommand.java
  jco.ql.db.ds.client.shell.CreateDatabaseShellCommand
-jco/ql/db/ds/client/shell/ListDatabasesShellCommand.java
- jco.ql.db.ds.client.shell.ListDatabasesShellCommand
 jco/ql/db/ds/client/shell/SetFrequencyShellCommand.java
  jco.ql.db.ds.client.shell.SetFrequencyShellCommand
+jco/ql/db/ds/client/shell/ListDatabasesShellCommand.java
+ jco.ql.db.ds.client.shell.ListDatabasesShellCommand

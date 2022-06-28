@@ -32,6 +32,10 @@ public class DocumentValue implements JCOValue {
 		return document.getFields();
 	}
 
+	public JCOValue getValue(String fieldName) {
+		return this.document.getValue(fieldName);
+	}
+
 	public JCOValue getValue(FieldName fieldName) {
 		return this.document.getValue(fieldName);
 	}

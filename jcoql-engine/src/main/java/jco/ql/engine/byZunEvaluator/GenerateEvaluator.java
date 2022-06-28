@@ -5,10 +5,9 @@ import java.util.List;
 import jco.ql.engine.Pipeline;
 import jco.ql.engine.evaluator.AlphaCutEvaluator;
 import jco.ql.engine.evaluator.GenerateCommandEvaluator;
-import jco.ql.engine.evaluator.GeometricOptionCommandEvaluator;
+import jco.ql.engine.evaluator.GeometricOptionEvaluator;
 import jco.ql.engine.evaluator.KeepingDroppingFuzzySetsEvaluator;
 import jco.ql.model.DocumentDefinition;
-import jco.ql.model.command.GeometricOptionCommand;
 import jco.ql.parser.model.fuzzy.FuzzySetDefinition;
 import jco.ql.parser.model.util.BuildAction;
 import jco.ql.parser.model.util.GenerateSection;
@@ -18,10 +17,8 @@ public class GenerateEvaluator {
 	public static DocumentDefinition evaluate (Pipeline pipeline, GenerateSection gs) {
 		DocumentDefinition outDoc = pipeline.getCurrentDoc();
 		/* GEOMETRIC OPTION */
-		if (gs.hasGeometricOption()) {
-			GeometricOptionCommand geometricOption =  new GeometricOptionCommand(gs.geometricOption);
-			outDoc = GeometricOptionCommandEvaluator.evaluateGeometricOption(pipeline, geometricOption);						
-		}
+		if (gs.hasGeometricOption()) 
+			outDoc = GeometricOptionEvaluator.evaluateGeometricOption(pipeline, gs.geometricOption);						
 
 		/* CHECK FOR FUZZY SETS */
 		if (gs.hasFuzzyCheck()) {
@@ -32,7 +29,6 @@ public class GenerateEvaluator {
 					outDoc = CheckForFuzzySetEvaluator.evaluate (checkForFuzzySet, checkForPipeline);
 		}
 		
-
 		/* ALPHA-CUT */
 		if (gs.hasAlphaCut())
 			outDoc = AlphaCutEvaluator.evaluate(outDoc, gs.alphaCuts);

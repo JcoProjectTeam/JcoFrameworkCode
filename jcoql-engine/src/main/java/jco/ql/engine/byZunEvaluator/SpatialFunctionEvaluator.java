@@ -38,12 +38,7 @@ public class SpatialFunctionEvaluator implements JCOConstants {
 		else if (spatialFunction.type == SpatialFunction.MEET)
 			return leftGeo.getBoundary().intersects(rightGeo.getBoundary());
 		else if (spatialFunction.type == SpatialFunction.INTERSECT)
-/* per alessandro
- * sostituire la riga sottostante
- * con la chiamata al tuo metodo booleano che confronta un indice spaziale già calcolato con una geometria			
- */
 			return leftGeo.intersects(rightGeo);
-
 		return false;
 	}
 
@@ -170,7 +165,7 @@ public class SpatialFunctionEvaluator implements JCOConstants {
 		final List<Double> listX = new ArrayList<Double>();
 		final List<Double> listArea = new ArrayList<Double>();
 
-		// calcolo dei segmenti X e Y per ciascun punto
+		// segment calculation for each point
 		final double latitudeRef = locations.get(0).getY();
 		final double longitudeRef = locations.get(0).getX();
 		for (int i = 1; i < locations.size(); i++) {
@@ -181,7 +176,7 @@ public class SpatialFunctionEvaluator implements JCOConstants {
 			listX.add(calculateXSegment(longitudeRef, longitude, latitude, circumference));
 		}
 
-		// calcolo delle aree dei triangolini
+		// triangle area calculation
 		for (int i = 1; i < listX.size(); i++) {
 			final double x1 = listX.get(i - 1);
 			final double y1 = listY.get(i - 1);
@@ -191,14 +186,13 @@ public class SpatialFunctionEvaluator implements JCOConstants {
 
 		}
 
-		// somma delle aree dei triangolini
+		// sum of triangle area
 		double areasSum = 0;
 		for (final Double area : listArea) {
 			areasSum = areasSum + area;
 		}
 
-		// valore assoluto dell'area. Se l'aggiunta dei punti avviene in senso orario
-		// sarebbe negativa infatti
+		// area in absolute value: (if points are evaluated clockwise it would be negative)
 		return Math.abs(areasSum);// Math.sqrt(areasSum * areasSum);
 	}
 	private static Double calculateAreaInSquareMeters(double x1, double x2, double y1, double y2) {

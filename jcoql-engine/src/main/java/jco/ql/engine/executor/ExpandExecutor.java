@@ -31,7 +31,6 @@ public class ExpandExecutor implements IExecutor<ExpandCommand> {
 	// PF. New implementation 1
 	public void execute(Pipeline pipeline, ExpandCommand command) throws ExecuteProcessException {
 		List<Unpack> unpacks = command.getUnpack();
-
 		SimpleDocumentCollection outCollection = new SimpleDocumentCollection("Expand", new ArrayList<DocumentDefinition>());
 		LinkedBlockingQueue<DocumentDefinition> queue = new LinkedBlockingQueue<DocumentDefinition>();
 

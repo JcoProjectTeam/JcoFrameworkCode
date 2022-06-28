@@ -125,7 +125,7 @@ public class JavascriptEvalutor {
         return code.toString();
     }
 
-    // TODO ... gestire i tipi per ora è solo una bozza
+    // TODO ... handle type... now is a just a draft
 	private static String getValueString(JCOValue v) {
 		if (v == null)
 			return "null";

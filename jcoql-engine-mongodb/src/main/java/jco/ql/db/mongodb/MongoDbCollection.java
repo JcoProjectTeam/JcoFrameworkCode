@@ -13,22 +13,27 @@ import com.mongodb.client.MongoCollection;
 import jco.ql.db.mongodb.utils.DocumentUtils;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.IDocumentCollection;
+import jco.ql.model.engine.JMH;
 
 
 
 public class MongoDbCollection implements IDocumentCollection {
-	
-	//private Stream<DocumentDefinition> collection;
 	
 	private String name;
 
 	private List<DocumentDefinition> documents;
 	
 	public MongoDbCollection(String name, MongoCollection<Document> mongoCollection) {
-		Stream<Document> mongoStream = StreamSupport.stream(mongoCollection.find().spliterator(), false);
-		//this.collection = mongoStream.map(DocumentUtils::mapDocumentDefinitionFromBson);
-		this.documents = mongoStream.map(DocumentUtils::mapDocumentDefinitionFromBson).collect(Collectors.toList());
-		this.name = name;
+		try {
+			Stream<Document> mongoStream = StreamSupport.stream(mongoCollection.find().spliterator(), false);
+			//this.collection = mongoStream.map(DocumentUtils::mapDocumentDefinitionFromBson);
+			this.documents = mongoStream.map(DocumentUtils::mapDocumentDefinitionFromBson).collect(Collectors.toList());
+			this.name = name;
+		} 
+		catch (Exception e){
+			JMH.addExceptionMessage("[MongoDb Driver] - Unable to load collection " + name + " from MongoDb\n" +
+					"Cause:\t" + e.getMessage());
+		}
 	}
 	
 	@Override

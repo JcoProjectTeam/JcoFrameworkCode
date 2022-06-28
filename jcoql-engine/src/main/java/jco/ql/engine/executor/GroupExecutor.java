@@ -35,6 +35,7 @@ public class GroupExecutor implements IExecutor<GroupCommand>, JCOConstants {
 	public void execute(Pipeline pipeline, GroupCommand command) throws ExecuteProcessException {
 		DocumentDefinition curDoc;
 		IDocumentCollection collection = pipeline.getCurrentCollection();
+		
 		IDocumentCollection unselectedDocCollection = new SimpleDocumentCollection();
 		// for each partition there's a collection map where the key is constituted by the hashmap of the sub-document made with grouping fields
 		List<Hashtable<Integer, DocumentDefinition>> partitionCollection = new ArrayList<Hashtable<Integer, DocumentDefinition>>();

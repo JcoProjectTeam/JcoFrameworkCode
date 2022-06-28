@@ -67,11 +67,6 @@ public class JcoValueDeserializer extends StdDeserializer<JCOValue>{
 					}
 					break;
 					
-				case FIELD:
-					//TODO: implement
-					logger.warn("Got field of type FIELD - decoding not implemented");
-					break;
-
 				case DOCUMENT:
 					if(node.get("value").isObject()) {
 						DocumentDefinition document = new DocumentDefinition();

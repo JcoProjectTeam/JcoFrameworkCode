@@ -34,7 +34,7 @@ public class ZunScriptTester {
 			data.append(myReader.nextLine()+"\n");
 		}
 		myReader.close();	  	
-		
+
 		return data.toString();
 	}
 

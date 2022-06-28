@@ -29,8 +29,9 @@ public class ArrayFunctionEvaluator implements JCOConstants {
 		
 		return new SimpleValue ();		// null value
 	}
-
-
+	
+	// *******************************************************
+		
 	private static ArrayValue getSourceArray (ArrayFunctionFactor function, Pipeline pipeline) {
 		ArrayValue sourceArray = null;
 		if (function.getSourceType() == ArrayFunctionFactor.SOURCE_FIELD) {
@@ -52,14 +53,15 @@ public class ArrayFunctionEvaluator implements JCOConstants {
 		return sourceArray;
 	}
 	
-	
+	// *******************************************************
+		
 	private static SimpleValue searchString(ArrayValue sourceArray, ArrayFunctionFactor function) {
 		JCOValue compareValue;
 		SimpleValue returnValue = new SimpleValue (); // null value;
 
 		for (JCOValue currentValue : sourceArray.getValues()) {
 			compareValue = null;
-			if (function.getSearchType() == ArrayFunctionFactor.SEARCH_ALL) 
+			if (function.searchAll()) 
 				if (JCOValue.isStringValue(currentValue))
 					compareValue = currentValue;
 			if ((compareValue == null) && (currentValue instanceof DocumentValue)) {
@@ -102,7 +104,7 @@ public class ArrayFunctionEvaluator implements JCOConstants {
 
 		for (JCOValue currentValue : sourceArray.getValues()) {
 			compareValue = null;
-			if (function.getSearchType() == ArrayFunctionFactor.SEARCH_ALL) 
+			if (function.searchAll()) 
 				if (JCOValue.isNumericValue(currentValue))
 					compareValue = currentValue;
 			if ((compareValue == null) && (currentValue instanceof DocumentValue)) {
@@ -153,7 +155,7 @@ public class ArrayFunctionEvaluator implements JCOConstants {
 
 		for (JCOValue currentValue : sourceArray.getValues()) {
 			compareValue = null;
-			if (function.getSearchType() == ArrayFunctionFactor.SEARCH_ALL) 
+			if (function.searchAll()) 
 				if (JCOValue.isBooleanValue(currentValue))
 					compareValue = currentValue;
 			if ((compareValue == null) && (currentValue instanceof DocumentValue)) {
@@ -190,6 +192,5 @@ public class ArrayFunctionEvaluator implements JCOConstants {
 	
 		return returnValue;
 	}
-	
 
 }

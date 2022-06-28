@@ -54,8 +54,7 @@ public class WithPredicateEvaluator {
 			return 	(value.getType() == EValueType.DECIMAL) || (value.getType() == EValueType.INTEGER);
 
 		if (predicate.getSelectorType() == WithPredicate.SIMPLE)
-			return 	(value.getType() == EValueType.NULL) 	|| (value.getType() == EValueType.STRING) 	|| 
-					(value.getType() == EValueType.BOOLEAN) || (value.getType() == EValueType.FIELD)	|| 
+			return 	(value.getType() == EValueType.NULL) 	|| (value.getType() == EValueType.STRING) 	|| (value.getType() == EValueType.BOOLEAN) || 
 					(value.getType() == EValueType.INTEGER)	|| (value.getType() == EValueType.DECIMAL);
 
 		if (predicate.getSelectorType() == WithPredicate.COMPLEX)

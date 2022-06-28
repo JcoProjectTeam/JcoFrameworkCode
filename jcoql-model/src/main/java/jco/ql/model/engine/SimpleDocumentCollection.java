@@ -28,9 +28,6 @@ public class SimpleDocumentCollection implements IDocumentCollection {
 	public void addDocument(DocumentDefinition document) {
 		this.documents.add(document);
 	}
-//	public synchronized  void addDocumentSynchronized(DocumentDefinition document) {
-//		this.documents.add(document);
-//	}
 
 	@Override
 	public List<DocumentDefinition> getDocumentList() {

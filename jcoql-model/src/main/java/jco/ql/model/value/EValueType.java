@@ -8,7 +8,6 @@ public enum EValueType {
 	INTEGER,
 	DECIMAL,
 	ARRAY,
-	FIELD,		
 	DOCUMENT,
 	GEOMETRY,
 	DATE

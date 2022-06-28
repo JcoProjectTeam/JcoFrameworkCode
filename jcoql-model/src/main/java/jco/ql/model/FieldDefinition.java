@@ -1,7 +1,6 @@
 package jco.ql.model;
 
 import jco.ql.model.engine.JCOConstants;
-import jco.ql.model.value.FieldValue;
 import jco.ql.model.value.JCOValue;
 
 // ZUN CHECK* .... sta classe potrebbe essere fatta fuori
@@ -16,13 +15,6 @@ public class FieldDefinition implements JCOConstants {
 		this.value = value;
 	}
 
-
-	public FieldDefinition(FieldValue value) {
-		this.name = value.getFieldReference().getFieldName().getFirstLevelName().replace(FIELD_SEPARATOR, "");
-		this.value = value;
-	}
-
-	
 	
 	public String getName() {
 		return name;
