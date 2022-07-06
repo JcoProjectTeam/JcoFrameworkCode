@@ -67,7 +67,7 @@ public class ElasticDatabase implements IDatabase {
 			String mappingsBody = EntityUtils.toString(mappings.getEntity());
 			String collectionsBody = EntityUtils.toString(collections.getEntity());
 
-			JSONHandler json = new JSONHandler();
+			ElastichSearchJSONHandler json = new ElastichSearchJSONHandler();
 			result = (SimpleDocumentCollection) json.createCollection(mappingsBody, collectionsBody, name);
 
 			// chiudo la connessione

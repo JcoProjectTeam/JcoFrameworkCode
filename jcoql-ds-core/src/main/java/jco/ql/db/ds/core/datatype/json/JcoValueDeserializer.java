@@ -23,7 +23,7 @@ import jco.ql.model.FieldDefinition;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.DocumentValue;
 import jco.ql.model.value.EValueType;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 
@@ -91,7 +91,7 @@ public class JcoValueDeserializer extends StdDeserializer<JCOValue>{
 					if(nodeValue != null && !nodeValue.isNull()) {
 						try {
 							String nodeValueString = nodeValue.toString();
-							value = new GeoJsonValue(geoJsonReader.read(nodeValueString));
+							value = new GeometryValue(geoJsonReader.read(nodeValueString));
 						} catch (Exception e) {
 							logger.error("Invalid geometry value", e);
 						}

@@ -2,7 +2,7 @@ package jco.ql.model.command;
 
 import jco.ql.parser.model.fuzzy.SetFuzzySets;
 
-// PF - Rewritten 16.07.2021
+
 public class SetFuzzySetsCommand extends SetFuzzySets {
 
 	public SetFuzzySetsCommand (SetFuzzySets sfs) {

@@ -26,7 +26,7 @@ import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.DocumentValue;
 import jco.ql.model.value.EValueType;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 
@@ -36,7 +36,7 @@ public final class DocumentDefinitionUtils implements JCOConstants {
 	public static ObjectMapper getDocumentMapper() {
 		ObjectMapper jsonMapper = new ObjectMapper();
 		SimpleModule valueModule = new SimpleModule();
-		valueModule.addSerializer(GeoJsonValue.class, new GeoJsonValueSerializer());
+		valueModule.addSerializer(GeometryValue.class, new GeoJsonValueSerializer());
 		valueModule.addDeserializer(JCOValue.class, new JcoValueDeserializer());
 		jsonMapper.registerModule(valueModule);
 		
@@ -91,8 +91,8 @@ public final class DocumentDefinitionUtils implements JCOConstants {
 						out.put(f.getName(), toPlainJSON((DocumentDefinition) value.getValue()));
 					} else if (value.getType() == EValueType.ARRAY) {
 						out.put(f.getName(), jsonArrayFromArray((ArrayValue) value));
-					} else if (value instanceof GeoJsonValue) {
-						String geojsonString = new GeoJSONWriter().write(((GeoJsonValue) value).getGeometry()).toString();
+					} else if (value instanceof GeometryValue) {
+						String geojsonString = new GeoJSONWriter().write(((GeometryValue) value).getGeometry()).toString();
 						try {
 							out.put(f.getName(), jsonMapper.readValue(geojsonString, new TypeReference<Map<String, Object>>() {}));
 						} catch (JsonProcessingException e) {
@@ -155,7 +155,7 @@ public final class DocumentDefinitionUtils implements JCOConstants {
 			}else if (v.getType() == EValueType.NULL) {
 				 return null;
 			} else if (v.getType() == EValueType.GEOMETRY) {
-				return ((GeoJsonValue)v.getValue());
+				return ((GeometryValue)v.getValue());
 			}
 			return v.getValue();
 		}).collect(Collectors.toList());
@@ -187,7 +187,7 @@ public final class DocumentDefinitionUtils implements JCOConstants {
 		} else if (object instanceof Map) {
 			if (GEOMETRY_FIELD_NAME.equals(key)) {
 				try {
-					value = new GeoJsonValue(new GeoJSONReader().read(
+					value = new GeometryValue(new GeoJSONReader().read(
 								jsonMapper.writeValueAsString(((Map<String, Object>) object)))
 							);
 				} catch (JsonProcessingException e) {

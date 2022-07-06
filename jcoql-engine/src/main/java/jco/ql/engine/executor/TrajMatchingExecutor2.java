@@ -1,7 +1,6 @@
 package jco.ql.engine.executor;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,12 +15,12 @@ import jco.ql.model.engine.JMH;
 
 @Executor(TrajectoryMatchingCommand.class)
 public class TrajMatchingExecutor2 implements IExecutor<TrajectoryMatchingCommand>, JCOConstants  {
-	private DatabaseRegistry databaseRegistry;
+//	private DatabaseRegistry databaseRegistry;
 	List<DocumentDefinition> keepedDocuments;
 
 	@Autowired
 	public TrajMatchingExecutor2(DatabaseRegistry databaseRegistry) {
-		this.databaseRegistry = databaseRegistry;
+//		this.databaseRegistry = databaseRegistry;
 	}
 /* ZUN CHECK*
 	private Map<String, EDRvalue> map;
@@ -29,7 +28,7 @@ public class TrajMatchingExecutor2 implements IExecutor<TrajectoryMatchingComman
 	List<Elemento> listY;
 */
 	//NUOVO EC
-	private Map<Integer, List<Integer>> matchedPair;
+//	private Map<Integer, List<Integer>> matchedPair;
 
 	@Override
 	public void execute(Pipeline pipeline, TrajectoryMatchingCommand command) throws ExecuteProcessException {

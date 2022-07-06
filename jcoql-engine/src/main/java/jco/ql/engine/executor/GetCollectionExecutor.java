@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -21,12 +19,16 @@ import jco.ql.engine.annotation.Executor;
 import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.engine.registry.DatabaseRegistry;
 import jco.ql.model.DocumentDefinition;
+import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.GetCollectionCommand;
 import jco.ql.model.engine.IDatabase;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
 import jco.ql.model.engine.SimpleDocumentCollection;
+import jco.ql.model.value.DocumentValue;
+import jco.ql.model.value.SimpleValue;
+import jco.ql.parser.model.GetCollection;
 
 @Executor(GetCollectionCommand.class)
 public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, JCOConstants {
@@ -42,14 +44,13 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
 	public void execute(Pipeline pipeline, GetCollectionCommand command) throws ExecuteProcessException {
 		IDocumentCollection outCollection = null;
 		
-		if (command.getType() == GetCollectionCommand.DB_TYPE) {
+		if (command.getType() == GetCollection.DB_TYPE) {
 			if (command.getDbName() != null) {
 				IDatabase database = databaseRegistry.getDatabase(command.getDbName());
 				if (database == null) {
 					JMH.addExceptionMessage("[GET COLLECTION]: Invalid database " + command.getDbName());
 					throw new ExecuteProcessException("[GET COLLECTION]: Invalid database");
 				}
-	
 				outCollection = database.getCollection(command.getCollectionName());
 			} 
 			// temporary collection
@@ -57,8 +58,11 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
 				outCollection = pipeline.getCollection(command.getCollectionName());
 		}
 		// PF. Get Collection from URL
-		else  
-			outCollection = getCollectionFromWeb(command.getUrlString());
+		else  {
+			DocumentDefinition newDoc = getDocumentFromWeb(command.getUrlString(), null);
+			outCollection = new SimpleDocumentCollection(FROMWEB_COLLECTION_NAME);
+			outCollection.addDocument(newDoc);
+		}
 
 		if (outCollection == null || outCollection.getDocumentList() == null) {
 			JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t no documents loaded " + command.getCollectionName());
@@ -72,7 +76,7 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
 
 	
 	
-    private IDocumentCollection getCollectionFromWeb (String urlSt) {
+    public static DocumentDefinition getDocumentFromWeb (String urlSt, DocumentDefinition sourceDoc) {
         int timeout = 5000;
 
         urlSt = urlSt.replace(" ", "%20");
@@ -106,20 +110,20 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
         	SimpleDateFormat formatter= new SimpleDateFormat(JCOConstants.DATE_FORMAT_EXT);
         	Date date = new Date(System.currentTimeMillis());
         	String dateSt = formatter.format(date);
-        	String prefix = "{ \"" + JCOConstants.TIMESTAMP_FIELD_NAME + "\" : \"" + dateSt + "\", " +
-        					" \"" + JCOConstants.URL_FIELD_NAME + "\" : \"" + urlSt.replace("\"", "\\\"") + "\", " +
-        					" \"" + JCOConstants.DATA_FIELD_NAME + "\" : ";
+        	String prefix = "{  \"" + JCOConstants.DATA_FIELD_NAME + "\" : ";
         	outStBuf.insert(0, prefix);
             outStBuf.append(" }");
 
-	    	List<DocumentDefinition> list = new ArrayList<>();
 			Document bson = Document.parse(outStBuf.toString());
-			list.add(DocumentUtils.mapDocumentDefinitionFromBson(bson));
-			IDocumentCollection collection = new SimpleDocumentCollection(FROMWEB_COLLECTION_NAME, list);
-			return collection;
+			DocumentDefinition newDoc = DocumentUtils.mapDocumentDefinitionFromBson(bson);
+			newDoc.addField(new FieldDefinition(JCOConstants.TIMESTAMP_FIELD_NAME, new SimpleValue (dateSt)));
+			newDoc.addField(new FieldDefinition(JCOConstants.URL_FIELD_NAME, new SimpleValue (urlSt.replace("\"", "\\\""))));
+			if (sourceDoc != null)
+				newDoc.addField(new FieldDefinition(JCOConstants.SOURCE_FIELD_NAME, new DocumentValue (sourceDoc)));
 
+			return newDoc;
         } catch (Exception e) {
-			JMH.addExceptionMessage("[GET COLLECTION FROM WEB] exception.\t Error in url:\t" + e.getMessage());
+			JMH.addExceptionMessage("[GET COLLECTION FROM WEB] exception.\t Error in url:\t" + urlSt + "\n" + e.getMessage());
         }
 	
         return null;

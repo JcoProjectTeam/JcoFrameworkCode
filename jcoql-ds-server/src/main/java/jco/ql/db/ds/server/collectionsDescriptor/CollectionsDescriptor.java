@@ -17,13 +17,11 @@ public class CollectionsDescriptor {
         return collections;
     }
     
-    public String getdatabaseName()
-    {
+    public String getdatabaseName() {
     	return databaseName;
     }
     
-    public void setdatabaseName(String databaseName)
-    {
+    public void setdatabaseName(String databaseName) {
     	this.databaseName = databaseName;
     }
 
@@ -31,6 +29,5 @@ public class CollectionsDescriptor {
     public void setCollections(List<collectionDescriptor> collections) {
         this.collections = collections;
     }
-    
     
 }

@@ -50,7 +50,6 @@ public class JSONHandler {
 		String suffix = ".tmp";
 
 		try {
-
 			File file = new File(fileName + suffix);
 			file.createNewFile();
 			file.deleteOnExit();
@@ -71,8 +70,6 @@ public class JSONHandler {
 	}
 
 
-
-
 	public IDocumentCollection createCollection(String alias, String fileName) {
 		List<DocumentDefinition> list = new ArrayList<>();
 		if(fileName == null)
@@ -89,115 +86,10 @@ public class JSONHandler {
 			}
 			br.close();
 			fr.close();
-
-
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return new SimpleDocumentCollection(alias, list);
 	}
-/*
-	private DocumentDefinition createDocument(String input) throws JsonParseException, IOException {
-
-		JsonFactory f = new MappingJsonFactory();
-		JsonParser jp = f.createParser(input);
-		JsonToken current = jp.nextToken();
-
-		// il documento JSON deve iniziare con {
-		if (current != JsonToken.START_OBJECT) {
-			return null;
-		}
-
-//		String docName = null;
-		List<FieldDefinition> list = new ArrayList<>();
-
-		while (jp.nextToken() != JsonToken.END_OBJECT) {
-			String fieldName = jp.getCurrentName();
-			current = jp.nextToken();
-
-			if (fieldName.equals("name")) {
-				JsonNode n = jp.readValueAsTree();
-//				if (n != null)
-//					docName = n.asText();
-			} else if (fieldName.equals("fields")) {
-				JsonNode node = jp.readValueAsTree();
-
-				for (int i = 0; i < node.size(); i++) {
-					JsonNode name = node.get(i).get("name");
-					JsonNode value = node.get(i).get("value");
-
-					Value v = new SimpleValue();
-
-					if (value.get("type").asText().equals("DOCUMENT"))
-						v = new DocumentValue(createDocument(value.get("value").toString()));
-					else if (value.get("type").asText().equals("ARRAY")) {
-						v = new ArrayValue(createArray(value.get("value")));
-					}
-					else
-						v = getValue(value.get("type").asText(), value);
-
-					/*
-					 * switch (value.get("type").asText()) { case "STRING": v = new
-					 * SimpleValue(value.get("value").asText()); break; case "INTEGER": v = new
-					 * SimpleValue(value.get("value").asLong()); break; case "DATE": Date d = new
-					 * Date(value.get("value").asLong()); v = new SimpleValue(d); break; case
-					 * "DECIMAL": BigDecimal bd = new BigDecimal(value.get("value").asDouble()); v =
-					 * new SimpleValue(bd); break; case "DOCUMENT": System.out.println("VALUE= " +
-					 * value.get("value")); v = new
-					 * DocumentValue(createDocument(value.get("value").toString())); break; }
-					 * /
-					// NOTA: se si utilizza toString() il campo contiene anche le ""
-					// quindi ad esempio se � presente un campo username con toString() risulta
-					// "username" e quindi nel documento viene salvato "username" invece di
-					// username
-					FieldDefinition field = new FieldDefinition(name.asText(), v);
-					list.add(field);
-				}
-			} else {
-				jp.skipChildren();
-			}
-
-		}
-		return new DocumentDefinition(list);
-	}
-*/
-/*
-	private List<Value> createArray(JsonNode value){
-		List<Value> list = new ArrayList<>();
-
-		for (int i = 0; i < value.size(); i++) {
-			Value v = getValue(value.get(i).get("type").asText(), value.get(i));
-			list.add(v);
-		}
-		return list;
-	}
-*/
-/*
-	private Value getValue(String type, JsonNode value) {
-		Value v = null;
-		switch (type) {
-			case "STRING":
-				v = new SimpleValue(value.get("value").asText());
-				break;
-			case "INTEGER":
-				v = new SimpleValue(value.get("value").asLong());
-				break;
-			case "DATE":
-				Date d = new Date(value.get("value").asLong());
-				v = new SimpleValue(d);
-				break;
-			case "DECIMAL":
-				BigDecimal bd = new BigDecimal(value.get("value").asDouble());
-				v = new SimpleValue(bd);
-				break;
-			case "BOOLEAN":
-				v = new SimpleValue(value.get("value").asBoolean());
-				break;
-		}
-		return v;
-	}
-
-*/
 }

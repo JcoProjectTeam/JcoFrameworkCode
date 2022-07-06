@@ -5,7 +5,7 @@ import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.UseDb;
 import jco.ql.parser.model.util.DbName;
 
-public class UseDbCommand implements ICommand{
+public class UseDbCommand implements ICommand {
 	private Instruction instruction = null;
 
 	private List<DbName> list;

@@ -4,11 +4,6 @@ import jco.ql.parser.model.GetCollection;
 import jco.ql.parser.model.Instruction;
 
 public class GetCollectionCommand implements ICommand {
-	public static int UNDEFINED  = -1;
-	public static int DB_TYPE  = 0;
-	public static int URL_QUOTED_TYPE  = 1;
-	public static int URL_APEX_TYPE  = 2;
-
 	private Instruction instruction = null;
 	private int type;
 	private String collectionName = null;

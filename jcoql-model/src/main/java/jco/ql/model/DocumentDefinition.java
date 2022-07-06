@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.DocumentValue;
 import jco.ql.model.value.EValueType;
@@ -21,7 +22,7 @@ import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.util.Field;
 
-public class DocumentDefinition {
+public class DocumentDefinition implements JCOConstants {
 
 	private String name;
 
@@ -201,8 +202,8 @@ public class DocumentDefinition {
 		// ZUN CHECK
 		//rimuovo ID per comodit� perch� in Elasticsearch crea problemi
 		//in realt� non dovrebbe esserci questo pezzo
-//		if(fields.containsKey("_id"))
-//			fields.remove("_id");
+//		if(fields.containsKey(MONGODB_ID_FIELD_NAME))
+//			fields.remove(MONGODB_ID_FIELD_NAME);
 		StringBuffer output = new StringBuffer ("{\n");
 		if (name != null) {
 			output.append("\t\"name\": \"" + name + "\",\n");
@@ -301,8 +302,8 @@ public class DocumentDefinition {
 		Map<String, JCOValue> campi = new TreeMap<>();
 		campi.putAll(fields);
 
-		if(campi.containsKey("_id"))
-			campi.remove("_id");
+		if(campi.containsKey(MONGODB_ID_FIELD_NAME))
+			campi.remove(MONGODB_ID_FIELD_NAME);
 		return campi;
 	}
 

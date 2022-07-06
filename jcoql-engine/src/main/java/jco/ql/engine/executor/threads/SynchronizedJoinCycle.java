@@ -23,7 +23,7 @@ import jco.ql.model.command.JoinCommand;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
 import jco.ql.model.value.DocumentValue;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.JoinCollections;
@@ -91,8 +91,8 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 
 		SpatialFunction onGeometry = command.getOnGeometryCondition();
 		if(onGeometry != null) {
-			GeoJsonValue lGeo = (GeoJsonValue) lDoc.getValue(GEOMETRY_FIELD_NAME);
-			GeoJsonValue rGeo = (GeoJsonValue) rDoc.getValue(GEOMETRY_FIELD_NAME);
+			GeometryValue lGeo = (GeometryValue) lDoc.getValue(GEOMETRY_FIELD_NAME);
+			GeometryValue rGeo = (GeometryValue) rDoc.getValue(GEOMETRY_FIELD_NAME);
 			if (lGeo == null || rGeo == null)
 				return null;
 
@@ -115,7 +115,7 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 			/* SET GEOMETRY */
 			int geometryOperation = command.getSetGeometryOperation();
 			if(geometryOperation != JoinCollections.GEOMETRY_UNDEFINED) {
-				GeoJsonValue outGeo = GeometryEvaluator.evaluate(geometryOperation, lDoc, rDoc);
+				GeometryValue outGeo = GeometryEvaluator.evaluate(geometryOperation, lDoc, rDoc);
 				newDoc.addField(new FieldDefinition(GEOMETRY_FIELD_NAME, outGeo));
 			}
 			
@@ -125,8 +125,8 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 				if (af.getType() ==  AddField.FACTOR_FIELD)
 					v = ExpressionFactorEvaluator.evaluate(af.getFactor(), docPipeline);
 				else {
-					GeoJsonValue lGeo = (GeoJsonValue) lDoc.getValue(GEOMETRY_FIELD_NAME);
-					GeoJsonValue rGeo = (GeoJsonValue) rDoc.getValue(GEOMETRY_FIELD_NAME);
+					GeometryValue lGeo = (GeometryValue) lDoc.getValue(GEOMETRY_FIELD_NAME);
+					GeometryValue rGeo = (GeometryValue) rDoc.getValue(GEOMETRY_FIELD_NAME);
 					if (lGeo != null && rGeo != null) {
 			            Geometry lg = lGeo.getGeometry();
 			            Geometry rg = rGeo.getGeometry();

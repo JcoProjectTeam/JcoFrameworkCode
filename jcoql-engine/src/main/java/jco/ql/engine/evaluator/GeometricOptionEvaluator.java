@@ -20,7 +20,7 @@ import jco.ql.model.FieldDefinition;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.DocumentValue;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.util.GeometricOption;
@@ -50,7 +50,7 @@ public class GeometricOptionEvaluator implements JCOConstants {
 					coordinates[0] = new Coordinate(getCoordinate((SimpleValue)lon), getCoordinate((SimpleValue)lat));
 					CoordinateSequence s = new CoordinateArraySequence(coordinates, 1);
 					Geometry geometry = new Point(s, new GeometryFactory(new PrecisionModel(), 0));
-					fields.add(new FieldDefinition(GEOMETRY_FIELD_NAME, new GeoJsonValue(geometry)));
+					fields.add(new FieldDefinition(GEOMETRY_FIELD_NAME, new GeometryValue(geometry)));
 				}
 			}
 
@@ -58,7 +58,7 @@ public class GeometricOptionEvaluator implements JCOConstants {
 			else if(geometricOption.getType() == GeometricOption.FIELD_REF) {
 				JCOValue g = doc.getValue(geometricOption.fieldRef.toString());
 				if(JCOValue.isDocumentValue(g)) {
-					GeoJsonValue gValue  = new GeoJsonValue(new GeoJSONReader().read(g.toString()));
+					GeometryValue gValue  = new GeometryValue(new GeoJSONReader().read(g.toString()));
 					if (gValue != null)
 						fields.add(new FieldDefinition(GEOMETRY_FIELD_NAME, gValue));
 				}
@@ -77,7 +77,7 @@ public class GeometricOptionEvaluator implements JCOConstants {
 						if(JCOValue.isDocumentValue(value)) {
 							JCOValue gValue = ((DocumentValue) value).getValue(GEOMETRY_FIELD_NAME);
 							if (JCOValue.isGeometryValue(gValue))  {
-								GeoJsonValue gjValue = (GeoJsonValue)gValue;
+								GeometryValue gjValue = (GeometryValue)gValue;
 								listGeometries.add(gjValue.getGeometry());
 							}
 						}
@@ -86,7 +86,7 @@ public class GeometricOptionEvaluator implements JCOConstants {
 					if(!listGeometries.isEmpty()){
 						geometries = listGeometries.toArray(new Geometry[listGeometries.size()]);
 						collection = new GeometryCollection(geometries, new GeometryFactory(new PrecisionModel(), 0));
-						fields.add(new FieldDefinition(GEOMETRY_FIELD_NAME, new GeoJsonValue(collection)));
+						fields.add(new FieldDefinition(GEOMETRY_FIELD_NAME, new GeometryValue(collection)));
 					}
 				}
 			}
@@ -104,7 +104,7 @@ public class GeometricOptionEvaluator implements JCOConstants {
 						if(JCOValue.isDocumentValue(value)) {
 							JCOValue gValue = ((DocumentValue) value).getValue(GEOMETRY_FIELD_NAME);
 							if (JCOValue.isGeometryValue(gValue))  {
-								GeoJsonValue gjValue = (GeoJsonValue)gValue;
+								GeometryValue gjValue = (GeometryValue)gValue;
 								listCoordinate.add(new Coordinate(gjValue.getGeometry().getCentroid().getX(), gjValue.getGeometry().getCentroid().getY()));
 							}
 						}
@@ -114,7 +114,7 @@ public class GeometricOptionEvaluator implements JCOConstants {
 						coordinates = listCoordinate.toArray(new Coordinate[listCoordinate.size()]);
 						CoordinateSequence sequence =  new CoordinateArraySequence(coordinates);
 						lineString = new LineString(sequence, new GeometryFactory(new PrecisionModel(), 0));
-						fields.add(new FieldDefinition(GEOMETRY_FIELD_NAME, new GeoJsonValue(lineString)));
+						fields.add(new FieldDefinition(GEOMETRY_FIELD_NAME, new GeometryValue(lineString)));
 					}
 				}
 			} 

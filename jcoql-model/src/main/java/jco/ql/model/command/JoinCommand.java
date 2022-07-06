@@ -5,13 +5,12 @@ import jco.ql.parser.model.util.AddField;
 import java.util.List;
 
 import jco.ql.model.Case;
-import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.reference.CollectionReference;
 import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.JoinCollections;
 import jco.ql.parser.model.util.SpatialFunction;
 
-public class JoinCommand implements ICommand, JCOConstants {
+public class JoinCommand implements ICommand {
 	private Instruction instruction = null;
 	private CollectionReference leftCollection;
 	private CollectionReference rightCollection;

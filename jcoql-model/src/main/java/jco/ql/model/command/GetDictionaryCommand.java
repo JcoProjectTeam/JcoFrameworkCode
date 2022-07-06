@@ -3,9 +3,7 @@ package jco.ql.model.command;
 import jco.ql.parser.model.GetDictionary;
 import jco.ql.parser.model.Instruction;
 
-// PF. Added on 22.07.2021
 public class GetDictionaryCommand implements ICommand {
-	public static int UNDEFINED  = -1;
 
 	private Instruction instruction = null;
 	private String dbName;	

@@ -9,9 +9,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 
-public class GeoJsonValueSerializer extends StdSerializer<GeoJsonValue>{
+public class GeoJsonValueSerializer extends StdSerializer<GeometryValue>{
 	private static final long serialVersionUID = 1L;
 	private final GeoJSONWriter geoJsonWriter;
 
@@ -25,7 +25,7 @@ public class GeoJsonValueSerializer extends StdSerializer<GeoJsonValue>{
 	}
 
 	@Override
-	public void serialize(GeoJsonValue value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+	public void serialize(GeometryValue value, JsonGenerator gen, SerializerProvider provider) throws IOException {
 		Geometry geometry = geoJsonWriter.write(value.getGeometry());
 		gen.writeStartObject();
 		gen.writeFieldName("type");

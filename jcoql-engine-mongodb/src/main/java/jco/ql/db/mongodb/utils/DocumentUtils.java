@@ -13,13 +13,14 @@ import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.EValueType;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 
 public final class DocumentUtils {
 
 	public static DocumentDefinition mapDocumentDefinitionFromBson(Document bsonDocument) {
-		DocumentDefinition document = new DocumentDefinition(bsonDocument.entrySet().stream()
+		DocumentDefinition document = new DocumentDefinition(bsonDocument.entrySet()
+				.stream()
 				.map(e -> new FieldDefinition(e.getKey(), ValueUtils.fromObject(e.getKey(), e.getValue())))
 				.collect(Collectors.toList()));
 		return document;
@@ -35,10 +36,12 @@ public final class DocumentUtils {
 				if (value != null) {
 					if (value.getType() == EValueType.DOCUMENT) {
 						out.append(f.getName(), bsonFromDocumentDefinition((DocumentDefinition) value.getValue()));
-					} else if (value.getType() == EValueType.ARRAY) {
+					} 
+					else if (value.getType() == EValueType.ARRAY) {
 						out.append(f.getName(), bsonArrayFromArray((ArrayValue) value));
-					} else if (value instanceof GeoJsonValue) {
-						String geojsonString = new GeoJSONWriter().write(((GeoJsonValue) value).getGeometry()).toString();
+					} 
+					else if (value instanceof GeometryValue) {
+						String geojsonString = new GeoJSONWriter().write(((GeometryValue) value).getGeometry()).toString();
 						out.append(f.getName(), Document.parse(geojsonString));
 					} // aggiunta gestione dei numerici:soluzione semplice
 					/**/
@@ -54,19 +57,6 @@ public final class DocumentUtils {
 						out.append(f.getName(), ((Double) value.getValue()));
 					}
 					
-					// aggiunto 5-07-2017
-					/*
-					 * Bisogna poter lavorare con i valori null -> questo è
-					 * fondamentale perchè ci sono 2 casi fondamentalmente: 1)il
-					 * tipo presente nel database non viene riconosciuto dai codec
-					 * di BSON: questo è il caso critico infatti se un certo campo è
-					 * di un tipo diverso da quelli riconosciuti viene salvato come
-					 * NULL ma è sbagliato!!!!!!! BISOGNA implementare i codec. 2)il
-					 * tipo del campo nel JSON è effettivamente null: in questo caso
-					 * va bene che venga riconvertito in null in output
-					 * 
-					 * 
-					 */
 					else if (value.getType() == EValueType.NULL) {
 						out.append(f.getName(), new BsonNull());
 	
@@ -91,7 +81,8 @@ public final class DocumentUtils {
 		return value.getValues().stream().map(v -> {
 			if (v.getType() == EValueType.DOCUMENT) {
 				return bsonFromDocumentDefinition((DocumentDefinition) v.getValue());
-			} else if (v.getType() == EValueType.ARRAY) {
+			} 
+			else if (v.getType() == EValueType.ARRAY) {
 				//return bsonArrayFromArray((ArrayValue) v.getValue());
 				return bsonArrayFromArray(new ArrayValue(ArrayList.class.cast(v.getValue())));
 
@@ -100,10 +91,12 @@ public final class DocumentUtils {
 			else if (v.getType() == EValueType.INTEGER) {
 				//return ((BigDecimal) v.getValue()).intValue();
 				return ((Long)v.getValue());
-			} else if (v.getType().equals(EValueType.DECIMAL)) {
+			} 
+			else if (v.getType().equals(EValueType.DECIMAL)) {
 				//return ((BigDecimal) v.getValue()).doubleValue();
 				return ((Double)v.getValue());
-			}else if (value.getType() == EValueType.NULL) {
+			}
+			else if (value.getType() == EValueType.NULL) {
 				 return new BsonNull();
 			} 
 			/**/

@@ -57,7 +57,7 @@ import jco.ql.db.ds.server.observer.Observer;
 import jco.ql.db.ds.server.service.DataSourceService;
 import jco.ql.db.ds.server.util.DirectoryFileFilter;
 import jco.ql.model.engine.JCOConstants;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 
 /**
@@ -72,12 +72,6 @@ import jco.ql.model.value.JCOValue;
 public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Server.class);
-	
-	//Maximum response message size (20 MB)
-	private static final int MAX_MESSAGE_SIZE = 1024 * 1024 * 20;
-	private static final int MAX_PER_BATCH = 5000;
-	private static final int Default_frequency = 21600000;
-	private static final int Default_update_type = 0;
 	
 	private final Properties settings;
 	private final Properties instanceMetadata;
@@ -94,24 +88,26 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		jsonMapper = new ObjectMapper();
 	}
 	
+	
 	@PostConstruct
 	protected void init() {
 		loadSettings();
 		startupDatabase();
 		initSerializer();
 	}
+
 	
 	private void loadSettings() {
 		try {
 			InputStream fis = new FileInputStream(Paths.get(SETTINGS_CONFIG_PATH, SETTINGS_CONFIG_FILE).toFile());
-			if(fis != null) {
+			if(fis != null) 
 				settings.load(fis);
-			}
 		} catch (IOException e) {
 			logger.error("Error loading settings from the instance.metadata file", e);
 		}
 		
 	}
+	
 	
 	private void startupDatabase() {
 		String dataPath = settings.getProperty(SETTINGS_SERVER_DATA_PATH, "data");
@@ -132,13 +128,15 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		getInstanceMetadata(dataPath);
 	}
 	
+	
 	private void initSerializer() {
 		SimpleModule valueModule = new SimpleModule();
-		valueModule.addSerializer(GeoJsonValue.class, new GeoJsonValueSerializer());
+		valueModule.addSerializer(GeometryValue.class, new GeoJsonValueSerializer());
 		valueModule.addDeserializer(JCOValue.class, new JcoValueDeserializer());
 		jsonMapper.registerModule(valueModule);
 	}
 
+	
 	private void getInstanceMetadata(String dataPath) {
 		File metadataFile = Paths.get(dataPath, INSTANCE_METADATA_FILE).toFile();
 		try {
@@ -157,17 +155,21 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		}
 	}
 
+	
 	private void initDefaultMetadata(Properties metadata) {
 		metadata.putIfAbsent("storage.format", "JSON");
 	}
 
+	
 	public Properties getServerSettings() {
 		return settings;
 	}
 
+	
 	public Properties getInstanceMetadata() {
 		return instanceMetadata;
 	}
+
 	
 	/**
 	 * Create a new database
@@ -191,6 +193,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		return success;
 	}
 
+	
 	/**
 	 * Delete a database
 	 */
@@ -202,32 +205,24 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 			
 			//21-08 ROSSONI ALBERTO
 			//Check if there are dynamic collection whose Observers are still running
-			
 			CollectionsDescriptorManager metadata = GetMetadata(name);
-			for(collectionDescriptor collection:metadata.getAllCollections())        //for every collection inside the database
-			{
-				if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE))
-				{
-					int index = 0;
-					for(Url url: collection.getUrl())                               //for every url inside a dynamic collection
-					{
-						Observer observer = new Observer(name,collection.getName(),url.getUrl(),index);
+			for(collectionDescriptor collection:metadata.getAllCollections()) {     //for every collection inside the database
+				if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE)) {
+					for (int index = 0; index < collection.getUrl().size(); index++) {
+						Url url = collection.getUrl().get(index);                               //for every url inside a dynamic collection
+						Observer observer = new Observer(name, collection.getName(), url.getUrl(), index);
 						if(observer.isRunning())
-						{
 							observer.cancel();
-						}
-						
 					}
-					
 				}
 			}
 			
-			if(databaseDir != null && databaseDir.isDirectory()) {
+			if(databaseDir != null && databaseDir.isDirectory()) 
 				success = deleteDirectory(databaseDir);
-			}
 		}
 		return success;
 	}
+
 	
 	/**
 	 * Delete a directory
@@ -235,10 +230,10 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	 * @return
 	 */
 	private boolean deleteDirectory(File databaseDir) {
-		
 		return deleteDirectoryContent(databaseDir) && databaseDir.delete();
 	}
 
+	
 	/**
 	 * Delete the content of a directory
 	 * @param databaseDir
@@ -259,6 +254,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		return false;
 	}
 
+	
 	/**
 	 * List all the available databases
 	 */
@@ -277,6 +273,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		return databases;
 	}
 	
+	
 	/**
 	 * Check that the database metadata file exists
 	 * @param databaseDir
@@ -285,6 +282,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	private boolean databaseMetadataExists(File databaseDir) {
 		return getDatabaseMetadataFile(databaseDir).exists();
 	}
+
 	
 	/**
 	 * Get the database metadata file
@@ -294,6 +292,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	private File getDatabaseMetadataFile(File databaseDir) {
 		return Paths.get(databaseDir.getAbsolutePath(), DATABASE_METADATA_FILE).toFile();
 	}
+	
 	
 	/**
 	 * Return a file pointing to the directory of a database
@@ -318,30 +317,25 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		return databaseDir;
 	}
 
+	
 	/**
 	 * 21-08 ROSSONI ALBERTO
 	 * List all the collections inside a database with their type according to database.metadata file
 	 */
 	@Override
-	public List<String> listCollections(String database) {
-		
+	public List<String> listCollections(String database) {	
 		checkMetadata(database);
 		CollectionsDescriptorManager metadata = GetMetadata(database);
 		
 		List<String> collections = new LinkedList<>();
-		for(collectionDescriptor k: metadata.collections)
-		{
+		for(collectionDescriptor k: metadata.collections) {
 			if(k != null)
-			{
 				collections.add(k.getName() + " " + k.getType() + "\n");
-			}
-			
 		}
-		
-		
 		return collections;
 	}
 
+	
 	/**
 	 * Check the presence of the collection file inside the database directory
 	 * @param databaseDir
@@ -369,21 +363,16 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	 */
 	@Override
 	public boolean createCollection(String database, String collectionName) {
-		
 		checkMetadata(database);
-		
 		CollectionsDescriptorManager metadata = GetMetadata(database);
-		if(metadata.getCollection(collectionName) == null) {
+		if(metadata.getCollection(collectionName) == null) 
 			return createNewCollection (database, collectionName);
-		}			
 		else {
-			if(metadata.getCollection(collectionName).getType().equals(VIRTUAL_COLLECTION_TYPE))
-			{
+			if(metadata.getCollection(collectionName).getType().equals(VIRTUAL_COLLECTION_TYPE)) {
 				System.out.println("Collection " + collectionName + " already exist and its virtual");
 				return false;				
 			}
-			else
-			{
+			else {
 				deleteCollection(database, collectionName);
 				File collectionFile = getCollectionFile(database, collectionName, true);
 				File collectionIndexFile = getCollectionIndexFile(database, collectionName, true);
@@ -409,79 +398,57 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	/**
 	 * 21-08 ROSSONI ALBERTO
 	 * Create a new Virtual collection in an existing database
-	 */
-	
-	public boolean createVirtualCollection(String database, String collectionName ,List<Url> url)
-	{
+	 */	
+	public boolean createVirtualCollection(String database, String collectionName ,List<Url> url) {
         checkMetadata(database);
-		
 		CollectionsDescriptorManager metadata = GetMetadata(database);
-		if(metadata.getCollection(collectionName) != null)
-		{
-			if(metadata.getCollection(collectionName).getType().equals(VIRTUAL_COLLECTION_TYPE))
-			{
+		if(metadata.getCollection(collectionName) != null) {
+			if(metadata.getCollection(collectionName).getType().equals(VIRTUAL_COLLECTION_TYPE)) {
 				System.out.println("Collection " + collectionName + " already exist and its virtual");
 				return false;
-				
 			}
-			else
-			{
+			else {
 				deleteCollection(database, collectionName);
-				
 				AddCollectionInfo(database,collectionName,url,false);
 				return true;
-				
 			}
 		}
-		else
-		{
-			
+		else {
 			AddCollectionInfo(database,collectionName,url,false);
 			return true;
 		}
-		
 	}
+	
 	
 	/**
 	 * 21-08 ROSSONI ALBERTO
 	 * Create a new Dynamic collection in an existing database
 	 */
-	
-	public boolean createDynamicCollection(String database,String collectionName, List<Url>url)
-	{
+	public boolean createDynamicCollection(String database,String collectionName, List<Url>url) {
         checkMetadata(database);
 		
 		CollectionsDescriptorManager metadata = GetMetadata(database);
-		if(metadata.getCollection(collectionName) != null)
-		{
-			if(metadata.getCollection(collectionName).getType().equals(VIRTUAL_COLLECTION_TYPE)||metadata.getCollection(collectionName).getType().equals(DYNAMIC_COLLECTION_TYPE))
-			{
+		if(metadata.getCollection(collectionName) != null) {
+			if (metadata.getCollection(collectionName).getType().equals(VIRTUAL_COLLECTION_TYPE) ||
+					metadata.getCollection(collectionName).getType().equals(DYNAMIC_COLLECTION_TYPE)) {
 				System.out.println("Collection " + collectionName + " already exist and can't be overwritten");
 				return false;
-				
 			}
-			else
-			{
+			else {
 				deleteCollection(database, collectionName);
 				// PF. 2021.10.20 sembrano inutili
 //				File collectionDir = getCollectionDir(database, collectionName, true);
-				RemoveCollectionInfo(database,collectionName);
-				AddCollectionInfo(database,collectionName,url, true);
-				
+				RemoveCollectionInfo(database, collectionName);
+				AddCollectionInfo(database,collectionName, url, true);
 				return true;
-				
 			}
 		}
-		else
-		{
-			
+		else {
 			// PF. 2021.10.20 sembrano inutili
 //			File collectionDir = getCollectionDir(database, collectionName, true);
-			AddCollectionInfo(database,collectionName,url, true);
-			
+			AddCollectionInfo(database, collectionName, url, true);
 			return true;
 		}
-		
 	}
 	
 	
@@ -490,8 +457,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	 * 21-08 ROSSONI ALBERTO
 	 * Add an url to a collection descriptor (not for static)
 	 */
-	public boolean addUrl(String database,String collectionName,List<Url> url)
-	{
+	public boolean addUrl(String database,String collectionName,List<Url> url) {
 		boolean success = false;
         checkMetadata(database);
         logger.error(collectionName);
@@ -499,79 +465,52 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		CollectionsDescriptorManager metadata = GetMetadata(database);
 		collectionDescriptor collection = metadata.getCollection(collectionName);
 		
-		if(collection != null)
-		{
+		if(collection != null) {
 			if(collection.getType().equals(STATIC_COLLECTION_TYPE))
-			{
 				logger.error("Can't add url to a static collection");
-			}
-			else
-			{
-				for(Url k:url)
-				{
-					
-					
-					if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE))
-					{
-						k.setFrequency(Default_frequency);
-						k.setUpdateType(Default_update_type);
+			else {
+				for(Url k:url) {
+					if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE)) {
+						k.setFrequency(DEFAULT_FREQUENCY);
+						k.setUpdateType(DEFAULT_UPDATE_TYPE);
 						metadata.getCollection(collectionName).addUrl(k);
 						WriteMetadata (database, metadata);
 						createObserver(database, collectionName, metadata.getCollection(collectionName).getUrl().size() - 1);
 					}
-					else
-					{
+					else {
 						metadata.getCollection(collectionName).addUrl(k);
 						WriteMetadata (database, metadata);
 					}
-					
 				}
-				
-					success = true;
-				
-				
+				success = true;
 			}
 		}
-		
-		
 		return success;
 	}
+
 	
 	/**
 	 * 	21-08 ROSSONI ALBERTO
 	 * Remove an url from a virtual or dynamic collection
 	 */
-	
-	public boolean removeUrl(String database,String collectionName, Integer index)
-	{
+	public boolean removeUrl(String database,String collectionName, Integer index) {
 		boolean success = false;
         checkMetadata(database);
 		
 		CollectionsDescriptorManager metadata = GetMetadata(database);
 		collectionDescriptor collection = metadata.getCollection(collectionName);
-		if(collection != null)
-		{
+		if(collection != null) {
 			if(collection.getType().equals(STATIC_COLLECTION_TYPE))
-			{
 				logger.error("Can't remove url from a static collection");
-			}
-			else
-			{
+			else {
 				if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE))
-				{
 					deleteObserver(database,collectionName,index);
-				}
 				
 				metadata.getCollection(collectionName).removeUrl(index);
 				if(WriteMetadata (database, metadata))
-				{
 					success = true;
-				}
-				
 			}
 		}
-		
-		
 		return success;
 	}
 	
@@ -580,56 +519,38 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	 * 21-08 ROSSONI ALBERTO
 	 * Get the list of all the url from virtual and dynamic collection
 	 */
-	public List<String> listUrl(String database,String collectionName)
-	{
+	public List<String> listUrl(String database,String collectionName) {
 		List<String> url;
         checkMetadata(database);
 		
 		CollectionsDescriptorManager metadata = GetMetadata(database);
 		collectionDescriptor collection = metadata.getCollection(collectionName);
 		
-		if(collection != null)
-		{
-			if(collection.getType().equals(STATIC_COLLECTION_TYPE))
-			{
+		if(collection != null) {
+			if(collection.getType().equals(STATIC_COLLECTION_TYPE)) {
 				logger.error("No url avaiable from static collection");
 				return null;
 			}
-			else
-			{
-				 url = new LinkedList<>();
-				
-				
-				
+			else {
+				url = new LinkedList<>();
 				List<Url> list = collection.getUrl();
 				int position = 0;
-				for (Url k: list)
-				{
-					if(k != null)
-					{
+				for (Url k: list) {
+					if(k != null) 
 						url.add(position + " - " + k.getUrl() + "\n");
-					}
-					
 					position++;
 				}
-				
-				
 				return url;	
 			}
-		}
-		
+		}		
 		return null;
-		
-		
-		
 	}
 	
 	
 	/**
 	 * 21-08 ROSSONI ALBERTO
 	 * Set the frequency of update on a specific url of a dynamic collection
-	 */
-	
+	 */	
 	public boolean setFrequency(String database, String collectionName, Integer index , Integer frequency)
 	{
 		logger.error("database " + database);
@@ -642,89 +563,62 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		collectionDescriptor collection = metadata.getCollection(collectionName);
 		boolean success = false;
 		
-		if(collection != null)
-		{
-			
-			if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE))
-			{
+		if(collection != null) {
+			if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE)) {
 				metadata.getCollection(collectionName).getUrl().get(index).setFrequency(frequency);
 				deleteObserver(database,collectionName,index);
 				createObserver(database,collectionName,index);
 				WriteMetadata (database, metadata);
 				success = true;
-				
 			}
 		}
-		
-		
 		return success;
 	}
+
 	
 	/**
 	 * 21-08 ROSSONI ALBERTO 
 	 * Set the type of update on a specific url of a dynamic collection
 	 */
-	
-	public boolean setUpdateType(String database, String collectionName, Integer index, Integer type)
-	{
-		    checkMetadata(database);
-			
-			CollectionsDescriptorManager metadata = GetMetadata(database);
-			collectionDescriptor collection = metadata.getCollection(collectionName);
-			boolean success = false;
-			
-			if(collection != null)
-			{
-				if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE))
-				{
-					metadata.getCollection(collectionName).getUrl().get(index).setUpdateType(type);
-					deleteObserver(database,collectionName,index);
-					createObserver(database,collectionName,index);
-					WriteMetadata (database, metadata);
-					
-					success = true;
-				
-				}
+	public boolean setUpdateType(String database, String collectionName, Integer index, Integer type) {
+	    checkMetadata(database);
+		CollectionsDescriptorManager metadata = GetMetadata(database);
+		collectionDescriptor collection = metadata.getCollection(collectionName);
+		boolean success = false;
+		if(collection != null) {
+			if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE)) {
+				metadata.getCollection(collectionName).getUrl().get(index).setUpdateType(type);
+				deleteObserver(database,collectionName,index);
+				createObserver(database,collectionName,index);
+				WriteMetadata (database, metadata);
+				success = true;
 			}
-			
-			return success;
+		}
+		return success;
 	}
+
 	
 	/**
 	 * 21-08 ROSSONI ALBERTO
 	 * Stop a dynamic collection from updating ever again
 	 */
-	
-	public boolean stopUpdate(String database,String collectionName)
-	{
+	public boolean stopUpdate(String database,String collectionName) {
 		checkMetadata(database);
 		
 		CollectionsDescriptorManager metadata = GetMetadata(database);
 		collectionDescriptor collection = metadata.getCollection(collectionName);
 		boolean success = false;
 		
-		if(collection != null)
-		{
-			if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE))
-			{
-				int index = 0;
-				
-				for(Url url:collection.getUrl())
-				{
+		if(collection != null) {
+			if(collection.getType().equals(DYNAMIC_COLLECTION_TYPE)) {
+				for (int index = 0; index < collection.getUrl().size(); index++) {
+					Url url = collection.getUrl().get(index);
 					if(url != null)
-					{
 						deleteObserver(database, collectionName, index);
-					}
-					
-					index++;
 				}
-				
 				success = true;
-				
 			}
 		}
-		
-		
 		return success;
 	}
 	
@@ -745,22 +639,18 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		CollectionsDescriptorManager metadata = GetMetadata(database);
 		collectionDescriptor collection = metadata.getCollection(collectionName);
 		
-		if(collection.getType().equals(STATIC_COLLECTION_TYPE))
-		{
+		if(collection.getType().equals(STATIC_COLLECTION_TYPE)) {
 			if(collectionDir != null && collectionDir.isDirectory()) {
 				RemoveCollectionInfo(database,collectionName);
 				return success = deleteDirectory(collectionDir);
 			}
 		}
-		else
-		{
-			if(collection.getType().equals(VIRTUAL_COLLECTION_TYPE))
-			{
+		else {
+			if(collection.getType().equals(VIRTUAL_COLLECTION_TYPE)) {
 				RemoveCollectionInfo(database,collectionName);
 				success = true;
 			}
-			else
-			{
+			else {
 				if(collectionDir != null && collectionDir.isDirectory()) {
 					stopUpdate(database,collectionName);
 					RemoveCollectionInfo(database,collectionName);
@@ -768,10 +658,9 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 				}
 			}
 		}
-		
-		
 		return success;
 	}
+
 	
 	/**
 	 * Retrieve the collection file
@@ -782,9 +671,9 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	 */
 	private File getCollectionFile(String database, String collectionName, boolean create) {
 		File collectionDir = getCollectionDir(database, collectionName, create);
-		if(collectionDir == null || !collectionDir.exists() || !collectionDir.isDirectory()) {
+		if(collectionDir == null || !collectionDir.exists() || !collectionDir.isDirectory()) 
 			collectionDir.mkdirs();
-		}
+
 		File collectionFile = Paths.get(collectionDir.getAbsolutePath(), COLLECTION_FILE).toFile();
 		if(!collectionFile.exists() &&  create) {
 			try {
@@ -796,6 +685,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		return collectionFile;
 	}
 
+	
 	/**
 	 * Retrieve the collection index file
 	 * @param database
@@ -805,9 +695,9 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	 */
 	private File getCollectionIndexFile(String database, String collectionName, boolean create) {
 		File collectionDir = getCollectionDir(database, collectionName, create);
-		if(collectionDir == null || !collectionDir.exists() || !collectionDir.isDirectory()) {
+		if(collectionDir == null || !collectionDir.exists() || !collectionDir.isDirectory()) 
 			collectionDir.mkdirs();
-		}
+
 		File collectionFile = Paths.get(collectionDir.getAbsolutePath(), COLLECTION_INDEX_FILE).toFile();
 		if(!collectionFile.exists() &&  create) {
 			try {
@@ -819,6 +709,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		return collectionFile;
 	}
 
+	
 	/**
 	 * Get the directory of a collection
 	 * @param database
@@ -830,6 +721,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		return Paths.get(getDatabaseDirectory(database, create).getAbsolutePath(), collectionName).toFile();
 	}
 
+	
 	/**
 	 * Get the content of an existing collection 
 	 */
@@ -837,6 +729,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	public CollectionWrapper getCollection(String database, String collection) {
 		return getCollection(database, collection, -1, 0, null);
 	}
+	
 	
 	/**
 	 * 21-08 ROSSONI ALBERTO
@@ -846,57 +739,38 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	 */
 	@Override
 	public CollectionWrapper getCollection(String database, String collection, Integer limit, Integer offset, Integer batchSize) {
-		
         checkMetadata(database);
 		CollectionsDescriptorManager metadata = GetMetadata(database);
 		
-		if(metadata.getCollection(collection).getType().equals(VIRTUAL_COLLECTION_TYPE))
-		{
+		if(metadata.getCollection(collection).getType().equals(VIRTUAL_COLLECTION_TYPE)) {
 			CollectionWrapper collectionWrapper = null;;
-			try
-			{
-			List<Url> list = GetMetadata(database).getCollection(collection).getUrl();
-			String buffer;
-			List<Map<String, Object>> documents = new LinkedList<>();
-			for(Url k: list)
-			{
-			
-				if(k != null)
-				{
-					
-					buffer = getCollectionFromWeb(k.getUrl());
-					
-					Map<String, Object> jsonDocument = jsonMapper.readValue(buffer, new TypeReference<Map<String, Object>>() {});
-					documents.add(jsonDocument);
-					
-					
+			try {
+				List<Url> list = GetMetadata(database).getCollection(collection).getUrl();
+				String buffer;
+				List<Map<String, Object>> documents = new LinkedList<>();
+				for(Url k: list) {
+					if(k != null) {
+						buffer = getCollectionFromWeb(k.getUrl());
+						Map<String, Object> jsonDocument = jsonMapper.readValue(buffer, new TypeReference<Map<String, Object>>() {});
+						documents.add(jsonDocument);
+					}
 				}
-					
-			}
 				collectionWrapper = new CollectionWrapper(documents, 0, true, 0,0);
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				logger.error("Impossible to deserialize collection from file", e);
-		}
-			
+			}
 			return collectionWrapper;
 		}
-		else
-		{
+		else {
 			if(metadata.getCollection(collection).getType().equals(STATIC_COLLECTION_TYPE))
-				{
 				return GetCollectionFromFile( database, collection, limit, offset, batchSize);
-				}
-			else
-			{
+			else {
 				int index = 0;
 				CollectionWrapper collectionWrapper = null;;
 				List<Map<String, Object>> documents = new LinkedList<>();
 				
 // PF. 2021.10.20 why the cycle?			ZUN CHECK
-				for(Url url: metadata.getCollection(collection).getUrl())
-				{
-					
+				for(Url url: metadata.getCollection(collection).getUrl()) {
 					File collectionDir = getCollectionDir(database, collection, false);
 					File collectionFile = Paths.get(collectionDir.getAbsolutePath(), "collection" + index + ".data").toFile();
 					File collectionIndexFile = Paths.get(collectionDir.getAbsolutePath(), "collection" + index + ".idx").toFile();
@@ -941,12 +815,11 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 								size += documentSize;
 								
 								//Check limits
-								if(size > MAX_MESSAGE_SIZE) {
+								if(size > MAX_MESSAGE_SIZE) 
 									break;
-								}
-								if(count >= maxPerBatch) {
+
+								if(count >= maxPerBatch) 
 									break;
-								}
 								
 								//Check next document position and size
 								if(remaining > 0) {
@@ -960,10 +833,8 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 							collectionStream.close();
 							collectionIndexStream.close();
 
-							if(index == (metadata.getCollection(collection).getUrl().size() - 1))
-							{
+							if(index == (metadata.getCollection(collection).getUrl().size() - 1)) 
 								collectionWrapper = new CollectionWrapper(documents, count, remaining <= 0, remaining, offset + count);
-							}
 							
 							index++;
 							
@@ -974,13 +845,8 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 				}
 				
 				return collectionWrapper;
-				
 			}
-			
 		}
-		
-		
-		
 	}
 
 	
@@ -1034,12 +900,11 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 					size += documentSize;
 					
 					//Check limits
-					if(size > MAX_MESSAGE_SIZE) {
+					if(size > MAX_MESSAGE_SIZE) 
 						break;
-					}
-					if(count >= maxPerBatch) {
+
+					if(count >= maxPerBatch) 
 						break;
-					}
 					
 					//Check next document position and size
 					if(remaining > 0) {
@@ -1075,11 +940,12 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 			System.out.println("###### ################################ ##########");
 			System.out.println("###### HO INSERITO UNA NUOVA COLLEZIONE ##########");
 			System.out.println("###### ################################ ##########");
-			return createNewCollection (database, collection);
+// ZUN CHECK
+			createNewCollection (database, collection);
+			metadata = GetMetadata(database);
 		}			
 		
-		if((metadata.getCollection(collection).getType().equals(STATIC_COLLECTION_TYPE)))
-	    {
+		if((metadata.getCollection(collection).getType().equals(STATIC_COLLECTION_TYPE))) {
 			boolean success = false;
 			File collectionFile = getCollectionFile(database, collection, true);
 			File indexFile = getCollectionIndexFile(database, collection, true);
@@ -1103,6 +969,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 						fis.close();
 						objOffset = bytesToLong(offsetBytes) + bytesToInt(sizeBytes);
 					}
+
 					for(Map<String, Object> d : documents) {
 						try {
 							byte[] objBytes = jsonMapper.writeValueAsBytes(d);
@@ -1118,7 +985,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 						} catch (IOException e) {
 							logger.error("Impossible to serialize document to JSON", e);
 						}
-					};
+					}
 					collectionFileStream.flush();
 					collectionFileStream.close();
 					indexFileStream.flush();
@@ -1132,16 +999,13 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 			}
 			return success;
 	    }
-		else
-		{
+		else {
 			logger.error("Can't save over a virtual or dynamic collection");
 			return false;
 		}
-		
-		
-		
 	}
 
+	
 	/**
 	 * Write the index record for a document
 	 * @param indexFileStream
@@ -1156,6 +1020,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		indexFileStream.write(intToBytes);
 	}
 
+	
 	/**
 	 * Convert a byte array to long
 	 * @param bytes
@@ -1172,6 +1037,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	           ((bytes[7] & 0xFF) << 0 );
 	}
 
+	
 	/**
 	 * Convert a byte array to int
 	 * @param bytes
@@ -1184,6 +1050,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	           ((bytes[3] & 0xFF) << 0 );
 	}
 
+	
 	/**
 	 * Convert a long to byte array
 	 * @param objOffset
@@ -1202,6 +1069,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		};
 	}
 
+	
 	/**
 	 * Convert an int to byte array
 	 * @param objOffset
@@ -1216,63 +1084,37 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		};
 	}
 	
+	
 	/**
 	 * 21-08 ROSSONI ALBERTO
 	 * Only works with static collections
 	 */
-
 	@Override
 	public Long getCollectionCount(String database, String collection) {
-		
 		CollectionsDescriptorManager metadata = GetMetadata(database);
-		
-		
-		if(metadata.getCollection(collection).getType().equals(STATIC_COLLECTION_TYPE))
-		{
-			long count = 0;
+		long count = 0;
+		if(metadata.getCollection(collection).getType().equals(STATIC_COLLECTION_TYPE)) {
 			File collectionIndexFile = getCollectionIndexFile(database, collection, false);
-			if(collectionIndexFile != null) {
+			if(collectionIndexFile != null) 
 				count = collectionIndexFile.length() / (Long.BYTES + Integer.BYTES);
-			}
-			return count;
 		}
-		else
-		{
-			return (long) 0;
-		}
-		
+
+		return count;
 	}
 	
-	
-	
-	
-	
-	
-	
+
 	/**
 	 * 21-08 ROSSONI ALBERTO
 	 * List of methods to support the implementation of json-descripted collection
 	 */
-	
-	
-	
-	
-	
-	
+
 	/**
 	 * Get a database.metadata file converted into CollectionsDescriptorManager class
 	 */
-	
-	private CollectionsDescriptorManager GetMetadata(String name) 
-	{
-		
-		
+	private CollectionsDescriptorManager GetMetadata(String name)  {
 		File databaseDir = getDatabaseDirectory(name, true);
 		File metadata = getDatabaseMetadataFile(databaseDir); 
-		
 		CollectionsDescriptorManager collectionsInfo = new CollectionsDescriptorManager();
-
-	    
 	    Gson gson = new Gson();
 	    String json = "{}";
 	   
@@ -1282,23 +1124,18 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
 		collectionsInfo = gson.fromJson(json, CollectionsDescriptorManager.class);
-		
 		return collectionsInfo;
 	}
 
+	
 	/**
 	 * Overwrite a database.metadata file with an associated CollectionsDescriptorManager class
 	 */
-	private boolean WriteMetadata (String databaseName, CollectionsDescriptorManager collectionsInfo) 
-	{
+	private boolean WriteMetadata (String databaseName, CollectionsDescriptorManager collectionsInfo)  {
 		boolean success = false;
 		File databaseDir = getDatabaseDirectory(databaseName, true);
 		File metadata = getDatabaseMetadataFile(databaseDir); 
-
-		
 		FileWriter Writer;
 		Gson gson = new Gson();
 		String string = gson.toJson(collectionsInfo);
@@ -1310,56 +1147,42 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		return success;
 	}
 
+	
 	/**
 	 * Add a new collection to a database.metadata file
 	 */
-
-	private void AddCollectionInfo(String databaseName, String collectionName,List<Url> url, boolean dynamic) 
-	{
-
-		
+	private void AddCollectionInfo(String databaseName, String collectionName,List<Url> url, boolean dynamic) {
 		CollectionsDescriptorManager metadata = null;
 		collectionDescriptor collection = new collectionDescriptor();
 		metadata = GetMetadata(databaseName);
 		
-		if(url == null)
-		{
+		if(url == null) {
 			collection.setName(collectionName);
 			collection.setType(STATIC_COLLECTION_TYPE);
-
 		}
-		else
-		{
-			
-			if(!dynamic)
-			{
+		else {
+			if(!dynamic) {
 				collection.setName(collectionName);
 				collection.setType(VIRTUAL_COLLECTION_TYPE);
 				collection.initializeUrl();
 				
 				List<Url> list = new ArrayList<Url>();
-				for(Url k : url)
-				{
+				for(Url k : url) 
 					list.add(k);
-				}
 				
 				collection.setUrl(list);
-				
 			}
-			else
-			{
+			else {
 				collection.setName(collectionName);
 				collection.setType(DYNAMIC_COLLECTION_TYPE);
 				collection.initializeUrl();
 				
 				List<Url> list = new ArrayList<Url>();
-				for(Url k : url)
-				{
-					k.setFrequency(Default_frequency); //default frequency equals to 6 hours
+				for(Url k : url) {
+					k.setFrequency(DEFAULT_FREQUENCY); //default frequency equals to 6 hours
 					k.setUpdateType(0); //default type of update into the collection directory (append)
 					list.add(k);
 				}
@@ -1371,53 +1194,38 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		metadata.addCollection(collection);
 		WriteMetadata(databaseName,metadata);
 		
-		if(dynamic)
-		{
-			
+		if(dynamic) {
 			int i=0;
 // PF. 2021.10.20 why the cycle?	ZUN CHECK
-			for(Url k: collection.getUrl())
-			{
-				createObserver(databaseName,collectionName,i);
+			for(Url k: collection.getUrl()) {
+				createObserver(databaseName, collectionName, i);
 				i++;
 			}
-			
 		}
-
 	}
 
 	
 	/**
 	 * Remove a collection from a database.metadata file
-	 */
-	
-	private void RemoveCollectionInfo(String databaseName, String collectionName)  
-	{
+	 */	
+	private void RemoveCollectionInfo(String databaseName, String collectionName)  {
 		CollectionsDescriptorManager collectionsInfo = GetMetadata(databaseName);
-		if(collectionsInfo.getCollection(collectionName).getType().equals(DYNAMIC_COLLECTION_TYPE))
-		{
+		if(collectionsInfo.getCollection(collectionName).getType().equals(DYNAMIC_COLLECTION_TYPE)) {
 			List<Url> list = collectionsInfo.getCollection(collectionName).getUrl();
 			int i = 0;
 			// PF. 2021.10.20 why the cycle? and i?  ZUN CHECK
-			for(Url k: list)
-			{
+			for(Url k: list) 
 				deleteObserver(databaseName,collectionName,i);
-			}
 		}
 		collectionsInfo.removeCollection(collectionName);
 		WriteMetadata(databaseName,collectionsInfo);
-		
-		
-
 	}
 	
 	
 	/**
 	 * Initialize an empty database.metadata file
 	 */
-	private void initializeMetadata(String name) throws IOException, URISyntaxException
-	{
-		
+	private void initializeMetadata(String name) throws IOException, URISyntaxException {
 		CollectionsDescriptorManager collectionsInfo = new CollectionsDescriptorManager();
 		collectionsInfo.setdatabaseName(name);
 		WriteMetadata(name, collectionsInfo);
@@ -1427,40 +1235,30 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	/**
 	 * Check if the collections inside the database matches the collections described into database.metadata file
 	 */
-	private void checkMetadata(String name) 
-	{
+	private void checkMetadata(String name) {
 		File databaseDir = getDatabaseDirectory(name, true);
 		File metadata = getDatabaseMetadataFile(databaseDir); 
-		
-		
-		
-			if(metadata.length() == 0)
-			{
-				try {
-					initializeMetadata(name);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-				
-				CollectionsDescriptorManager descriptor = GetMetadata(name);
-				for(File file : databaseDir.listFiles())
-				{
-					if(file.isDirectory())
-					{
-						collectionDescriptor newCollection = new collectionDescriptor();
-						newCollection.setName(file.getName());
-						newCollection.setType(STATIC_COLLECTION_TYPE);
-						descriptor.addCollection(newCollection);
-					}
-				}
-				
-					WriteMetadata(name,descriptor);
-				
+
+		if(metadata.length() == 0) {
+			try {
+				initializeMetadata(name);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
 			}
-		
-		
+			
+			CollectionsDescriptorManager descriptor = GetMetadata(name);
+			for(File file : databaseDir.listFiles()) {
+				if(file.isDirectory()) {
+					collectionDescriptor newCollection = new collectionDescriptor();
+					newCollection.setName(file.getName());
+					newCollection.setType(STATIC_COLLECTION_TYPE);
+					descriptor.addCollection(newCollection);
+				}
+			}
+			boolean b = WriteMetadata(name,descriptor);
+		}
 	}
 
 	
@@ -1475,54 +1273,51 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	        urlSt = urlSt.replace(">", "%3E");
 	        urlSt = urlSt.replace("<", "%3C");
 	        
-	            RequestConfig config = RequestConfig.custom()
-	            		.setConnectTimeout(timeout)
-	            		.setConnectionRequestTimeout(timeout)
-	            		.setSocketTimeout(timeout).build();
-	            CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
+            RequestConfig config = RequestConfig.custom()
+            		.setConnectTimeout(timeout)
+            		.setConnectionRequestTimeout(timeout)
+            		.setSocketTimeout(timeout).build();
+            CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
 
-	            HttpGet request = new HttpGet(urlSt);
+            HttpGet request = new HttpGet(urlSt);
 
-	            // add request header
-	            String USER_AGENT = "Mozilla/5.0";
-	            request.addHeader("User-Agent", USER_AGENT);
+            // add request header
+            String USER_AGENT = "Mozilla/5.0";
+            request.addHeader("User-Agent", USER_AGENT);
 
-	            HttpResponse response;
-				try {
-					response = client.execute(request);
-					 
-		            String strCurrentLine;
-		            StringBuffer outStBuf = new StringBuffer();
-		            // reading from url
-		            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-		            while ((strCurrentLine = rd.readLine()) != null) {
-		            	outStBuf.append(strCurrentLine+"\n");
-		            }
-		            
-		        	SimpleDateFormat formatter= new SimpleDateFormat(JCOConstants.DATE_FORMAT_EXT);
-		        	Date date = new Date(System.currentTimeMillis());
-		        	String dateSt = formatter.format(date);
-		        	String prefix = "{ \"" + JCOConstants.TIMESTAMP_FIELD_NAME + "\" : \"" + dateSt + "\", " +
-		        					" \"" + JCOConstants.URL_FIELD_NAME + "\" : \"" + urlSt.replace("\"", "\\\"") + "\", " +
-		        					" \"" + JCOConstants.DATA_FIELD_NAME + "\" : ";
-		        	outStBuf.insert(0, prefix);
-		            outStBuf.append(" }");
-		            
-		            outSt = outStBuf.toString().trim();
+            HttpResponse response;
+			try {
+				response = client.execute(request);
+				 
+	            String strCurrentLine;
+	            StringBuffer outStBuf = new StringBuffer();
+	            // reading from url
+	            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+	            while ((strCurrentLine = rd.readLine()) != null) 
+	            	outStBuf.append(strCurrentLine+"\n");
+	            
+	        	SimpleDateFormat formatter= new SimpleDateFormat(JCOConstants.DATE_FORMAT_EXT);
+	        	Date date = new Date(System.currentTimeMillis());
+	        	String dateSt = formatter.format(date);
+	        	String prefix = "{ \"" + JCOConstants.TIMESTAMP_FIELD_NAME + "\" : \"" + dateSt + "\", " +
+	        					" \"" + JCOConstants.URL_FIELD_NAME + "\" : \"" + urlSt.replace("\"", "\\\"") + "\", " +
+	        					" \"" + JCOConstants.DATA_FIELD_NAME + "\" : ";
+	        	outStBuf.insert(0, prefix);
+	            outStBuf.append(" }");
+	            
+	            outSt = outStBuf.toString().trim();
 
-				} catch (ClientProtocolException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} // conn= response
-	           
-		    	
-	            if(outSt == null)
-	            {
-	            	outSt = "{}";
-	            }
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} // conn= response
+           
+	    	
+            if(outSt == null)
+            	outSt = "{}";
 
-				return outSt;
+			return outSt;
 	    }
 	
 	 
@@ -1531,10 +1326,7 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	  * 21-08 ROSSONI ALBERTO
 	  * Initialize a thread which automaticaly get resources from its associated url, with its specific frequency of update
 	  */
-
-
-	 private void createObserver(String database, String collectionName, Integer index)
-	 {
+	 private void createObserver(String database, String collectionName, Integer index) {
 		 Timer timer = new Timer();
 		 
 		 CollectionsDescriptorManager metadata = GetMetadata(database);
@@ -1544,18 +1336,8 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 		 Integer frequency = UrlClass.getFrequency();
 // PF. 2021.10.20 pare inutile
 //		 Integer type = UrlClass.getUpdateType();
-		 
-		 
-		 TimerTask task = new Observer(database, collectionName, url,index);
-		 
-		
-		 
-		 timer.schedule(task, frequency, frequency);
-			 
-			 
-		 
-		 
-		 
+		 TimerTask task = new Observer(database, collectionName, url, index);
+		 timer.schedule(task, 1, frequency);
 	 }
 	 
 	 
@@ -1563,39 +1345,14 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	  * 21-08 ROSSONI ALBERTO	
 	  * Cancel the thread associated with a specific url inside a dynamic collection
 	  */
-	 
-	 
-	 
-	 private void deleteObserver(String database, String collectionName, Integer index)
-	 {
+	 // ZUN CHECK... perche' una new Observer????
+	 private void deleteObserver(String database, String collectionName, Integer index) {
 		 CollectionsDescriptorManager metadata = GetMetadata(database);
-		 Observer task = new Observer(database,collectionName,metadata.getCollection(collectionName).getUrl().get(index).getUrl(),index);
+		 Observer task = new Observer(database, collectionName, 
+				 						metadata.getCollection(collectionName).getUrl().get(index).getUrl(), 
+				 						index);
 		 
 		 if(task.isRunning())
-		 {
 			 task.cancel();
-		 }
-		 
-		 
-		 
-	     
-		 
 	 }
-	 
-	 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

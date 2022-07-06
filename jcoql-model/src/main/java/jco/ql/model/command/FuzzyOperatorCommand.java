@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jco.ql.model.PointDefinition;
-import jco.ql.model.engine.JCOConstants;
 import jco.ql.parser.model.FuzzyOperator;
 import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.condition.Condition;
@@ -12,7 +11,7 @@ import jco.ql.parser.model.fuzzy.FuzzyPoint;
 import jco.ql.parser.model.predicate.Expression;
 import jco.ql.parser.model.util.Parameter;
 
-public class FuzzyOperatorCommand implements ICommand, JCOConstants {
+public class FuzzyOperatorCommand implements ICommand {
 	private Instruction instruction = null;
     private String fuzzyOperatorName;
     private List<Parameter> parameters;

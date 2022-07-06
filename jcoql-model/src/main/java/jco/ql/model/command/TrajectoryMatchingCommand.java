@@ -7,7 +7,7 @@ import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.TrajectoryMatching;
 import jco.ql.parser.model.util.TrajectoryPartition;
 
-public class TrajectoryMatchingCommand implements ICommand{
+public class TrajectoryMatchingCommand implements ICommand {
 	private Instruction instruction = null;
 	private CollectionReference targetCollection;
 	private CollectionReference inputCollection;

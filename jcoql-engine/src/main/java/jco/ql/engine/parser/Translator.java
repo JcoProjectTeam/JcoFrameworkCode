@@ -3,6 +3,7 @@ package jco.ql.engine.parser;
 import jco.ql.model.command.ExpandCommand;
 import jco.ql.model.command.FilterCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
+import jco.ql.model.command.LookupFromWebCommand;
 import jco.ql.model.command.GetCollectionCommand;
 import jco.ql.model.command.GetDictionaryCommand;
 import jco.ql.model.command.GroupCommand;
@@ -19,6 +20,7 @@ import jco.ql.model.engine.JCOConstants;
 import jco.ql.parser.model.Expand;
 import jco.ql.parser.model.Filter;
 import jco.ql.parser.model.FuzzyOperator;
+import jco.ql.parser.model.LookupFromWeb;
 import jco.ql.parser.model.GetCollection;
 import jco.ql.parser.model.GetDictionary;
 import jco.ql.parser.model.Group;
@@ -91,6 +93,10 @@ public class Translator implements JCOConstants {
 		else if(instr instanceof GetDictionary) {
 			GetDictionary gd = (GetDictionary) instr;
 			return new GetDictionaryCommand (gd);
+		}
+		else if(instr instanceof LookupFromWeb) {
+			LookupFromWeb gfw = (LookupFromWeb) instr;
+			return new LookupFromWebCommand (gfw);
 		}
 
 		return null;

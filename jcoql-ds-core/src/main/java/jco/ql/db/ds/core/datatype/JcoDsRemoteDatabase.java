@@ -23,7 +23,8 @@ import jco.ql.db.ds.core.message.request.SaveCollectionMessage;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.IDatabase;
 import jco.ql.model.engine.IDocumentCollection;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.engine.JMH;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 
 public class JcoDsRemoteDatabase implements IDatabase {
@@ -46,7 +47,7 @@ public class JcoDsRemoteDatabase implements IDatabase {
 
 	private void initDeserializer() {
 		SimpleModule valueModule = new SimpleModule();
-		valueModule.addSerializer(GeoJsonValue.class, new GeoJsonValueSerializer());
+		valueModule.addSerializer(GeometryValue.class, new GeoJsonValueSerializer());
 		valueModule.addDeserializer(JCOValue.class, new JcoValueDeserializer());
 		jsonMapper.registerModule(valueModule);
 	}
@@ -96,6 +97,7 @@ public class JcoDsRemoteDatabase implements IDatabase {
 			os.close();
 		} catch (IOException e) {
 			logger.error("Error while retrieving document collection " + name, e);
+			JMH.addExceptionMessage("Error while retrieving document collection " + name + "\n" +e.getMessage());
 		}
 		return collection;
 	}
@@ -156,6 +158,7 @@ public class JcoDsRemoteDatabase implements IDatabase {
 			os.close();
 		} catch (IOException e) {
 			logger.error("Error while saving document collection " + collection.getName(), e);
+			JMH.addExceptionMessage("Error while saving document collection " + collection.getName() + "\n" + e.getMessage());
 		}
 		return success;
 	}

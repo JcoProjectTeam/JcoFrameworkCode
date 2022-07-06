@@ -9,66 +9,51 @@ import java.util.List;
 public class CollectionsDescriptorManager extends CollectionsDescriptor{
 
 	 public List<collectionDescriptor> getAllCollections() {
-	        return collections;
-	    }
+        return collections;
+    }
 
-	    public collectionDescriptor getCollection(String collectionName)
-	    {
+    public collectionDescriptor getCollection(String collectionName)
+    {
 // PF. 2021.10.20 sembrano inutili	    	
 //	        int index = 0;
 //	        boolean exist = false;
 
-	        
-	        	for(collectionDescriptor k: collections)
-		        {
-	        		if(k != null)
-	        		{
-	        			if(k.getName().equals(collectionName))
-			            {
-			                return k;
-			             
-			            }
-	        		}
-		     
-		        }
-	        
-	        
-	            	return null;
-	            
-	       
-	    }
+        
+    	for(collectionDescriptor k: collections) {
+    		if(k != null) 
+    			if(k.getName().equals(collectionName)) 
+	                return k;
+        }
+    	return null;
+    }
 
-	    public void setCollections(List<collectionDescriptor> collections) {
-	        this.collections = collections;
-	    }
-	    
-	    public void addCollection(collectionDescriptor collection)  {  collections.add(collection);  }
-	    
-	    public void removeCollection(String collectionName)
-	    {
-	        int index = 0;
-	        boolean exist = false;
-	        
-	        for(collectionDescriptor k: collections)
-	        {
-	        	if(k != null)
-        		{
-	              if(k.getName().equals(collectionName))
-	              {
-	                exist = true;
-	                break;
-	              }
-        		}
-	            index++;
-	        }
-	        
-	        if(exist)
-	        {
-	            collections.set(index,null);
-	        }
-	    }
-
+    
+    public void setCollections(List<collectionDescriptor> collections) {
+        this.collections = collections;
+    }
 	
+    
+    public void addCollection(collectionDescriptor collection)  {  
+    	collections.add(collection);  
+    }
+    
+    public void removeCollection(String collectionName){
+        int index = 0;
+        boolean exist = false;
+        
+        for(collectionDescriptor k: collections) {
+        	if(k != null) {
+				if(k.getName().equals(collectionName)) {
+					exist = true;
+					break;
+				}
+    		}
+            index++;
+        }
+        
+        if(exist)
+            collections.set(index, null);
+    }
 	
 }
 

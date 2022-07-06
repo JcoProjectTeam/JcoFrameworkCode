@@ -19,7 +19,6 @@ import jco.ql.model.engine.IDocumentCollection;
 public class MongoDbDatabase implements IDatabase {
 
 	private String dbname;
-	//private MongoDatabase mongoDatabase;
 	private String host;
 	private int port;
 
@@ -27,12 +26,10 @@ public class MongoDbDatabase implements IDatabase {
 
 	public MongoDbDatabase(MongoDatabase mongoDatabase) {
 		this.dbname = "";
-		//this.mongoDatabase = mongoDatabase;
 	}
 
 	public MongoDbDatabase(MongoClient client, String databaseName) {
 		this.dbname = databaseName;
-		//this.mongoDatabase = client.getDatabase(databaseName);
 	}
 
 	public MongoDbDatabase(String host, int port, String dbname) {
@@ -64,15 +61,6 @@ public class MongoDbDatabase implements IDatabase {
 
 	public void addCollection(IDocumentCollection collection, String collectionName) {
 
-		//MongoClient client = new MongoClient(host, port);
-		// timeout is default 30 s (30000)
-		//MongoClientOptions.Builder optionsBuilder = MongoClientOptions.builder();
-
-		/*optionsBuilder.connectTimeout(400000);
-		optionsBuilder.socketTimeout(400000);
-		optionsBuilder.serverSelectionTimeout(400000);
-		*/
-		//MongoClientOptions options = optionsBuilder.build();
 		MongoClient client = new MongoClient(new ServerAddress(host , port),MongoClientOptions.builder()
                 .socketTimeout(30000000)
                 .minHeartbeatFrequency(25)
@@ -88,11 +76,6 @@ public class MongoDbDatabase implements IDatabase {
 		}
 
 		mongoDatabase.createCollection(collectionName);
-		// coll = mongoDatabase.getCollection(collectionName);
-		// coll.insertMany(collection.getDocuments()
-		// .parallelStream()
-		// .map(DocumentUtils::bsonFromDocumentDefinition)
-		// .collect(Collectors.toList()));
 
 		List<DocumentDefinition> docs = collection.getDocumentList();
 
@@ -108,8 +91,8 @@ public class MongoDbDatabase implements IDatabase {
 
 			/*
 			 * Algoritmo per l'inserimento dei json nel database L'inserimento
-			 * viene fatto a lotti perchè è più efficiente nell'inserimento di
-			 * collezioni composte da molti oggetti e contemporaneamente è più
+			 * viene fatto a lotti perche' e' piu' � efficiente nell'inserimento di
+			 * collezioni composte da molti oggetti e contemporaneamente e' piu'
 			 * veloce rispetto al semplice inserimento singolo dato da un ciclo
 			 * for
 			 */
@@ -133,15 +116,6 @@ public class MongoDbDatabase implements IDatabase {
 		}
 
 		client.close();
-		// if(docs == null || docs.isEmpty())
-		// System.out.println("WARNING: Out collection is empty");
-		//
-		// for (DocumentDefinition doc : docs) {
-		// coll.insertOne(DocumentUtils.bsonFromDocumentDefinition(doc));
-		//
-		//
-		// }
-
 	}
 
 }

@@ -8,7 +8,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class Server {
 
 	public static void main(String[] args) {
-		
 		SpringApplication application = new SpringApplicationBuilder(Server.class)
 				.properties("spring.config.name=settings")
 				.properties("spring.config.location=config/")

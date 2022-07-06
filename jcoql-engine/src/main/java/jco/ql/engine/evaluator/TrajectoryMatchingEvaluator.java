@@ -11,7 +11,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 
 public class TrajectoryMatchingEvaluator {
 	
@@ -55,7 +55,7 @@ public class TrajectoryMatchingEvaluator {
 
 	
 	/*
-	 * public boolean checkBBdistance(GeoJsonValue tv, GeoJsonValue iv) { // create
+	 * public boolean checkBBdistance(GeometricValue tv, GeometricValue iv) { // create
 	 * bounding box Geometry bbt = tv.getGeometry().getEnvelope(); Geometry bbi =
 	 * iv.getGeometry().getEnvelope();
 	 *
@@ -84,7 +84,7 @@ public class TrajectoryMatchingEvaluator {
 	 * INPUT
 	 *
 	 */
-	public double evaluate(GeoJsonValue gt, GeoJsonValue gi, boolean computeEdr) {
+	public double evaluate(GeometryValue gt, GeometryValue gi, boolean computeEdr) {
 
 		Geometry geomTarget = gt.getGeometry();
 		Geometry geomInput = gi.getGeometry();

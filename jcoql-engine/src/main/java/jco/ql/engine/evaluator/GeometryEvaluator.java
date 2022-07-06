@@ -7,24 +7,24 @@ import org.locationtech.jts.geom.PrecisionModel;
 
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.JCOConstants;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.parser.model.JoinCollections;
 
 public class GeometryEvaluator implements JCOConstants {
 
-	public static GeoJsonValue evaluate(int geometryOperation, DocumentDefinition ld, DocumentDefinition rd) {
-		GeoJsonValue leftGeometry = (GeoJsonValue) ld.getValue(GEOMETRY_FIELD_NAME);
-		GeoJsonValue rightGeometry = (GeoJsonValue) rd.getValue(GEOMETRY_FIELD_NAME);
+	public static GeometryValue evaluate(int geometryOperation, DocumentDefinition ld, DocumentDefinition rd) {
+		GeometryValue leftGeometry = (GeometryValue) ld.getValue(GEOMETRY_FIELD_NAME);
+		GeometryValue rightGeometry = (GeometryValue) rd.getValue(GEOMETRY_FIELD_NAME);
 		
-		GeoJsonValue outGeo = null;
+		GeometryValue outGeo = null;
 		if(geometryOperation == JoinCollections.GEOMETRY_LEFT) 								
-			outGeo = new GeoJsonValue(leftGeometry.getGeometry());
+			outGeo = new GeometryValue(leftGeometry.getGeometry());
 
 		else if(geometryOperation == JoinCollections.GEOMETRY_RIGHT) 				
-			outGeo = new GeoJsonValue(rightGeometry.getGeometry());
+			outGeo = new GeometryValue(rightGeometry.getGeometry());
 			
 		else if(geometryOperation == JoinCollections.GEOMETRY_INTERSECTION) 
-			outGeo = new GeoJsonValue(leftGeometry.getGeometry().intersection(rightGeometry.getGeometry()));
+			outGeo = new GeometryValue(leftGeometry.getGeometry().intersection(rightGeometry.getGeometry()));
 		
 		else if(geometryOperation == JoinCollections.GEOMETRY_ALL) {
 			GeometryCollection collection;
@@ -33,7 +33,7 @@ public class GeometryEvaluator implements JCOConstants {
 			geometries[1] = rightGeometry.getGeometry();
 
 			collection = new GeometryCollection(geometries, new GeometryFactory(new PrecisionModel(), 0));
-			outGeo = new GeoJsonValue(collection);
+			outGeo = new GeometryValue(collection);
 		}
 		return outGeo;
 	}

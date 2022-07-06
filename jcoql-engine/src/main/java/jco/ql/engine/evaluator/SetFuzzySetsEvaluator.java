@@ -10,7 +10,7 @@ import jco.ql.model.command.SetFuzzySetsCommand;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.value.DocumentValue;
 import jco.ql.model.value.EValueType;
-import jco.ql.model.value.GeoJsonValue;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.fuzzy.FuzzySetDefinitionElement;
@@ -75,8 +75,8 @@ public class SetFuzzySetsEvaluator implements JCOConstants {
     			}
     			// Function case
     			else {
-                    GeoJsonValue lgj = (GeoJsonValue) ld.getValue(GEOMETRY_FIELD_NAME);
-                    GeoJsonValue rgj = (GeoJsonValue) rd.getValue(GEOMETRY_FIELD_NAME);
+                    GeometryValue lgj = (GeometryValue) ld.getValue(GEOMETRY_FIELD_NAME);
+                    GeometryValue rgj = (GeometryValue) rd.getValue(GEOMETRY_FIELD_NAME);
 
                 	if(lgj != null && rgj != null) {
 	                    Geometry lg = lgj.getGeometry();

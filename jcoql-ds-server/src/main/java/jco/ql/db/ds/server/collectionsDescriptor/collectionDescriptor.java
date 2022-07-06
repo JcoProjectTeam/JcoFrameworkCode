@@ -10,70 +10,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class collectionDescriptor {
+	private String name;
+	private String type;
+	protected List<Url> urls = null;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	
-private String name;
-  
-  
-  private String type;
-  
- 
-  protected List<Url> urls = null;
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
 
-  public String getName() {
-      return name;
-  }
-
-  public void setName(String name) {
-      this.name = name;
-  }
-
-  public String getType() {
-      return type;
-  }
-
-  public void setType(String type) {
-      this.type = type;
-  }
-
-  public List<Url> getUrl() {
-      return urls;
-  }
-
-  public void setUrl(List<Url> url) {
-      this.urls = url;
-  }
-  
-  public void initializeUrl()
-  {
-  	this.urls = new ArrayList<Url>();
-  }
-  
-  public void addUrl(Url url)
-  {
-  	if(this.urls == null)
-  	{
-  		initializeUrl();
-  	}
-  	this.urls.add(url);
-  }
-  
-  public void removeUrl(int index)
-  {
-  	if((index+1) > this.urls.size())
-  	{
-  		System.out.println("index out of bounds");
-  	}
-  	else
-  	{
-  		this.urls.set(index,null);
-  	}
-      
-  }
-  
-    	  
+	public List<Url> getUrl() {
+		return urls;
+	}
+	
+	public void setUrl(List<Url> url) {
+		this.urls = url;
+	}
+	  
+	public void initializeUrl(){
+		this.urls = new ArrayList<Url>();
+	}
+	  
+	public void addUrl(Url url) {
+		if(this.urls == null)
+			initializeUrl();
+		this.urls.add(url);
+	}
+	  
+	public void removeUrl(int index) {
+		if((index+1) > this.urls.size())
+			System.out.println("index out of bounds");
+		else
+			this.urls.set(index,null);
+	}
    
-  }
-  
-
-
-
+}
