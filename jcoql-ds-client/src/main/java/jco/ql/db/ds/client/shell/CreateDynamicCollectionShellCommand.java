@@ -54,7 +54,7 @@ public class CreateDynamicCollectionShellCommand {
 				if(responseMessage != null) {
 					Map<String, Object> responseBody = responseMessage.getBody();
 					if(Boolean.TRUE.equals(responseBody.get("success"))) {
-						response = "Dynamic Collection " + collection + "created in database " + database;
+						response = "Dynamic Collection " + collection + " created in database " + database;
 					} else {
 						response = "Error creating new collection: " + responseBody.get("errorMessage");
 					}
