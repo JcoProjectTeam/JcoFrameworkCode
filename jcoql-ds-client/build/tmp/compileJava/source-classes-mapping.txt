@@ -39,13 +39,13 @@ jco/ql/db/ds/client/shell/AddUrlShellCommand.java
  jco.ql.db.ds.client.shell.AddUrlShellCommand
 jco/ql/db/ds/client/shell/ExportCollectionShellCommand.java
  jco.ql.db.ds.client.shell.ExportCollectionShellCommand
-jco/ql/db/ds/client/shell/ListDatabasesShellCommand.java
- jco.ql.db.ds.client.shell.ListDatabasesShellCommand
+jco/ql/db/ds/client/shell/CreateDynamicCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.CreateDynamicCollectionShellCommand
 jco/ql/db/ds/client/shell/GetCollectionCountShellCommand.java
  jco.ql.db.ds.client.shell.GetCollectionCountShellCommand
 jco/ql/db/ds/client/shell/CreateDatabaseShellCommand.java
  jco.ql.db.ds.client.shell.CreateDatabaseShellCommand
 jco/ql/db/ds/client/shell/SetFrequencyShellCommand.java
  jco.ql.db.ds.client.shell.SetFrequencyShellCommand
-jco/ql/db/ds/client/shell/CreateDynamicCollectionShellCommand.java
- jco.ql.db.ds.client.shell.CreateDynamicCollectionShellCommand
+jco/ql/db/ds/client/shell/ListDatabasesShellCommand.java
+ jco.ql.db.ds.client.shell.ListDatabasesShellCommand

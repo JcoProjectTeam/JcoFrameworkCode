@@ -17,7 +17,7 @@ import jco.ql.byZun.ZunTimer;
 import jco.ql.byZun.ZunWarningTracker;
 import jco.ql.engine.parser.ParserLauncher;
 import jco.ql.model.engine.JMH;
-import jco.ql.parser.JcoParser;
+import jco.ql.parser.JCoQLParser;
 
 public class JcoScriptLauncher {
 	static String ver = "1.02";
@@ -74,7 +74,7 @@ public class JcoScriptLauncher {
 			
 			ZunWarningTracker.getInstance().toggleToScreen(toScreen);
 			ZunWarningTracker.getInstance().addWarning("Test Name:   \t" + testName);
-			ZunWarningTracker.getInstance().addWarning("Parser ver.: \t" + JcoParser.release);
+			ZunWarningTracker.getInstance().addWarning("Parser ver.: \t" + JCoQLParser.release);
 			ZunWarningTracker.getInstance().addWarning("Properties:  \t" + propFileName);
 			ZunWarningTracker.getInstance().addWarning("FileInProlog:\t" + fileInProlog);
 			ZunWarningTracker.getInstance().addWarning("FileInTest:  \t" + fileInTest);

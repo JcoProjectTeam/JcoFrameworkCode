@@ -18,7 +18,7 @@ import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.parser.ParserLauncher;
 import jco.ql.model.command.FuzzyOperatorCommand;
 import jco.ql.model.engine.JMH;
-import jco.ql.parser.JcoParser;
+import jco.ql.parser.JCoQLParser;
 
 public class ZunScriptTester {
 	static String ver = "1.02";
@@ -58,7 +58,7 @@ public class ZunScriptTester {
 			
 			ZunWarningTracker.getInstance().toggleToScreen(toScreen);
 			ZunWarningTracker.getInstance().addWarning("Test Name:   \t" + testName);
-			ZunWarningTracker.getInstance().addWarning("Parser ver.: \t" + JcoParser.release);
+			ZunWarningTracker.getInstance().addWarning("Parser ver.: \t" + JCoQLParser.release);
 			ZunWarningTracker.getInstance().addWarning("Properties:  \t" + propFileName);
 			ZunWarningTracker.getInstance().addWarning("FileInProlog:\t" + fileInProlog);
 			ZunWarningTracker.getInstance().addWarning("FileInTest:  \t" + fileInTest);

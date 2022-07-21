@@ -13,7 +13,7 @@ public class ZunParserTester {
 	
 	
 	public static void main(String[] args) {
-		JcoParser parser;
+		JCoQLParser parser;
 //		String fileIn = "..\\.zunTestScripts\\testFQAS - stations and sensors.txt";
 //		String fileIn = "..\\.zunTestScripts\\t.txt";
 //		String fileIn = "..\\.zunTestScripts\\testInformation2021.txt";
@@ -35,13 +35,13 @@ public class ZunParserTester {
   		//		3new. si istanzia il parser passandogli lo scanner
 
   		// 1.
-			JcoLexer lexer = new JcoLexer(new ANTLRReaderStream(new FileReader(fileIn))); 
+  			JCoQLLexer lexer = new JCoQLLexer(new ANTLRReaderStream(new FileReader(fileIn))); 
 			// 2. deprecato
 //		CommonTokenStream tokens = new CommonTokenStream(lexer);
 			// 3. deprecato
 //    parser = new JcoParser(tokens);
 			// 3. new
-			parser = new JcoParser(lexer);
+			parser = new JCoQLParser(lexer);
 
 			
 	    // si lancia il parser

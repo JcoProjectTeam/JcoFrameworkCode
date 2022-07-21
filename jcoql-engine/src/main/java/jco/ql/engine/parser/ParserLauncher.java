@@ -22,7 +22,7 @@ import jco.ql.model.command.ICommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JMH;
 import jco.ql.parser.Environment;
-import jco.ql.parser.JcoParser;
+import jco.ql.parser.JCoQLParser;
 import jco.ql.parser.model.Instruction;
 
 /**
@@ -94,12 +94,12 @@ public class ParserLauncher {
 	 * System.out.println("Unknown type: " + con.getType()); System.exit(1); } }
 	 */
 	public void parse(String script) throws ExecuteProcessException {
-		JcoParser parser;
+		JCoQLParser parser;
 		List<String> instructions = new ArrayList<String>();
 		JMH.reset();
 
 		try {			
-			parser = new JcoParser(script);
+			parser = new JCoQLParser(script);
 			parser.start();
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
