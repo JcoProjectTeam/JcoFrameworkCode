@@ -1,10 +1,10 @@
-# JcoFramework Code
-Java code of the Jco Framework.  
+# JCo Framework Code
+Java code of the JCo Framework.  
 The code can be easily imported on an Eclipse IDE using the [Gradle 7.4.2](https://docs.gradle.org/7.4.2/userguide/userguide.html) tool.   
 The following instruction are written according to the assumption the developer is working on a Windows machine using an Eclipse IDE with a Gradle plug-in installed.  
 However the gradlew scripts should be compatible also with UNIX/LINUX machines.  
 
-For any importing issue contact Paolo Fosci at paolo.fosci@unibg.it.  
+For any import issue contact Paolo Fosci at paolo.fosci@unibg.it.  
 
 (update of 21-07-2022)
 
@@ -14,8 +14,9 @@ Download the whole content of this repository in a folder on your computer.
 Open a command shell window on the folder where you download the code repository.    
 Launch the following commands:  
 1. \> gradlew cleanEclipse
-2. \> gradlew Eclpse
-3. \> gradlew updateDependencies
+2. \> gradlew Eclpse  
+3. \> gradlew updateDependencies  
+
 Once the gradlew scripts have been launched with no error, open your Eclipse IDE, create a new _workspace_, and use the _"Existing Gradle Project"_ from the _Import_ wizard. In case of success the Eclipse should present a configuration like this:
 ![Image](./EclipseConfiguration.png)
 
