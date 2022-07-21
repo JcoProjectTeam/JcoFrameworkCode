@@ -1,5 +1,5 @@
 # JCo Framework Code
-Java code of the JCo Framework (here the [Main landing page of the project](https://github.com/JcoProjectTeam/JcoProjectPage).  
+Java code of the JCo Framework (here the [landing page of the project](https://github.com/JcoProjectTeam/JcoProjectPage)).  
 The code can be easily imported on an Eclipse IDE using the [Gradle 7.4.2](https://docs.gradle.org/7.4.2/userguide/userguide.html) tool.   
 The following instruction are written according to the assumption the developer is working on a Windows machine using an Eclipse IDE with a Gradle plug-in installed.  
 However the gradlew scripts should be compatible also with UNIX/LINUX machines.  
