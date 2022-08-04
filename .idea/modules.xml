@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jcoql-engine/jcoql-engine.iml" filepath="$PROJECT_DIR$/.idea/modules/jcoql-engine/jcoql-engine.iml" group="jcoql-parent/jcoql-engine" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jcoql-engine-elasticsearch/jcoql-engine-elasticsearch.iml" filepath="$PROJECT_DIR$/.idea/modules/jcoql-engine-elasticsearch/jcoql-engine-elasticsearch.iml" group="jcoql-parent/jcoql-engine-elasticsearch" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jcoql-engine-mongodb/jcoql-engine-mongodb.iml" filepath="$PROJECT_DIR$/.idea/modules/jcoql-engine-mongodb/jcoql-engine-mongodb.iml" group="jcoql-parent/jcoql-engine-mongodb" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jcoql-model/jcoql-model.iml" filepath="$PROJECT_DIR$/.idea/modules/jcoql-model/jcoql-model.iml" group="jcoql-parent/jcoql-model" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jcoql-parent.iml" filepath="$PROJECT_DIR$/.idea/modules/jcoql-parent.iml" group="jcoql-parent" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jcoql-ui/jcoql-ui.iml" filepath="$PROJECT_DIR$/.idea/modules/jcoql-ui/jcoql-ui.iml" group="jcoql-parent/jcoql-ui" />
+    </modules>
+  </component>
+</project>

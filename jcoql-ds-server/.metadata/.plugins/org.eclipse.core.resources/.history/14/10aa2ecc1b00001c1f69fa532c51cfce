@@ -1,0 +1,28 @@
+package CollectionsDescriptor;
+
+import java.util.ArrayList;
+
+
+public class collectionDescriptorManager extends collectionDescriptor{
+	
+	
+    public void initializeUrl()
+    {
+    	this.url = new ArrayList<Url>();
+    }
+    
+    public void addUrl(Url url)
+    {
+    	if(this.url == null)
+    	{
+    		initializeUrl();
+    	}
+    	this.url.add(url);
+    }
+    
+    public void removeUrl(int index)
+    {
+        this.url.remove(index);
+    }
+
+}

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":jcoql-ui" external.linked.project.path="$MODULE_DIR$/../../../jcoql-ui" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="jcoql-parent" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../jcoql-ui/build/classes/java/main" />
+    <output-test url="file://$MODULE_DIR$/../../../jcoql-ui/build/classes/java/test" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../jcoql-ui">
+      <sourceFolder url="file://$MODULE_DIR$/../../../jcoql-ui/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../jcoql-ui/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../jcoql-ui/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../jcoql-ui/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="jcoql-engine" />
+    <orderEntry type="module" module-name="jcoql-engine-elasticsearch" />
+    <orderEntry type="module" module-name="jcoql-engine-mongodb" />
+    <orderEntry type="module" module-name="jcoql-model" />
+    <orderEntry type="library" name="Gradle: com.google.guava:guava:23.2-jre" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-log4j12:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context:4.3.7.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-test:4.3.7.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.mongodb:mongo-java-driver:3.4.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: log4j:log4j:1.2.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-aop:4.3.7.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-beans:4.3.7.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-expression:4.3.7.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-core:4.3.7.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch.client:elasticsearch-rest-high-level-client:6.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch:elasticsearch:6.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch.client:elasticsearch-rest-client:6.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-core:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-analyzers-common:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-backward-codecs:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-grouping:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-highlighter:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-join:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-memory:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-misc:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-queries:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-queryparser:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-sandbox:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-spatial:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-spatial-extras:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-spatial3d:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.lucene:lucene-suggest:7.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch:securesm:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch:elasticsearch-cli:6.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.carrotsearch:hppc:0.7.1" level="project" />
+    <orderEntry type="library" name="Gradle: joda-time:joda-time:2.9.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.wololo:jts2geojson:0.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.8.4" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.8.10" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.8.10" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.8.10" level="project" />
+    <orderEntry type="module" module-name="jcoql-engine" exported="" />
+    <orderEntry type="module" module-name="jcoql-engine-elasticsearch" exported="" />
+    <orderEntry type="module" module-name="jcoql-model" exported="" />
+    <orderEntry type="module" module-name="jcoql-engine-mongodb" exported="" />
+    <orderEntry type="library" name="Gradle: com.tdunning:t-digest:3.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.hdrhistogram:HdrHistogram:2.1.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-api:2.9.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch:jna:4.4.0-1" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch.plugin:parent-join-client:6.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.elasticsearch.plugin:aggs-matrix-stats-client:6.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:1.3.9" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.errorprone:error_prone_annotations:2.0.18" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.j2objc:j2objc-annotations:1.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.codehaus.mojo:animal-sniffer-annotations:1.14" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.jopt-simple:jopt-simple:5.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpasyncclient:4.1.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore-nio:4.4.5" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.10" level="project" />
+    <orderEntry type="library" name="Gradle: com.vividsolutions:jts-core:1.14.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.8.4" level="project" />
+    <orderEntry type="module-library">
+      <library name="Gradle: antlr-3.4-complete">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../jcoql-ui/lib/antlr-3.4-complete.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Gradle: gecoParser3.1.03">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../jcoql-ui/lib/gecoParser3.1.03.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="Gradle: antlr-3.4-complete" level="project" />
+    <orderEntry type="library" name="Gradle: gecoParser3.1.03" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+  </component>
+</module>

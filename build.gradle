@@ -1,0 +1,68 @@
+plugins {
+  id "io.spring.dependency-management" version "1.0.11.RELEASE"
+}
+
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+apply plugin: 'eclipse'
+apply plugin: 'project-report'
+version='1.0.0'
+
+repositories {
+	jcenter()
+	flatDir {
+        dirs 'libs/compile', 'libs/compile/downloaded',
+                'libs/testCompile', 'libs/testCompileDownloaded'
+                  }
+}
+ tasks.withType(Jar) {
+         destinationDir = file("$rootDir/../jcoJars")
+    }
+
+configurations {
+    download
+    testDownload
+}
+
+dependencies {
+	implementation 'com.google.guava:guava:23.2-jre'
+	implementation 'org.apache.logging.log4j:log4j-api:2.11.0'
+	implementation 'org.apache.logging.log4j:log4j-core:2.11.0'
+	testImplementation 'junit:junit:4.12'
+}
+
+task cleanDownloadedDependencies(type: Delete) {
+    delete fileTree('libs/compile/downloaded')
+}
+
+task cleanDownloadedTestDependencies(type: Delete) {
+    delete fileTree('libs/testCompile/downloaded')
+}
+
+
+task downloadDependencies(type: Copy) {
+    from configurations.download
+    into 'libs/compile/downloaded/'
+}
+
+task downloadTestDependencies(type: Copy) {
+    from configurations.testDownload
+    into 'libs/testCompile/downloaded/'
+}
+
+task updateDependencies {
+    dependsOn cleanDownloadedDependencies, cleanDownloadedTestDependencies, downloadDependencies, downloadTestDependencies
+}
+
+fileTree(dir: 'libs/compile', include: '**/*.aar')
+        .each { File file ->
+    dependencies.add("compile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+}
+
+fileTree(dir: 'libs/testCompile', include: '**/*.aar')
+        .each { File file ->
+    dependencies.add("testCompile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+}

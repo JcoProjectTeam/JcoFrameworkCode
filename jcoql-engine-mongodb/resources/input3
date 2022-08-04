@@ -1,0 +1,21 @@
+GET COLLECTION LineStopsCoded ;
+GROUP PARTITION
+WITH .line , .position , .stationName ,
+.province , ~geometry
+BY .line INTO .list SORTED BY .order DESC
+DROP OTHERS ;
+EXPAND UNPACK WITH ARRAY .list
+ARRAY .list TO temp
+GENERATE { .line , versus : "B", order : .temp .position ,
+stationName : .temp .stationName , province : .temp .province }
+SETTING GEOMETRY .temp .~geometry
+DROP OTHERS ;
+SET INTERMEDIATE AS LineStopsBackward ;
+MERGE COLLECTIONS LineStopsCoded , LineStopsBackward ;
+FILTER
+CASE WHERE WITHOUT .direction
+GENERATE {.line , direction : "F",
+.order , .stationName , .province }
+KEEPING GEOMETRY
+KEEP OTHERS ;
+SAVE AS LineStopStation@VGI ;

@@ -1,0 +1,32 @@
+	GET COLLECTION ToyDB.Buildings;
+	
+	FILTER
+		CASE: a.v/zzz = 3, b.c/sad =1
+		DROP OTHERS;
+	
+	SET INTERMEDIATE AS BuildingsCityA;
+	
+	OVERLAY COLLECTIONS BuildingsCityA AS a, ToyDB.WaterLines AS a
+     ON f(1)+b/pippo + a/pluto <= c/asas/psd AND 
+			NOT [ a/pippo + BuildingsCityA/pluto <= ToyDB.WaterLines/asas/psd
+            AND [ pluto(1+'2', 23.2 + gf(/a) +2) != 3  OR  1!=1+"das" OR 
+            1=/psd AND asd()!=/sd/s]
+					]
+		KEEP INTERSECTION;
+		
+	SET INTERMEDIATE AS BWCityA;
+	
+	JOIN COLLECTIONS BWCityA, ToyDB.Restaurants
+		ON 45*12\a=43*a;
+		
+	JOIN COLLECTIONS BWCityA, ToyDB.Restaurants
+		ON BWCityA.BuildingsCityA/address = Restaurants/address
+		AND ((a=b) OR c<d);
+		
+	FILTER
+		CASE: WITH name
+		PROJECT Restaurant.name
+		WHERE p/as = 3 AND (/sdsa-gs(2) > a OR 3!=1)
+		DROP OTHERS;
+	
+	SAVE AS ToyDB.RestaurantsWL;

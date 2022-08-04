@@ -1,0 +1,3 @@
+{"type":1,"url":"api.geonames.org/findNearbyPlaceNameJSON?formatted=true&lat=45.4&lng=9.5&username=paolofosci&style=full"}
+{"type":2,"url":"http://api.geonames.org/earthquakesJSON?formatted=true&north=44.1&south=-9.9&east=-22.4&west=55.2&username=paolofosci&style=full"}
+{"res":"/nf78-nj6b.json?","type":3,"params":"$limit=10"}

@@ -1,0 +1,75 @@
+
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+apply plugin: 'eclipse'
+apply plugin: 'project-report'
+version='1.0.0'
+ 
+repositories {
+    jcenter()
+    flatDir {
+        dirs 'libs/compile', 'libs/compile/downloaded',
+                'libs/testCompile', 'libs/testCompileDownloaded'
+                  }
+}
+configurations {
+    download
+    testDownload
+}
+jar {
+		zip64=true
+    manifest {
+        attributes "Main-Class": "jco.ql.ui.client.Client"
+    }
+
+    from {
+     	configurations.runtime.asFileTree.files.collect { zipTree(it) }
+    }
+}
+  tasks.withType(Jar) {
+         destinationDir = file("$rootDir/../jcoJars")
+    }
+
+dependencies {
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.6.6'
+	implementation 'org.wololo:jts2geojson:0.14.3'
+	implementation files('lib/jcoParser4.0.jar')
+    testImplementation 'junit:junit:4.12'
+}
+
+task cleanDownloadedDependencies(type: Delete) {
+    delete fileTree('libs/compile/downloaded')
+}
+
+task cleanDownloadedTestDependencies(type: Delete) {
+    delete fileTree('libs/testCompile/downloaded')
+}
+
+
+task downloadDependencies(type: Copy) {
+    from configurations.download
+    into 'libs/compile/downloaded/'
+}
+
+task downloadTestDependencies(type: Copy) {
+    from configurations.testDownload
+    into 'libs/testCompile/downloaded/'
+}
+
+task updateDependencies {
+    dependsOn cleanDownloadedDependencies, cleanDownloadedTestDependencies, downloadDependencies, downloadTestDependencies
+}
+
+fileTree(dir: 'libs/compile', include: '**/*.aar')
+        .each { File file ->
+    dependencies.add("compile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+}
+
+fileTree(dir: 'libs/testCompile', include: '**/*.aar')
+        .each { File file ->
+    dependencies.add("testCompile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+}

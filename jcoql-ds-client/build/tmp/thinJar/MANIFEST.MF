@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Start-Class: jco.ql.db.ds.client.Client
+Main-Class: org.springframework.boot.loader.wrapper.ThinJarWrapper
+

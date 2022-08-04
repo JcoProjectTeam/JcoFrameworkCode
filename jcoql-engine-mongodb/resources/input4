@@ -1,0 +1,23 @@
+GET COLLECTION MovesTraces@VGI ;
+EXPAND UNPACK WITH .userId , .storyLine
+ARRAY .StoryLine TO SLItem
+DROP OTHERS ;
+EXPAND UNPACK WITH .UserId , .SLItem
+ARRAY .SLItem .item .segments TO seg
+DROP OTHERS ;
+FILTER
+CASE WHERE WITH .UserId , .Seg AND .Seg .item .type = "place"
+GENERATE {.UserId , Date : .SLItem .item .Date ,
+startTime : .seg .item .startTime ,
+endTime : .seg .item .endTime , location : .seg .item .location }
+SETTING GEOMETRY POINT (.seg .item .place .location .lat ,
+.seg .item .place .location .lon)
+DROP OTHERS ;
+SAVE AS PeopleSinglePlaces@VGI ;
+GROUP PARTITION
+WITH .UserId , .Date , .startTime , .endTime ,
+.location , .~geometry
+BY .userId , .date INTO .Trace SORTED BY .startTime
+GENERATE SETTING GEOMETRY TO_POLYLINE ( .Trace )
+DROP OTHERS ;
+SAVE AS PeopleTraces@VGI ;

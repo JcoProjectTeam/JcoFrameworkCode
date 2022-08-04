@@ -1,0 +1,141 @@
+buildscript {
+    ext {
+		springBootPlugin = 'org.springframework.boot:spring-boot-gradle-plugin'
+		springBootVersion = '2.4.0'
+		thinPlugin = 'org.springframework.boot.experimental:spring-boot-thin-gradle-plugin'
+		thinVersion = '1.0.11.RELEASE'
+	}
+
+    repositories {
+        mavenCentral()
+        jcenter()
+		flatDir {
+			dirs 'libs/compile', 'libs/compile/downloaded',
+					'libs/testCompile', 'libs/testCompileDownloaded','lib'
+		}
+	}
+	
+	dependencies {
+		classpath("${springBootPlugin}:${springBootVersion}")
+		classpath("${thinPlugin}:${thinVersion}")
+	}
+}
+
+
+plugins {
+	id 'org.springframework.boot' version '2.2.2.RELEASE'
+	id 'java'
+	id "org.springframework.boot.experimental.thin-launcher" version "1.0.27.RELEASE"
+}
+
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+apply plugin: 'eclipse'
+apply plugin: 'project-report'
+apply plugin: 'maven-publish'
+apply plugin: 'org.springframework.boot.experimental.thin-launcher'
+version = '1.0.4'
+
+
+springBoot {
+    mainClassName = 'jco.ql.engine.server.Server'
+}
+
+
+repositories {
+    jcenter()    
+    flatDir {
+        dirs 'libs/compile', 'libs/compile/downloaded',
+                'libs/testCompile', 'libs/testCompileDownloaded'
+	}    
+}
+
+
+configurations {
+	download
+    testDownload
+}
+
+
+bootJar {
+	manifest {
+		attributes 'Implementation-Version': version
+		attributes "Main-Class": "jco.ql.engine.server.Server"
+	}
+	launchScript()
+}
+
+
+//here to set the folder where to save output jars
+ tasks.withType(Jar) {
+	destinationDir = file("$rootDir/../jcoJars")
+}
+
+
+test {
+	ignoreFailures = true
+}
+
+
+dependencies {
+    implementation 'org.slf4j:slf4j-log4j12:1.7.25'
+	implementation 'org.springframework:spring-test:4.3.7.RELEASE'
+	implementation 'org.mongodb:mongo-java-driver:3.4.2'
+	implementation 'org.springframework:spring-context:4.1.3.RELEASE'
+	implementation 'javax.websocket:javax.websocket-api:1.1'
+	implementation 'org.java-websocket:Java-WebSocket:1.5.2'
+	implementation 'org.antlr:antlr4:4.7.2'
+	
+	implementation project(':jcoql-engine-elasticsearch')
+	implementation project(':jcoql-ds-core')
+	implementation project(':jcoql-engine-mongodb')
+	
+    testImplementation 'junit:junit:4.12'
+}
+
+
+bootJar.dependsOn = [thinProperties]
+
+
+task cleanDownloadedDependencies(type: Delete) {
+    delete fileTree('libs/compile/downloaded')
+}
+
+
+task cleanDownloadedTestDependencies(type: Delete) {
+    delete fileTree('libs/testCompile/downloaded')
+}
+
+
+task downloadDependencies(type: Copy) {
+    from configurations.download
+    into 'libs/compile/downloaded/'
+}
+
+
+task downloadTestDependencies(type: Copy) {
+    from configurations.testDownload
+    into 'libs/testCompile/downloaded/'
+}
+
+
+task updateDependencies {
+    dependsOn cleanDownloadedDependencies, cleanDownloadedTestDependencies, downloadDependencies, downloadTestDependencies
+}
+
+
+fileTree(dir: 'libs/compile', include: '**/*.aar')
+    .each { File file ->
+	    dependencies.add("compile",
+    	    [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+	}
+
+fileTree(dir: 'libs/testCompile', include: '**/*.aar')
+    .each { File file ->
+	    dependencies.add("testCompile",
+	            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+	}

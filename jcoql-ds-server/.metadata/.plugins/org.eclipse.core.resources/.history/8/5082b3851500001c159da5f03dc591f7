@@ -1,0 +1,494 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import java.applet.*;
+import java.lang.*;
+import java.util.*;
+import java.io.*;
+import java.math.*;
+
+
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.*;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+
+import CollectionsInfo.CollectionsInfoManager;
+import CollectionsInfo.CollectionsInfo;
+import CollectionsInfo.CollectionsManager;
+import CollectionsInfo.Collections;
+import CollectionsInfo.Url;
+
+
+import com.google.gson.*;
+
+	public class Class {
+		
+		
+		
+		private File dataDirectory;
+
+		public static void main(String[] args) throws IOException, URISyntaxException {
+			
+		  
+			
+			
+			//comandi disponibili:
+			//createDatabase("nomedatabase") per creare la cartella database
+			//listCollections("nomedatabase") per ottenere una lista di coppie nome-tipo
+			//createCollection("nomedatabase","nomecollezione") per creare una nuova collezione statica
+			//createVirtualCollection("nomedatabase","nomecollezione",[lista url]) per creare una nuova collezione statica
+			//addUrl("nomedatabase","nomecollezione","url");
+			//removeUrl("nomedatabase","nomecollezione",index);
+			//listUrl("nomedatabase", "nomecollezione);
+			//deleteCollection("nomedatabase", "nomecollezione") per eliminare la specifica collezione
+			//saveCollection("nomedatabase", "nomecollezione","contenuto") per salvare del contenuto testuale in una collezione
+			//getCollection("nomedatabase", "nomecollezione") per ottenere il contenuto di una collezione in base al tipo
+			
+			
+			//statica-> virtuale no
+			//statica-> statica si
+			//virtuale-> statico si
+			//virtuale-> virtuale no
+			
+			
+			/*
+			List<String> list = new ArrayList<String> ();
+			list.add("url1");
+			list.add("url2");
+			createCollection("database1","collezione3",list);
+			*/
+			
+			
+			
+			listUrl("database1","collezione3");
+			
+			
+		}
+		
+		
+		public static boolean createDatabase(String name) throws URISyntaxException, IOException
+		{
+			String workspace = GetWorkspaceDirectory();
+			
+			boolean success = false; 
+			File directory = new File(workspace + "/" + name);
+			if (!directory.exists()){
+			    directory.mkdirs();
+			    success = true;
+			    initializeMetadata(name);
+			}
+			
+			return success;
+		}
+		
+		
+			
+			//ottengo una lista di coppie <nomecollezione>-<tipocollezione>
+			public static List<String> listCollections(String databaseName) throws URISyntaxException, IOException {
+
+				List<String> list = new ArrayList<String>();
+				CollectionsInfo collectionInfo = GetMetadata(databaseName);
+				
+				for(Collections k:collectionInfo.collections)
+				{
+					
+				    list.add(k.getName() + "-" + k.getType());
+					
+					
+				}
+
+				
+				return list;
+			}
+			
+			
+			//creo una nuova collezione statica aggiungendone i dettagli al metadata
+			public static void createCollection(String databaseName, String collectionName) throws IOException, URISyntaxException {
+				
+				
+				
+					Collections collection = new Collections();
+					collection.setName(collectionName);
+					collection.setType("static");
+					
+					String workspace = GetWorkspaceDirectory();
+					File data = new File(workspace + "/" + databaseName + "/" + collectionName);
+					
+				    data.mkdirs();
+
+				    AddCollectionInfo(databaseName, collectionName,null);
+				
+				
+				
+		
+			}
+			
+			
+			
+			//creo una nuova collezione virtuale aggiungendo solo i dettagli al metadata
+            public static void createVirtualCollection(String databaseName, String collectionName, List<String> url) throws IOException, URISyntaxException {
+				
+				if(url != null)
+				{
+					AddCollectionInfo(databaseName, collectionName,url);
+				}
+				else
+				{
+					System.out.println("no url submitted");
+				}
+				
+				
+		
+			}
+
+			
+            //aggiungo uno o più url al metadata associato ad una collezione virtuale
+            public static void addUrl(String databaseName,String collectionName,List<String> url) throws URISyntaxException, IOException
+            {
+            	CollectionsInfoManager metadata = GetMetadata(databaseName);
+            	CollectionsManager collection = (CollectionsManager) metadata.getCollection(collectionName);
+            	
+            	if(collection.getType().equals("virtual"))
+            	{
+            		for(String k:url)
+                	{
+                		Url temp = new Url();
+                		temp.setUrl(k);
+                		collection.addUrl(temp);
+                	}
+                	
+                	WriteMetadata(databaseName, metadata);
+            	}
+            	else
+            	{
+            		System.out.println("selected collection is not virtual");
+            	}
+            	
+            
+          
+            }
+            
+            //rimuovo un url basandomi sulla posizione che occupa nell'array url del metadata associato
+            public static void removeUrl(String databaseName, String collectionName ,int index) throws URISyntaxException, IOException
+            {
+            	CollectionsInfoManager metadata = GetMetadata(databaseName);
+            	CollectionsManager collection = (CollectionsManager) metadata.getCollection(collectionName);
+            	
+            	collection.removeUrl(index);
+            	
+            	WriteMetadata(databaseName,metadata);
+            }
+            
+            
+            //ottengo lista degli url associati ad una collezione virtuale
+            public static List<Url> listUrl(String databaseName, String collectionName) throws URISyntaxException, IOException
+            {
+            	CollectionsInfoManager metadata = GetMetadata(databaseName);
+            	CollectionsManager collection = (CollectionsManager) metadata.getCollection(collectionName);
+            	
+            	if(collection.getType().equals("virtual"))
+            	{
+            		return collection.getUrl();
+            	}
+            	else
+            	{
+            		System.out.println("selected collection is not virtual");
+            		return null;
+            	}
+            }
+            
+            
+            
+			//elimino una collezione dal metadata eliminandone anche i dettagli nel metadata
+			public static void deleteCollection(String databaseName, String collectionName) throws IOException, URISyntaxException {
+				
+				String workspace = GetWorkspaceDirectory();
+				File collectiondirectory = new File(workspace +"/" + databaseName + "/" + collectionName);
+			    collectiondirectory.delete();
+				
+				
+				RemoveCollectionInfo(databaseName,collectionName); //ROSSONI ALBERTO 21-08 delete a specific collection inside the metadata.metadata file
+				
+			}
+			
+			public static void saveCollection(String databaseName, String collectionName, String contenuto) throws IOException, URISyntaxException
+			{
+				if(GetMetadata(databaseName).getCollection(collectionName).getType().equals("static"))
+				{
+					String workspace = GetWorkspaceDirectory();
+					File CollectionContent = new File(workspace +"/" + databaseName + "/" + collectionName +"/" + "data.txt");
+					
+
+				    Path path = CollectionContent.toPath();
+					FileWriter Writer = new FileWriter(path.toString());
+					
+					
+					Writer.write(contenuto);
+					Writer.close();
+				}
+				else
+				{
+					System.out.println("Collection is virtual");
+				}
+				
+			}
+			
+			
+			public static String getCollection(String databaseName,String collectionName) throws URISyntaxException, IOException
+			{
+				
+				if(GetMetadata(databaseName).getCollection(collectionName).getType().equals("static"))
+				{
+					String workspace = GetWorkspaceDirectory();
+					File CollectionContent = new File(workspace +"/" + databaseName + "/" + collectionName +"/" + "data.txt");
+					
+
+				    Path path = CollectionContent.toPath();
+
+				    String contenuto =  Files.readString(path);
+				    return contenuto;
+				}
+				else
+					if(GetMetadata(databaseName).getCollection(collectionName).getType().equals("virtual"))
+					{
+						List<Url> list = GetMetadata(databaseName).getCollection(collectionName).getUrl();
+						StringBuffer buffer  = new StringBuffer();
+						for(Url k: list)
+						{
+							buffer.append(getCollectionFromWeb(k.getUrl()));
+							buffer.append("\n"+"\n");
+						}
+					
+						return buffer.toString();
+					}
+				
+				return "nessun contenuto disponibile";
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			//Metodi a supporto del nuovo sistema con metadata
+			
+			
+			//Aggiungo una collezione statica nel metadata
+			private static void AddCollectionInfo(String databaseName, String collectionName,List<String> url) throws IOException, URISyntaxException
+			{
+
+
+				CollectionsInfoManager collectionsInfo = null;
+				CollectionsManager collection = new CollectionsManager();
+				try {
+					collectionsInfo = GetMetadata(databaseName);
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if(url == null)
+				{
+					
+					collection.setName(collectionName);
+					collection.setType("static");
+
+					
+
+				}
+				else
+				{
+					
+					
+					collection.setName(collectionName);
+					collection.setType("virtual");
+					collection.initializeUrl();
+					
+					List<Url> list = new ArrayList<Url>();
+					for(String k : url)
+					{
+						Url newUrl = new Url();
+						newUrl.setUrl(k);
+						list.add(newUrl);
+						
+					}
+					collection.setUrl(list);
+					
+				}
+
+				collectionsInfo.addCollection(collection);
+				WriteMetadata(databaseName,collectionsInfo);
+
+			}
+			
+			
+
+			//rimuovo una collezione nel metadata
+			private static void RemoveCollectionInfo(String databaseName, String collectionName) throws IOException, URISyntaxException
+			{
+				CollectionsInfoManager collectionsInfo = GetMetadata(databaseName);
+				collectionsInfo.removeCollection(collectionName);
+				WriteMetadata(databaseName,collectionsInfo);
+
+			}
+
+			//ottengo il contenuto del metadata
+			private static CollectionsInfoManager GetMetadata(String databaseName) throws URISyntaxException, IOException
+			{
+				String workspace = GetWorkspaceDirectory();
+				
+				File data = new File(workspace + "/" + databaseName + "/" + databaseName + ".metadata");
+			    Path path = data.toPath();
+
+			    String contenuto =  Files.readString(path);
+				
+
+				Gson gson = new Gson();
+				CollectionsInfoManager collectionsInfo = gson.fromJson(contenuto, CollectionsInfoManager.class);
+
+				return collectionsInfo;
+			}
+
+			//aggiorno il file metadata
+			private static void WriteMetadata (String databaseName, CollectionsInfo collectionsInfo) throws IOException, URISyntaxException
+			{
+                String workspace = GetWorkspaceDirectory();
+				
+				File data = new File(workspace + "/" + databaseName + "/" + databaseName + ".metadata");
+	
+
+				
+				FileWriter Writer = new FileWriter( data.toString());
+				Gson gson = new Gson();
+				String string = gson.toJson(collectionsInfo);
+				Writer.write(string);
+				Writer.close();
+			}
+
+
+			private static String GetWorkspaceDirectory() throws URISyntaxException
+			{
+				String dataPath = new File(Class.class.getProtectionDomain().getCodeSource().getLocation()
+					    .toURI()).getPath();
+				
+				return dataPath;
+			}
+			
+			
+			
+			private static void initializeMetadata(String databaseName) throws IOException, URISyntaxException
+			{
+				
+				String workspace = GetWorkspaceDirectory();
+				
+			    File data = new File(workspace + "/" + databaseName + "/" + databaseName + ".metadata");
+				data.createNewFile();
+				
+				
+				CollectionsInfoManager collectionsInfo = new CollectionsInfoManager();
+				collectionsInfo.setdatabaseName(databaseName);
+				WriteMetadata(databaseName, collectionsInfo);
+			}
+			
+			
+			//metodo per verificare che il file metadata corrisponda alle collezioni effettivamente presenti nella cartella
+			private static void checkMetadata(String databaseName) throws URISyntaxException, IOException
+			{
+                String workspace = GetWorkspaceDirectory();
+				File dir = new File(workspace+ "/" + databaseName);
+				File data = new File(workspace + "/" + databaseName + "/" + databaseName + ".metadata");
+				
+				if(dir.exists() && dir.isDirectory())
+				{
+					if(data.exists() && (data.length() == 0))
+					{
+						initializeMetadata(databaseName);
+						int count = (dir.list().length - 1);
+						CollectionsInfoManager metadata = GetMetadata(databaseName);
+						
+						for(int i=0;i<count;i++)
+						{
+							CollectionsManager newCollection = new CollectionsManager();
+							newCollection.setName("Collection" + i);
+							newCollection.setType("static");
+							metadata.addCollection(newCollection);
+							WriteMetadata(databaseName,metadata);
+							
+						}
+						
+					}
+				}
+				
+			}
+			
+			
+			//metodo per ottenere risorse da url sotto forma di stringa
+			
+			 private static String getCollectionFromWeb (String urlSt) throws ClientProtocolException, IOException {
+			        int timeout = 5000;
+
+			        urlSt = urlSt.replace(" ", "%20");
+			        urlSt = urlSt.replace(">", "%3E");
+			        urlSt = urlSt.replace("<", "%3C");
+			        
+			            RequestConfig config = RequestConfig.custom()
+			            		.setConnectTimeout(timeout)
+			            		.setConnectionRequestTimeout(timeout)
+			            		.setSocketTimeout(timeout).build();
+			            CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
+
+			            HttpGet request = new HttpGet(urlSt);
+
+			            // add request header
+			            String USER_AGENT = "Mozilla/5.0";
+			            request.addHeader("User-Agent", USER_AGENT);
+
+			            HttpResponse response = client.execute(request); // conn= response
+			            
+			            String strCurrentLine;
+			            StringBuffer outStBuf = new StringBuffer();
+			            // LETTURA DELLA RISORSA DA INTERNET
+			            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+			            while ((strCurrentLine = rd.readLine()) != null) {
+			            	outStBuf.append(strCurrentLine+"\n");
+			            }
+			            
+			            String outSt = outStBuf.toString().trim();
+				    	if (outSt.startsWith("[") && outSt.endsWith("]"))
+				    		outSt = "{ \"data\" : "+outSt+" }";
+
+				    	
+			            // FINE LETTURA DELLA RISORSA DA INTERNET - si trova in outSt
+
+						return outSt;
+			    }
+			
+
+
+
+	}
+
+
+

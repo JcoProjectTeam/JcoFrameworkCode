@@ -1,0 +1,20 @@
+completare codice in SimpleValue
+
+Aggiungere tipi in net.fm.geco.model.value.EValueType
+Aggiungere classe in package net.fm.geco.model.value;
+Modificare codice in net.fm.geco.engine.evaluator.FieldEvaluator
+Modificare codice in net.fm.geco.engine.evaluator.GenerateCommandEvaluator
+Modificare codice in net.fm.geco.engine.parser.util.GenerateCommandCreator
+Modificare codice in net.fm.geco.model.builder.FieldDefinitionBuilder
+
+
+
+
+---------------------
+postgres pwd cR1
+
+
+java home - C:\Program Files\Java\jdk1.8.0_251
+path: C:\Program Files\Java\jdk1.8.0_251\bin
+
+

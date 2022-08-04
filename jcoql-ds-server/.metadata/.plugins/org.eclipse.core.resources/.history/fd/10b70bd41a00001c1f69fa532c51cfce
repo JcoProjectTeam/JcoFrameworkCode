@@ -1,0 +1,73 @@
+package CollectionsDescriptor;
+
+import java.util.List;
+
+
+
+public class CollectionsDescriptorManager extends CollectionsDescriptor{
+
+	 public List<collectionDescriptor> getAllCollections() {
+	        return collections;
+	    }
+
+	    public collectionDescriptor getCollection(String collectionName)
+	    {
+	        int index = 0;
+	        boolean exist = true;
+
+	        for(collectionDescriptor k: collections)
+	        {
+	            if(k.getName().equals(collectionName))
+	            {
+	                exist = true;
+	                
+	                break;
+	                
+	            }
+
+	            index++;
+	            exist = false;
+	        }
+
+	            if(exist)
+	            {
+	            	 return collections.get(index);
+	            }
+	            else
+	            {
+	            	return null;
+	            }
+	       
+	    }
+
+	    public void setCollections(List<collectionDescriptor> collections) {
+	        this.collections = collections;
+	    }
+	    
+	    public void addCollection(collectionDescriptor collection)  {  collections.add(collection);  }
+	    
+	    public void removeCollection(String collectionName)
+	    {
+	        int index = 0;
+	        boolean exist = false;
+	        
+	        for(collectionDescriptor k: collections)
+	        {
+	            if(k.getName().equals(collectionName))
+	            {
+	                exist = true;
+	                break;
+	            }
+	            
+	            index++;
+	        }
+	        
+	        if(exist)
+	        {
+	            collections.remove(index);
+	        }
+	    }
+
+	
+	
+}
