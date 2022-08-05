@@ -98,12 +98,8 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 
             Geometry lg = lGeo.getGeometry();
             Geometry rg = rGeo.getGeometry();
-/**
- * PER ALESSANDRO:
- * qui bisogna valutare le se la geometria della del documento di destra "rDoc" ha intersezione
- * con quella del documento sinistra "lDoc" tramite il vostro indice spaziale
- */
-			if (!SpatialFunctionEvaluator.matchSpatialCondition(onGeometry, lg, rg))
+
+            if (!SpatialFunctionEvaluator.matchSpatialCondition(onGeometry, lg, rg))
 				return null;
 		}
 

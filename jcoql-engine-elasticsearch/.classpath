@@ -258,12 +258,12 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Unibg/Documents/J-CO/jcoFramework/jcoql-engine-elasticsearch/lib/jcoParser4.0.jar">
+	<classpathentry kind="lib" path="C:/Users/Unibg/Documents/J-CO/jcoFramework/jcoql-engine-elasticsearch/lib/jcoqlParser4.0.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Unibg/Documents/J-CO/jcoFramework/jcoql-model/lib/jcoParser4.0.jar">
+	<classpathentry kind="lib" path="C:/Users/Unibg/Documents/J-CO/jcoFramework/jcoql-model/lib/jcoqlParser4.0.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>

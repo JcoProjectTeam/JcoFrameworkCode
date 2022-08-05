@@ -1,12 +1,20 @@
 package jco.ql.engine.byZunEvaluator;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+
 import jco.ql.engine.Pipeline;
+import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.EValueType;
+import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.predicate.FunctionFactor;
@@ -49,6 +57,12 @@ public class FunctionEvaluator implements JCOConstants {
 
 		if (function.getFunctionType() == FunctionFactor.JARO_WINKLER_FUNCTION)
 			return getJaroWinklerSimilarityValue (function, pipeline);
+
+		if (function.getFunctionType() == FunctionFactor.GEOMETRY_LENGTH_FUNCTION)
+			return getGeometryLengthValue (function, pipeline);
+
+		if (function.getFunctionType() == FunctionFactor.GEOMETRY_AREA_FUNCTION)
+			return getGeometryAreaValue (function, pipeline);
 
 		return new SimpleValue (); // null value
 	}
@@ -424,5 +438,175 @@ public class FunctionEvaluator implements JCOConstants {
                 + ((double)match - t) / ((double)match))
             / 3.0;
     }
-     
+
+// ---------------------------------------------------------
+    
+
+	private static JCOValue getGeometryLengthValue (FunctionFactor function, Pipeline pipeline) {
+        Geometry geo = getGeometry(function, pipeline);
+		if (geo == null) {
+			JMH.addJCOMessage("No valid geometry to evaluate for function " + function.functionName);
+			// empty value
+			return new SimpleValue();
+		}
+
+        // By construction there's only one parameters
+		String unit = getUnit(function, pipeline);
+		if (unit == null) {
+			JMH.addJCOMessage("Wrong Unit parameters:\t" + unit + " (use 'M', 'KM' or 'ML' in " + function.functionName + ")");
+			// empty value
+			return new SimpleValue();				
+		} 
+			
+        double len = 0;
+        if (geo.getGeometryType().equals("LineString")) {
+            Coordinate[] coord = geo.getCoordinates();
+            for (int i=1; i<coord.length; i++) {
+        		double lat1 = coord[i-1].getY();
+        		double lon1 = coord[i-1].getX();
+        		double lat2 = coord[i].getY();
+        		double lon2 = coord[i].getX();    
+        	
+        		double dLat = Math.toRadians(lat2-lat1);  
+        		double dLon = Math.toRadians(lon2-lon1);
+        		  		  
+        		double a = 	Math.sin(dLat/2) * Math.sin(dLat/2) +
+        					Math.cos(Math.toRadians(lat1)) * 
+        					Math.cos(Math.toRadians(lat2)) * 
+        					Math.sin(dLon/2) * Math.sin(dLon/2);
+        		len += 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            }
+
+    		len = len * EARTH_RADIUS_KM;     		
+            if (unit.equals("M")) {
+            	len = len * KM_2_M;
+            } else if (unit.equals("ML")) {
+            	len = len / KM_2_MILE;
+            }
+        }
+        SimpleValue value = new SimpleValue(len);
+        return value;				
+	}
+
+
+	
+	private static Geometry getGeometry (FunctionFactor function, Pipeline pipeline) {
+		DocumentDefinition curDoc = pipeline.getCurrentDoc();
+		GeometryValue geoValue = (GeometryValue) curDoc.getValue(GEOMETRY_FIELD_NAME);
+		if (geoValue == null) 
+			return null;
+
+        Geometry geo = geoValue.getGeometry();
+        return geo;
+	}
+	private static String getUnit (FunctionFactor function, Pipeline pipeline) {
+		String unit = null;
+		JCOValue u = ExpressionPredicateEvaluator.calculate(function.functionParams.get(0), pipeline);
+		if (!JCOValue.isStringValue(u)) 
+			return null;
+		unit = u.getStringValue();
+		if (!checkUnit(unit)) 
+			return null;
+		return unit;
+	}
+	private static boolean checkUnit (String unit) {
+		boolean isM = "M".equalsIgnoreCase(unit);
+		boolean isKM = "KM".equalsIgnoreCase(unit);
+		boolean isML = "ML".equalsIgnoreCase(unit);
+		return isM || isKM || isML;
+	}
+
+	// ---------------------------------------------------------
+	
+	
+	private static JCOValue getGeometryAreaValue (FunctionFactor function, Pipeline pipeline) {
+        Geometry geo = getGeometry(function, pipeline);
+		if (geo == null) {
+			JMH.addJCOMessage("No valid geometry to evaluate for function " + function.functionName);
+			// empty value
+			return new SimpleValue();
+		}
+
+        // By construction there's only one parameters
+		String unit = getUnit(function, pipeline);
+		if (unit == null) {
+			JMH.addJCOMessage("Wrong Unit parameters:\t" + unit + " (use 'M', 'KM' or 'ML' in " + function.functionName + ")");
+			// empty value
+			return new SimpleValue();				
+		} 
+
+        double area = 0;
+        if (geo.getGeometryType().equals("Polygon")) {
+            Coordinate[] coord = geo.getCoordinates();
+            List<Point> locations = new ArrayList<>();
+            for (Coordinate coordinate : coord) 
+                locations.add(GeometryFactory.createPointFromInternalCoord(coordinate, geo.getCentroid()));
+
+            // area in square meters
+            area = calculateAreaOfPolygonOnSphereInSquareMeters(locations);
+            if (unit.equals("ML"))
+                area = area / M_2_MILE_SQUARE;
+            else if (unit.equals("KM")) 
+                area = area / KM_2_M_SQUARE;
+        }
+        SimpleValue value = new SimpleValue(area);
+        return value;				
+	}
+
+	private static double calculateAreaOfPolygonOnSphereInSquareMeters(List<Point> locations) {
+		if (locations.size() < 3) {
+			return 0;
+		}
+
+		final double diameter = EARTH_RADIUS_M * 2;
+		final double circumference = diameter * Math.PI;
+		final List<Double> listY = new ArrayList<Double>();
+		final List<Double> listX = new ArrayList<Double>();
+		final List<Double> listArea = new ArrayList<Double>();
+
+		// segment calculation for each point
+		final double latitudeRef = locations.get(0).getY();
+		final double longitudeRef = locations.get(0).getX();
+		for (int i = 1; i < locations.size(); i++) {
+			final double latitude = locations.get(i).getY();
+			final double longitude = locations.get(i).getX();
+
+			listY.add(calculateYSegment(latitudeRef, latitude, circumference));
+			listX.add(calculateXSegment(longitudeRef, longitude, latitude, circumference));
+		}
+
+		// triangle area calculation
+		for (int i = 1; i < listX.size(); i++) {
+			final double x1 = listX.get(i - 1);
+			final double y1 = listY.get(i - 1);
+			final double x2 = listX.get(i);
+			final double y2 = listY.get(i);
+			listArea.add(calculateAreaInSquareMeters(x1, x2, y1, y2));
+
+		}
+
+		// sum of triangle area
+		double areasSum = 0;
+		for (final Double area : listArea) {
+			areasSum = areasSum + area;
+		}
+
+		// area in absolute value: (if points are evaluated clockwise it would be negative)
+		return Math.abs(areasSum);// Math.sqrt(areasSum * areasSum);
+	}
+	private static Double calculateAreaInSquareMeters(double x1, double x2, double y1, double y2) {
+		return (y1 * x2 - x1 * y2) / 2;
+	}
+
+	
+	private static double calculateYSegment(double latitudeRef, double latitude, double circumference) {
+		return (latitude - latitudeRef) * circumference / 360.0;
+	}
+
+	
+	private static double calculateXSegment(double longitudeRef, double longitude, double latitude, double circumference) {
+		return (longitude - longitudeRef) * circumference * Math.cos(Math.toRadians(latitude)) / 360.0;
+	}
+	
+    
 }

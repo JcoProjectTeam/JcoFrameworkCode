@@ -29,7 +29,7 @@ tasks.withType(Jar) {
 dependencies {
 	implementation 'org.wololo:jts2geojson:0.14.3'
 	implementation 'org.mongodb:mongo-java-driver:3.4.2'
-	implementation files('lib/jcoParser4.0.jar')
+  implementation files('lib/jcoqlParser4.0.jar')
 	
 	implementation project(':jcoql-model')
 

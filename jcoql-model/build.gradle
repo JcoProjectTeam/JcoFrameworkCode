@@ -30,7 +30,7 @@ tasks.withType(Jar) {
 
 dependencies {
     implementation 'org.wololo:jts2geojson:0.14.3'
-    implementation files('lib/jcoParser4.0.jar')
+    implementation files('lib/jcoqlParser4.0.jar')
     testImplementation 'junit:junit:4.12'
 }
 

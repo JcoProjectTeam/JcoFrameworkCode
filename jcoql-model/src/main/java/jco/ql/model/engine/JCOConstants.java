@@ -46,4 +46,11 @@ public interface JCOConstants {
 	public static final String LOOKUPFROMWEB_COLLECTION_NAME	= "LookupFromWebCollection";
 	public static final String TEMPORARY_COLLECTION_NAME		= "temporary";
 
+	// Geometric constants
+	public static final double EARTH_RADIUS_KM 				= 6371;
+	public static final double EARTH_RADIUS_M 				= 6371*1000;
+	public static final double KM_2_MILE 					= 1.609344;
+	public static final double KM_2_M 						= 1000;
+	public static final double KM_2_M_SQUARE 				= 1000*1000;
+	public static final double M_2_MILE_SQUARE 				= 1609.344*1609.344; 	
 }

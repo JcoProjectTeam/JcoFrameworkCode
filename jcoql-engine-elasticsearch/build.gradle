@@ -34,7 +34,7 @@ dependencies {
 	testDownload('junit:junit:4.12')
     implementation fileTree(dir: 'libs/compile', include: '**/*.jar')
     testImplementation fileTree(dir: 'libs/testCompile', include: '**/*.jar')
-	implementation files('lib/jcoParser4.0.jar')
+	implementation files('lib/jcoqlParser4.0.jar')
 	    
 	implementation project(':jcoql-model')
 }
