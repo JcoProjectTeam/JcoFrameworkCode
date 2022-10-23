@@ -5,8 +5,13 @@ import java.util.List;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
@@ -58,6 +63,9 @@ public class FunctionEvaluator implements JCOConstants {
 		if (function.getFunctionType() == FunctionFactor.JARO_WINKLER_FUNCTION)
 			return getJaroWinklerSimilarityValue (function, pipeline);
 
+		if (function.getFunctionType() == FunctionFactor.GEOMETRY_FIELD_FUNCTION)
+			return getGeometryFieldValue (pipeline);
+
 		if (function.getFunctionType() == FunctionFactor.GEOMETRY_LENGTH_FUNCTION)
 			return getGeometryLengthValue (function, pipeline);
 
@@ -68,6 +76,7 @@ public class FunctionEvaluator implements JCOConstants {
 	}
 
 	
+
 	// ----------------------------------------------------------------------------------------
 
 	private static SimpleValue getCountValue(FunctionFactor factor, Pipeline pipeline) {
@@ -442,6 +451,14 @@ public class FunctionEvaluator implements JCOConstants {
 // ---------------------------------------------------------
     
 
+	private static JCOValue getGeometryFieldValue(Pipeline pipeline) {
+		DocumentDefinition doc = pipeline.getCurrentDoc();
+		if (doc == null)
+			return new SimpleValue ();		// null value
+
+		return doc.getValue(GEOMETRY_FIELD_NAME_DOT);
+	}
+
 	private static JCOValue getGeometryLengthValue (FunctionFactor function, Pipeline pipeline) {
         Geometry geo = getGeometry(function, pipeline);
 		if (geo == null) {
@@ -449,7 +466,6 @@ public class FunctionEvaluator implements JCOConstants {
 			// empty value
 			return new SimpleValue();
 		}
-
         // By construction there's only one parameters
 		String unit = getUnit(function, pipeline);
 		if (unit == null) {
@@ -459,36 +475,90 @@ public class FunctionEvaluator implements JCOConstants {
 		} 
 			
         double len = 0;
-        if (geo.getGeometryType().equals("LineString")) {
-            Coordinate[] coord = geo.getCoordinates();
-            for (int i=1; i<coord.length; i++) {
-        		double lat1 = coord[i-1].getY();
-        		double lon1 = coord[i-1].getX();
-        		double lat2 = coord[i].getY();
-        		double lon2 = coord[i].getX();    
-        	
-        		double dLat = Math.toRadians(lat2-lat1);  
-        		double dLon = Math.toRadians(lon2-lon1);
-        		  		  
-        		double a = 	Math.sin(dLat/2) * Math.sin(dLat/2) +
-        					Math.cos(Math.toRadians(lat1)) * 
-        					Math.cos(Math.toRadians(lat2)) * 
-        					Math.sin(dLon/2) * Math.sin(dLon/2);
-        		len += 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            }
+		if (geo instanceof LineString) 
+			len = getLineLength((LineString) geo);
+		else if (geo instanceof MultiLineString) 
+			len = getMultiLineLength((MultiLineString) geo);			
+		else if (geo instanceof MultiPolygon) 
+			len += getMultiPolygonLength ((MultiPolygon) geo);        		
+		else if (geo instanceof GeometryCollection) 
+			len += getGeometryCollectionLength ((GeometryCollection) geo);        		
 
-    		len = len * EARTH_RADIUS_KM;     		
-            if (unit.equals("M")) {
-            	len = len * KM_2_M;
-            } else if (unit.equals("ML")) {
-            	len = len / KM_2_MILE;
-            }
+		len = len * EARTH_RADIUS_KM;     		
+        if (unit.equals("M")) {
+        	len = len * KM_2_M;
+        } else if (unit.equals("ML")) {
+        	len = len / KM_2_MILE;
         }
         SimpleValue value = new SimpleValue(len);
         return value;				
 	}
 
-
+	private static double getGeometryCollectionLength (GeometryCollection geoColl) {
+        double len = 0;
+		for (int i=0; i<geoColl.getNumGeometries(); i++) {
+			Geometry geo = geoColl.getGeometryN(i);
+	        if (geo instanceof LineString) 
+	        	len += getLineLength ((LineString) geo);
+			else if (geo instanceof MultiLineString) 
+				len += getMultiLineLength ((MultiLineString) geo);        		
+			else if (geo instanceof MultiPolygon) 
+				len += getMultiPolygonLength ((MultiPolygon) geo);        		
+			else if (geo instanceof GeometryCollection) 
+				len += getGeometryCollectionLength ((GeometryCollection) geo);        		
+		}        
+        return len;		
+	}
+	private static double getMultiPolygonLength (MultiPolygon multiPolygon) {
+        double len = 0;
+		for (int i=0; i<multiPolygon.getNumGeometries(); i++) {
+			Geometry geo = multiPolygon.getGeometryN(i);
+	        if (geo instanceof LineString) 
+	        	len += getLineLength ((LineString) geo);
+			else if (geo instanceof MultiLineString) 
+				len += getMultiLineLength ((MultiLineString) geo);        		
+			else if (geo instanceof MultiPolygon) 
+				len += getMultiPolygonLength ((MultiPolygon) geo);        		
+			else if (geo instanceof GeometryCollection) 
+				len += getGeometryCollectionLength ((GeometryCollection) geo);        		
+		}        
+        return len;		
+	}
+	private static double getMultiLineLength (MultiLineString multiLine) {
+        double len = 0;
+		for (int i=0; i<multiLine.getNumGeometries(); i++) {
+			Geometry geo = multiLine.getGeometryN(i);
+	        if (geo instanceof LineString) 
+	        	len += getLineLength ((LineString) geo);
+			else if (geo instanceof MultiLineString) 
+				len += getMultiLineLength ((MultiLineString) geo);        		
+			else if (geo instanceof MultiPolygon) 
+				len += getMultiPolygonLength ((MultiPolygon) geo);        		
+			else if (geo instanceof GeometryCollection) 
+				len += getGeometryCollectionLength ((GeometryCollection) geo);        		
+		}        
+        return len;		
+	}
+	private static double getLineLength (LineString line) {
+        double len = 0;
+        Coordinate[] coord = line.getCoordinates();
+        for (int i=1; i<coord.length; i++) {
+    		double lat1 = coord[i-1].getY();
+    		double lon1 = coord[i-1].getX();
+    		double lat2 = coord[i].getY();
+    		double lon2 = coord[i].getX();    
+    	
+    		double dLat = Math.toRadians(lat2-lat1);  
+    		double dLon = Math.toRadians(lon2-lon1);
+    		  		  
+    		double a = 	Math.sin(dLat/2) * Math.sin(dLat/2) +
+    					Math.cos(Math.toRadians(lat1)) * 
+    					Math.cos(Math.toRadians(lat2)) * 
+    					Math.sin(dLon/2) * Math.sin(dLon/2);
+    		len += 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        }
+        return len;		
+	}
 	
 	private static Geometry getGeometry (FunctionFactor function, Pipeline pipeline) {
 		DocumentDefinition curDoc = pipeline.getCurrentDoc();
@@ -536,23 +606,58 @@ public class FunctionEvaluator implements JCOConstants {
 		} 
 
         double area = 0;
-        if (geo.getGeometryType().equals("Polygon")) {
-            Coordinate[] coord = geo.getCoordinates();
-            List<Point> locations = new ArrayList<>();
-            for (Coordinate coordinate : coord) 
-                locations.add(GeometryFactory.createPointFromInternalCoord(coordinate, geo.getCentroid()));
-
-            // area in square meters
-            area = calculateAreaOfPolygonOnSphereInSquareMeters(locations);
-            if (unit.equals("ML"))
-                area = area / M_2_MILE_SQUARE;
-            else if (unit.equals("KM")) 
-                area = area / KM_2_M_SQUARE;
-        }
+        if (geo instanceof Polygon) 
+        	area = getPolygonArea ((Polygon) geo);
+		else if (geo instanceof MultiPolygon) 
+        	area = getMultiPolygonArea ((MultiPolygon) geo);        		
+		else if (geo instanceof GeometryCollection) 
+			area += getGeometryCollectionArea ((GeometryCollection) geo);        		
+        
+        if (unit.equals("ML"))
+            area = area / M_2_MILE_SQUARE;
+        else if (unit.equals("KM")) 
+            area = area / KM_2_M_SQUARE;
         SimpleValue value = new SimpleValue(area);
         return value;				
 	}
 
+	private static double getGeometryCollectionArea (GeometryCollection multiPolygon) {
+		double area = 0;
+		for (int i=0; i<multiPolygon.getNumGeometries(); i++) {
+			Geometry geo = multiPolygon.getGeometryN(i);
+	        if (geo instanceof Polygon) 
+	        	area += getPolygonArea ((Polygon) geo);
+			else if (geo instanceof MultiPolygon) 
+	        	area += getMultiPolygonArea ((MultiPolygon) geo);        		
+			else if (geo instanceof GeometryCollection) 
+				area += getGeometryCollectionArea ((GeometryCollection) geo);        		
+		}
+        return area;		
+	}
+	private static double getMultiPolygonArea (MultiPolygon multiPolygon) {
+		double area = 0;
+		for (int i=0; i<multiPolygon.getNumGeometries(); i++) {
+			Geometry geo = multiPolygon.getGeometryN(i);
+	        if (geo instanceof Polygon) 
+	        	area += getPolygonArea ((Polygon) geo);
+			else if (geo instanceof MultiPolygon) 
+	        	area += getMultiPolygonArea ((MultiPolygon) geo);        		
+			else if (geo instanceof GeometryCollection) 
+				area += getGeometryCollectionArea ((GeometryCollection) geo);        		
+		}
+        return area;		
+	}
+	private static double getPolygonArea (Polygon polygon) {
+		double area = 0;
+        Coordinate[] coord = polygon.getCoordinates();
+        List<Point> locations = new ArrayList<>();
+        for (Coordinate coordinate : coord) 
+            locations.add(GeometryFactory.createPointFromInternalCoord(coordinate, polygon.getCentroid()));
+
+        // area in square meters
+        area = calculateAreaOfPolygonOnSphereInSquareMeters(locations);
+        return area;		
+	}
 	private static double calculateAreaOfPolygonOnSphereInSquareMeters(List<Point> locations) {
 		if (locations.size() < 3) {
 			return 0;
@@ -577,25 +682,26 @@ public class FunctionEvaluator implements JCOConstants {
 
 		// triangle area calculation
 		for (int i = 1; i < listX.size(); i++) {
-			final double x1 = listX.get(i - 1);
-			final double y1 = listY.get(i - 1);
-			final double x2 = listX.get(i);
-			final double y2 = listY.get(i);
-			listArea.add(calculateAreaInSquareMeters(x1, x2, y1, y2));
+			double x0 = listX.get(i - 1);
+			double y0 = listY.get(i - 1);
+			double x1 = listX.get(i);
+			double y1 = listY.get(i);
+			listArea.add(calculateAreaInSquareMeters(x0, x1, y0, y1));
 
 		}
 
 		// sum of triangle area
 		double areasSum = 0;
-		for (final Double area : listArea) {
-			areasSum = areasSum + area;
+		for (Double area : listArea) {
+			areasSum += area;
 		}
 
-		// area in absolute value: (if points are evaluated clockwise it would be negative)
-		return Math.abs(areasSum);// Math.sqrt(areasSum * areasSum);
+		if (areasSum < 0)
+			areasSum = EARTH_SURFACE_M - areasSum;
+		return areasSum;
 	}
-	private static Double calculateAreaInSquareMeters(double x1, double x2, double y1, double y2) {
-		return (y1 * x2 - x1 * y2) / 2;
+	private static Double calculateAreaInSquareMeters(double x0, double x1, double y0, double y1) {
+		return (y0 * x1 - x0 * y1) / 2;
 	}
 
 	

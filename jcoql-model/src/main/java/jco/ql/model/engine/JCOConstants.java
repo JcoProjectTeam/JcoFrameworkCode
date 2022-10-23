@@ -48,7 +48,8 @@ public interface JCOConstants {
 
 	// Geometric constants
 	public static final double EARTH_RADIUS_KM 				= 6371;
-	public static final double EARTH_RADIUS_M 				= 6371*1000;
+	public static final double EARTH_RADIUS_M 				= 6371 * 1000;
+	public static final double EARTH_SURFACE_M 				= 4 * Math.PI * EARTH_RADIUS_M * EARTH_RADIUS_M ;	
 	public static final double KM_2_MILE 					= 1.609344;
 	public static final double KM_2_M 						= 1000;
 	public static final double KM_2_M_SQUARE 				= 1000*1000;

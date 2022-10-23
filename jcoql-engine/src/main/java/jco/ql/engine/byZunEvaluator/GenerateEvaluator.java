@@ -46,6 +46,11 @@ public class GenerateEvaluator {
 			if(gs.hasKeepDropFuzzySets()) {
 				outDoc = KeepingDroppingFuzzySetsEvaluator.evaluate(outDoc, gs.keepDropFuzzySets);
 			}
+
+			/* DROPPING GEOMETRY */
+			if(gs.hasDropGeometry()) {
+				outDoc = GeometricOptionEvaluator.removeGeometry(outDoc);
+			}
 		}	
 		return outDoc;
 	}

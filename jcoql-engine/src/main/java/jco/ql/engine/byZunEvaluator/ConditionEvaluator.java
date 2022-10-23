@@ -35,7 +35,7 @@ public class ConditionEvaluator implements JCOConstants {
 	
 
 	public static JCOValue evaluate (Condition condition, Pipeline pipeline) {
-		JCOValue value = new SimpleValue();
+		JCOValue value = new SimpleValue(); // null Value
 		
 		if (condition == null)
 			return value;

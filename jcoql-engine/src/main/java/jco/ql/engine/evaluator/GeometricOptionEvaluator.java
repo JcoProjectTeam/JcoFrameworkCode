@@ -124,6 +124,28 @@ public class GeometricOptionEvaluator implements JCOConstants {
 	}
 
 	
+	public static DocumentDefinition removeGeometry(DocumentDefinition doc) {
+		boolean change = false;
+
+		if (doc == null)
+			return doc;
+		
+		List<FieldDefinition> fields = doc.getFields();
+
+		// remove old ~geometry
+		for (int i = 0; i < fields.size(); i++) 
+			if(GEOMETRY_FIELD_NAME.equals(fields.get(i).getName())) {
+				fields.remove(i);
+				change = true;
+				break;		// there is only one ~geometry
+			}
+		if (change)
+			return new DocumentDefinition(fields);		
+
+		return doc;
+	}
+
+
 	private static double getCoordinate(SimpleValue v) {
 		return (Double)(v.getValue());
 	}
