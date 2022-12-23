@@ -35,7 +35,7 @@ public class FuzzyOperatorEvaluator {
     		JMH.addFuzzyMessage("Wrong type of parameters for Fuzzy Operator:\t" + fo.getFuzzyOperatorName());
     		return new SimpleValue (); // null    		
     	}
-    			
+    	
     	DocumentDefinition fuzzyDoc = createFuzzyDoc (actualParameters, fo.getParameters());   	
     	Pipeline fuzzyPipeline = new Pipeline(pipeline);
     	fuzzyPipeline.setCurrentDoc(fuzzyDoc);

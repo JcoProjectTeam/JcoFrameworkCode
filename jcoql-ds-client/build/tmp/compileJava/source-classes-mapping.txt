@@ -1,0 +1,51 @@
+jco/ql/db/ds/client/shell/StopUpdateShellCommand.java
+ jco.ql.db.ds.client.shell.StopUpdateShellCommand
+jco/ql/db/ds/client/shell/ShellUtils.java
+ jco.ql.db.ds.client.shell.ShellUtils
+jco/ql/db/ds/client/configuration/ClientConnectionProperties.java
+ jco.ql.db.ds.client.configuration.ClientConnectionProperties
+jco/ql/db/ds/client/shell/ImportCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.ImportCollectionShellCommand
+ jco.ql.db.ds.client.shell.ImportCollectionShellCommand$1
+ jco.ql.db.ds.client.shell.ImportCollectionShellCommand$2
+jco/ql/db/ds/client/shell/DeleteDatabaseShellCommand.java
+ jco.ql.db.ds.client.shell.DeleteDatabaseShellCommand
+jco/ql/db/ds/client/shell/SetUpdateTypeShellCommand.java
+ jco.ql.db.ds.client.shell.SetUpdateTypeShellCommand
+jco/ql/db/ds/client/shell/CreateCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.CreateCollectionShellCommand
+jco/ql/db/ds/client/shell/RemoveUrlShellCommand.java
+ jco.ql.db.ds.client.shell.RemoveUrlShellCommand
+jco/ql/db/ds/client/shell/DeleteCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.DeleteCollectionShellCommand
+jco/ql/db/ds/client/shell/JCoShellCommand.java
+ jco.ql.db.ds.client.shell.JCoShellCommand
+jco/ql/db/ds/client/shell/ListUrlShellCommand.java
+ jco.ql.db.ds.client.shell.ListUrlShellCommand
+jco/ql/db/ds/client/shell/ListCollectionsShellCommand.java
+ jco.ql.db.ds.client.shell.ListCollectionsShellCommand
+jco/ql/db/ds/client/configuration/ClientConfiguration.java
+ jco.ql.db.ds.client.configuration.ClientConfiguration
+ jco.ql.db.ds.client.configuration.ClientConfiguration$1
+jco/ql/db/ds/client/Client.java
+ jco.ql.db.ds.client.Client
+jco/ql/db/ds/client/shell/PingShellCommand.java
+ jco.ql.db.ds.client.shell.PingShellCommand
+jco/ql/db/ds/client/shell/GetCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.GetCollectionShellCommand
+jco/ql/db/ds/client/shell/CreateVirtualCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.CreateVirtualCollectionShellCommand
+jco/ql/db/ds/client/shell/AddUrlShellCommand.java
+ jco.ql.db.ds.client.shell.AddUrlShellCommand
+jco/ql/db/ds/client/shell/ExportCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.ExportCollectionShellCommand
+jco/ql/db/ds/client/shell/CreateDynamicCollectionShellCommand.java
+ jco.ql.db.ds.client.shell.CreateDynamicCollectionShellCommand
+jco/ql/db/ds/client/shell/GetCollectionCountShellCommand.java
+ jco.ql.db.ds.client.shell.GetCollectionCountShellCommand
+jco/ql/db/ds/client/shell/CreateDatabaseShellCommand.java
+ jco.ql.db.ds.client.shell.CreateDatabaseShellCommand
+jco/ql/db/ds/client/shell/SetFrequencyShellCommand.java
+ jco.ql.db.ds.client.shell.SetFrequencyShellCommand
+jco/ql/db/ds/client/shell/ListDatabasesShellCommand.java
+ jco.ql.db.ds.client.shell.ListDatabasesShellCommand

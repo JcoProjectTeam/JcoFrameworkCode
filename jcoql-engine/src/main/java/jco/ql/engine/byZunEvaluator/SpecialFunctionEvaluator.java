@@ -61,7 +61,7 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 
 	
 	private static JCOValue getIfErrorValue(IfErrorFunction factor, Pipeline pipeline) {
-		JCOValue defaultValue = ExpressionFactorEvaluator.getFactorValue(factor);
+		JCOValue defaultValue = ExpressionFactorEvaluator.getFactorValue(factor, pipeline);
 		JCOValue outValue = null;
 		try {
 			outValue = ExpressionPredicateEvaluator.calculate (factor.expression2check, pipeline);

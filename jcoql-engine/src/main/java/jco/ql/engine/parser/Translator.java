@@ -2,6 +2,7 @@ package jco.ql.engine.parser;
 
 import jco.ql.model.command.ExpandCommand;
 import jco.ql.model.command.FilterCommand;
+import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
 import jco.ql.model.command.LookupFromWebCommand;
 import jco.ql.model.command.GetCollectionCommand;
@@ -19,6 +20,7 @@ import jco.ql.model.command.UseDbCommand;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.parser.model.Expand;
 import jco.ql.parser.model.Filter;
+import jco.ql.parser.model.FuzzyAggregator;
 import jco.ql.parser.model.FuzzyOperator;
 import jco.ql.parser.model.LookupFromWeb;
 import jco.ql.parser.model.GetCollection;
@@ -97,6 +99,11 @@ public class Translator implements JCOConstants {
 		else if(instr instanceof LookupFromWeb) {
 			LookupFromWeb gfw = (LookupFromWeb) instr;
 			return new LookupFromWebCommand (gfw);
+		}
+		//FI modified 27/11/2022
+		else if(instr instanceof FuzzyAggregator) {
+			FuzzyAggregator fa = (FuzzyAggregator) instr;
+			return new FuzzyAggregatorCommand(fa);
 		}
 
 		return null;

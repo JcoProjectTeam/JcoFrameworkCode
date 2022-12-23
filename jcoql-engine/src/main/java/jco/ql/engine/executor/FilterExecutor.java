@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.script.ScriptException;
 
 import jco.ql.byZun.ZunTicker;
+import jco.ql.byZun.ZunTimer;
 import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.Pipeline;
 import jco.ql.engine.annotation.Executor;
@@ -25,6 +26,7 @@ public class FilterExecutor implements IExecutor<FilterCommand>, JCOConstants {
 
 	@Override
 	public void execute(Pipeline pipeline, FilterCommand command) throws ExecuteProcessException, ScriptException {
+		ZunTimer.getInstance().reset();
 		IDocumentCollection collection = pipeline.getCurrentCollection();
 
 		LinkedBlockingQueue<DocumentDefinition> queue = new LinkedBlockingQueue<DocumentDefinition>();
@@ -75,7 +77,7 @@ public class FilterExecutor implements IExecutor<FilterCommand>, JCOConstants {
 
 		SimpleDocumentCollection outCollection = new SimpleDocumentCollection(FILTER_COLLECTION_NAME, outDocs);
 		pipeline.addCollection(outCollection);
-
+		ZunTimer.getInstance().getMilliPartial("Tempo totale filter");
 		JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + outCollection.getDocumentList().size() + " documents filtered");
 		
 	}

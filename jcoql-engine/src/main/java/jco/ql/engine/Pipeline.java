@@ -15,6 +15,7 @@ import jco.ql.engine.state.ProcessState;
 import jco.ql.model.Dictionary;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
+import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
 import jco.ql.model.command.JavascriptFunctionCommand;
 import jco.ql.model.engine.IDocumentCollection;
@@ -67,6 +68,10 @@ public class Pipeline implements  JCOConstants {
 	private Map<String, Dictionary> dictionaries;
 	// PF. added on 22.07.2021
 	private DocumentDefinition currentDoc;
+	
+	//FI added on 27.10.2022
+	private LinkedList<FuzzyAggregatorCommand> fuzzyAggregators;
+	private int fuzzyAggregatorIndex;
 
 
 	public Pipeline() {
@@ -95,6 +100,9 @@ public class Pipeline implements  JCOConstants {
 		// PF. added on 22.07.2021
 		dictionaries = new TreeMap<String, Dictionary>();
 		currentDoc = null;
+		
+		//FI added on 27.10.2022
+		fuzzyAggregators = new LinkedList<>();
 	}
 	public Pipeline(Pipeline sourcePipeline, int currentThread) {
 		retrieveEnvironment (sourcePipeline);
@@ -122,6 +130,9 @@ public class Pipeline implements  JCOConstants {
 		this.jsFunctions = sourcePipeline.jsFunctions;
 		this.dictionaries = sourcePipeline.dictionaries;		
 		this.jsEngines = sourcePipeline.jsEngines;
+		//FI added on 27.10.2022
+		this.fuzzyAggregators = sourcePipeline.fuzzyAggregators;
+		this.fuzzyAggregatorIndex = sourcePipeline.fuzzyAggregatorIndex;
 	}
 
 	
@@ -368,6 +379,35 @@ public class Pipeline implements  JCOConstants {
 	}
 	public void setDictionaries (Map<String, Dictionary> dictionaries) {
 		this.dictionaries = dictionaries;
+	}
+	
+	public LinkedList<FuzzyAggregatorCommand> getFuzzyAggregators(){
+		return fuzzyAggregators;
+	}
+	
+	//FI added on 27.10.2022
+	public void addFuzzyAggregator(FuzzyAggregatorCommand fuzzyAg) {
+		ProcessState s = new ProcessState(fuzzyAg, state.getLast().getCollection());
+		s.setIstruction(istructions.removeFirst());
+		state.add(s);
+		fuzzyAggregators.add(fuzzyAg);
+	}
+	
+	public void updateFuzzyAggregator(FuzzyAggregatorCommand fuzzyAg, int ndx) {
+		ProcessState s = new ProcessState(fuzzyAg, state.getLast().getCollection());
+		s.setIstruction(istructions.removeFirst());
+		state.add(s);
+		fuzzyAggregators.set(ndx, fuzzyAg);
+	}
+	
+	public int getFuzzyAggregatorIndex(){
+		return fuzzyAggregatorIndex;
+	}
+	public void setFuzzyAggregatorIndex(int i){
+		this.fuzzyAggregatorIndex = i;
+	}
+	public void incFuzzyAggregatorIndex(int i){
+		this.fuzzyAggregatorIndex = this.fuzzyAggregatorIndex + i;
 	}
 
 }

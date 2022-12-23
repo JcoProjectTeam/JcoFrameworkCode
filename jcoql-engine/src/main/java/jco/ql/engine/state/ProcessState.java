@@ -3,6 +3,7 @@ package jco.ql.engine.state;
 import java.util.ArrayList;
 import java.util.List;
 
+import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
 import jco.ql.model.command.JavascriptFunctionCommand;
 import jco.ql.model.engine.IDocumentCollection;
@@ -26,6 +27,9 @@ public class ProcessState {
 
 	// variabili per lo stato Create Fuzzy Operator
 	private boolean isCreateFuzzyOperator;
+	
+	// FI Added 30/10/22
+	private boolean isCreateFuzzyAggregator;
 
 	// variabili per lo stato Create JS Function
 	private boolean isCreateJsFunction;
@@ -39,6 +43,7 @@ public class ProcessState {
 		setIntermediateAs = false;
 		isCreateFuzzyOperator = false;
 		isCreateJsFunction = false;
+		isCreateFuzzyAggregator = false;
 	}
 
 	public ProcessState(IDocumentCollection coll) {
@@ -48,10 +53,24 @@ public class ProcessState {
 		this.currentCollection = coll;
 		isCreateFuzzyOperator = false;
 		isCreateJsFunction = false;
+		isCreateFuzzyAggregator = false;
 	}
 
 	public ProcessState(FuzzyOperatorCommand fuzzyOp, IDocumentCollection coll) {
 		isCreateFuzzyOperator = true;
+		isCreateFuzzyAggregator = false;
+		useDb = false;
+		emptyState = false;
+		setIntermediateAs = false;
+		this.currentCollection = coll;
+		isCreateJsFunction = false;
+		istruction = "";
+	}
+	
+	//FI Added 30/10/2022
+	public ProcessState(FuzzyAggregatorCommand fuzzyAg, IDocumentCollection coll) {
+		isCreateFuzzyAggregator = true;
+		isCreateFuzzyOperator = false;
 		useDb = false;
 		emptyState = false;
 		setIntermediateAs = false;
@@ -62,6 +81,7 @@ public class ProcessState {
 
 	public ProcessState(JavascriptFunctionCommand jsFunction, IDocumentCollection coll) {
 		isCreateFuzzyOperator = false;
+		isCreateFuzzyAggregator = false;
 		useDb = false;
 		emptyState = false;
 		setIntermediateAs = false;
@@ -99,6 +119,10 @@ public class ProcessState {
 
 	public boolean isCreateFuzzyOperator() {
 		return isCreateFuzzyOperator;
+	}
+	
+	public boolean isCreateFuzzyAggregator() {
+		return isCreateFuzzyAggregator;
 	}
 
 	public boolean isCreateJsFunction() {

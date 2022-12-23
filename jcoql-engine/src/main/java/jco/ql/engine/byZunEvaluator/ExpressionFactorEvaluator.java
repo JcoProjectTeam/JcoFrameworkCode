@@ -21,8 +21,9 @@ public class ExpressionFactorEvaluator implements JCOConstants {
 		if (factor.getType() == ExpressionFactor.SUB_EXPRESSION)
 			return ExpressionPredicateEvaluator.calculate(factor.subExpression, pipeline);
 		
+		//FI modified on 05/11/2022
 		if (factor.getType() == ExpressionFactor.VALUE)
-			return getFactorValue (factor);
+			return getFactorValue (factor, pipeline);
 
 		if (factor.getType() == ExpressionFactor.ID)
 			return getIDValue (factor, pipeline);
@@ -35,14 +36,18 @@ public class ExpressionFactorEvaluator implements JCOConstants {
 
 		if (factor.getType() == ExpressionFactor.SPECIAL_FUNCTION)
 			return SpecialFunctionEvaluator.evaluate ((SpecialFunctionFactor)factor, pipeline);
-
+		
+		//FI modified on 05/11/2022
+		if(factor.getType() == ExpressionFactor.ARRAY_REF)
+			return ArrayReferenceEvaluator.evaluate(factor.reference, pipeline);
+					
 		return new SimpleValue ();		// null value
 	}
 
 	/* ***************************************************************** */
 
-	
-	public static SimpleValue getFactorValue(ExpressionFactor factor) {
+	//FI modified on 05/11/2022
+	public static SimpleValue getFactorValue(ExpressionFactor factor, Pipeline pipeline) {
 		Value v = factor.value;
 		if (v == null)
 			return new SimpleValue ();		// null value
@@ -61,6 +66,9 @@ public class ExpressionFactorEvaluator implements JCOConstants {
 
 		if (v.isApex())
 			return new SimpleValue (v.value);
+		
+		if(v.isPos()) 
+			return new SimpleValue(pipeline.getFuzzyAggregatorIndex()+1);
 
 		return new SimpleValue ();		// null value
 	}

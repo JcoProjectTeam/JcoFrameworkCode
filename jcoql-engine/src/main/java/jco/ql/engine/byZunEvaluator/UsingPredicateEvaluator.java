@@ -6,9 +6,12 @@ import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
 import jco.ql.model.value.EValueType;
 import jco.ql.model.value.SimpleValue;
+import jco.ql.parser.model.predicate.UsingAggregatorPredicate;
 import jco.ql.parser.model.predicate.UsingPredicate;
 
-/* All evaluations from now on is on pipeline current doc which is NOT NULL by construction */
+/* All evaluations from now on is on pipeline current doc which is NOT NULL by construction 
+ * - FI modified on 30/10/2022
+ * */
 public class UsingPredicateEvaluator implements JCOConstants {
 
 	public static SimpleValue fuzzyEvaluate(UsingPredicate usingPredicate, Pipeline pipeline) {
@@ -21,6 +24,8 @@ public class UsingPredicateEvaluator implements JCOConstants {
 			value = ConditionEvaluator.fuzzyEvaluate(usingPredicate.subUsingCondition, pipeline);
 		else if (usingPredicate.usingType == UsingPredicate.USING_IF_FAILS)
 			value = evaluateIfFails (usingPredicate, pipeline);
+		else if (usingPredicate.usingType == UsingPredicate.USING_FUZZY_AGGREGATOR)//FI added
+			value = FuzzyAggregatorEvaluator.evaluate((UsingAggregatorPredicate)usingPredicate, pipeline);
 		
 		return value;
 	}
