@@ -85,28 +85,34 @@ public class ZunScriptTester {
 			}
 			ZunWarningTracker.getInstance().addWarning("th:  \t" + EngineConfiguration.getInstance().getNProcessors()+ "\n");
 			ZunWarningTracker.getInstance().println();
-			ZunWarningTracker.getInstance().saveToFile();		
-		    ZunTimer.getInstance().println();
-		    ZunTimer.getInstance().saveToFile();
-		    List<String> list = JMH.getJcoChannel();
-		    System.out.println("-------------------- JCO Channel ---------------------------");
+		    List<String> list = JMH.getConfigurationChannelDev();
+		    System.out.println("-------------------- Configuration ChannelDev ------------------------");
+			ZunWarningTracker.add("-------------------- Configuration ChannelDev ------------------------");
 		    int i=0;
+		    for (String msg : list) {
+				ZunWarningTracker.add(i + ".\t" + msg);
+				System.out.println(i++ + ".\t" + msg);
+			}
+		    list = JMH.getJcoChannel();
+		    System.out.println("-------------------- JCO Channel ---------------------------");
+		    i=0;
 		    for (String msg : list) {
 				System.out.println(i++ + ".\t" + msg);
 			}
 		    list = JMH.getMainChannel();
 		    System.out.println("-------------------- Main Channel ---------------------------");
+			ZunWarningTracker.add("-------------------- Main ChannelDev ------------------------");
 		    i=0;
 		    for (String msg : list) {
+				ZunWarningTracker.add(i + ".\t" + msg);
 				System.out.println(i++ + ".\t" + msg);
 			}
 		    list = JMH.getMainChannelDev();
-		    System.out.println("-------------------- Main ChannelDev ------------------------");
-		    i=0;
-		    for (String msg : list) {
-				System.out.println(i++ + ".\t" + msg);
-			}
 		    System.out.println("-------------------------------------------------------------");
+
+		    ZunWarningTracker.getInstance().saveToFile();		
+		    ZunTimer.getInstance().println();
+		    ZunTimer.getInstance().saveToFile();
 		   
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();

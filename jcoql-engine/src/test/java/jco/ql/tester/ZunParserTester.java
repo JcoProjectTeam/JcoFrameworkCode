@@ -26,7 +26,10 @@ public class ZunParserTester {
 		fileIn = ZunProperties.getScriptPath() + "testAbdis.txt";
 		fileIn = ZunProperties.getScriptPath() + "5.TEST IJGI\\testIJGI.txt";
 		fileIn = ZunProperties.getScriptPath() + "5.TEST IJGI\\test.txt";
-		fileIn = ZunProperties.getScriptPath() + "testGeo.txt";
+		fileIn = ZunProperties.getScriptPath() + "\\testJava\\test.txt";
+		fileIn = ZunProperties.getScriptPath() + "\\2.TEST NeuroComputing\\1.testNeurocomputingJs.txt";
+//		fileIn = ZunProperties.getScriptPath() + "\\2.TEST NeuroComputing\\2.testNeurocomputingJavaEmbedded.txt";
+//		fileIn = ZunProperties.getScriptPath() + "\\2.TEST NeuroComputing\\3.testNeurocomputingJava.txt";
 
   	try {
   		// Inizializzazione del parser (antlr docet):

@@ -10,6 +10,7 @@ import jco.ql.model.command.GetDictionaryCommand;
 import jco.ql.model.command.GroupCommand;
 import jco.ql.model.command.ICommand;
 import jco.ql.model.command.IntersectCollectionsCommand;
+import jco.ql.model.command.JavaFunctionCommand;
 import jco.ql.model.command.JavascriptFunctionCommand;
 import jco.ql.model.command.MergeCollectionsCommand;
 import jco.ql.model.command.SaveAsCommand;
@@ -28,6 +29,7 @@ import jco.ql.parser.model.GetDictionary;
 import jco.ql.parser.model.Group;
 import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.IntersectCollections;
+import jco.ql.parser.model.JavaFunction;
 import jco.ql.parser.model.JavascriptFunction;
 import jco.ql.parser.model.MergeCollections;
 import jco.ql.parser.model.JoinCollections;
@@ -91,6 +93,10 @@ public class Translator implements JCOConstants {
 		else if (instr instanceof JavascriptFunction) {
 			JavascriptFunction jsf = (JavascriptFunction) instr;
 			return new JavascriptFunctionCommand(jsf);
+		} 
+		else if (instr instanceof JavaFunction) {
+			JavaFunction jf = (JavaFunction) instr;
+			return new JavaFunctionCommand(jf);
 		} 
 		else if(instr instanceof GetDictionary) {
 			GetDictionary gd = (GetDictionary) instr;

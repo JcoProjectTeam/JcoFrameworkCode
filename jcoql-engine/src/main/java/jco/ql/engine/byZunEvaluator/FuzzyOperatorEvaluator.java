@@ -18,13 +18,12 @@ import jco.ql.parser.model.util.Parameter;
 public class FuzzyOperatorEvaluator {
 
     public static SimpleValue evaluate (UsingPredicate usingPredicate, Pipeline pipeline) {
-    	int ndx = alreadyExists(pipeline, usingPredicate.fuzzyOperator);
-    	if (ndx == -1) {
+    	if (!pipeline.getFuzzyOperators().containsKey(usingPredicate.fuzzyOperator)) {
     		JMH.addFuzzyMessage("Fuzzy Operator not found:\t" + usingPredicate.fuzzyOperator);
     		return new SimpleValue (); // null
     	}
 
-    	FuzzyOperatorCommand fo = pipeline.getFuzzyOperators().get(ndx);
+    	FuzzyOperatorCommand fo = pipeline.getFuzzyOperators().get(usingPredicate.fuzzyOperator);
     	if (fo.getParameters().size() != usingPredicate.fuzzyOperatorParameters.size()) {
     		JMH.addFuzzyMessage("Wrong number of parameters for Fuzzy Operator:\t" + fo.getFuzzyOperatorName());
     		return new SimpleValue (); // null
@@ -52,17 +51,6 @@ public class FuzzyOperatorEvaluator {
     }
 
     /* ****************************************************************************************************** */
-
-	// return the index of FO in the list. -1 if the FO is not (yet) existing
-    private static int alreadyExists(Pipeline pipeline, String foName) {
-        for(int i = 0; i < pipeline.getFuzzyOperators().size(); i++) {
-            if(pipeline.getFuzzyOperators().get(i).getFuzzyOperatorName().equals(foName)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
 
     private static List<JCOValue> getActualParameters(UsingPredicate usingPredicate, Pipeline pipeline) {
     	List<JCOValue> actualParameters = new ArrayList<JCOValue> ();

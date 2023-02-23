@@ -12,19 +12,21 @@ import java.util.List;
  * JMH: JCo Messsage Handler
  * ************************* */
 public class JMH {
-	public static final int MAIN_CHANNEL = 0;
-	public static final int PARSER_CHANNEL = 1;
-	public static final int JCO_CHANNEL = 5;
-	public static final int IO_CHANNEL = 3;
-	public static final int DS_CHANNEL = 4;
-	public static final int JS_CHANNEL = 5;
-	public static final int FUZZY_CHANNEL = 6;
-	public static final int EXCEPTION_CHANNEL = 7;
+	public static final int CONFIGURATION_CHANNEL = 0;
+	public static final int MAIN_CHANNEL = 1;
+	public static final int PARSER_CHANNEL = 2;
+	public static final int JCO_CHANNEL = 3;
+	public static final int IO_CHANNEL = 4;
+	public static final int DS_CHANNEL = 5;
+	public static final int JS_CHANNEL = 6;
+	public static final int FUZZY_CHANNEL = 7;
+	public static final int EXCEPTION_CHANNEL = 8;
 	
 	// singleton
     private static JMH only = new JMH();
     
-    // available channels: mainChannel includes all the other ones
+    // available channels: mainChannel includes all the other ones except configurationChannel that can't be resetted
+    private List<String> configurationChannel;
     private List<String> mainChannel;
     private List<String> parserChannel;
     private List<String> jcoChannel;
@@ -34,6 +36,7 @@ public class JMH {
     private List<String> fuzzyChannel;
     private List<String> exceptionChannel;
     // For developers: same as previous ones but with JCO code reference
+    private List<String> configurationChannelDev;
     private List<String> mainChannelDev;
     private List<String> parserChannelDev;
     private List<String> jcoChannelDev;
@@ -47,6 +50,7 @@ public class JMH {
     public JMH() {
         this.toScreen = false;
         
+        this.configurationChannel = new ArrayList<>();
         this.mainChannel = new ArrayList<>();
         this.parserChannel = new ArrayList<>();
         this.jcoChannel = new ArrayList<>();
@@ -56,6 +60,7 @@ public class JMH {
         this.fuzzyChannel = new ArrayList<>();
         this.exceptionChannel = new ArrayList<>();
 
+        this.configurationChannelDev = new ArrayList<>();
         this.mainChannelDev = new ArrayList<>();
         this.parserChannelDev = new ArrayList<>();
         this.jcoChannelDev = new ArrayList<>();
@@ -116,6 +121,10 @@ public class JMH {
 
     public static String add (int channel, String msg) {
     	return only.execAddMessage(channel, msg);
+    }
+
+    public static String addConfigurationMessage (String msg) {
+    	return only.execAddMessage(CONFIGURATION_CHANNEL, msg);
     }
 
     public static String addParserMessage (String msg) {
@@ -185,6 +194,14 @@ public class JMH {
         else if (channel == EXCEPTION_CHANNEL)
         	return only.exceptionChannelDev;
         return null;
+    }
+
+    public static List<String> getConfigurationChannel() {
+        return only.configurationChannel;
+    }
+
+    public static List<String> getConfigurationChannelDev() {
+        return only.configurationChannelDev;
     }
 
     public static List<String> getMainChannel() {
@@ -267,7 +284,12 @@ public class JMH {
 
 		this.mainChannel.add(msg);
 		this.mainChannelDev.add(st);
-        if (channel == PARSER_CHANNEL) {
+
+		if (channel == CONFIGURATION_CHANNEL) {
+        	this.configurationChannel.add(msg);
+        	this.configurationChannelDev.add(st);
+        }
+		if (channel == PARSER_CHANNEL) {
         	this.parserChannel.add(msg);
         	this.parserChannelDev.add(st);
         }

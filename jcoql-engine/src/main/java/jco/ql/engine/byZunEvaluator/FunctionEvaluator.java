@@ -28,7 +28,7 @@ public class FunctionEvaluator implements JCOConstants {
 	
 	public static JCOValue evaluate(FunctionFactor function, Pipeline pipeline) {
 		if (function.getFunctionType() == FunctionFactor.FUNCTION)
-			return JavascriptEvalutor.evaluate (function, pipeline);
+			return UserDefinedFunctionEvaluator.evaluate (function, pipeline);
 		
 		if (function.getFunctionType() == FunctionFactor.COUNT_FUNCTION)
 			return getCountValue (function, pipeline);

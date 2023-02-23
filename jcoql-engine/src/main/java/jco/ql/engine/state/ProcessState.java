@@ -3,9 +3,9 @@ package jco.ql.engine.state;
 import java.util.ArrayList;
 import java.util.List;
 
+import jco.ql.model.command.FunctionCommand;
 import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
-import jco.ql.model.command.JavascriptFunctionCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.SimpleDocumentCollection;
 
@@ -79,7 +79,7 @@ public class ProcessState {
 		istruction = "";
 	}
 
-	public ProcessState(JavascriptFunctionCommand jsFunction, IDocumentCollection coll) {
+	public ProcessState(FunctionCommand jsFunction, IDocumentCollection coll) {
 		isCreateFuzzyOperator = false;
 		isCreateFuzzyAggregator = false;
 		useDb = false;

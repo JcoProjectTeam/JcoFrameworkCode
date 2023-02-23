@@ -13,9 +13,11 @@ import java.util.List;
 import org.bson.Document;
 
 import jco.ql.db.mongodb.utils.DocumentUtils;
+import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.IDocumentCollection;
+import jco.ql.model.engine.JMH;
 import jco.ql.model.engine.SimpleDocumentCollection;
 
 /**
@@ -42,11 +44,11 @@ public class JSONHandler {
 		 * dei file temporanei
 		 */
 		Date today = new Date();
-		String fileName = System.getProperty("java.io.tmpdir");
+		String fileName = EngineConfiguration.getInstance().getTempDirectory();
 		if (fileName.endsWith(File.separator))
-			fileName = System.getProperty("java.io.tmpdir")  + alias + "_" + today.getTime();
+			fileName += alias + "_" + today.getTime();
 		else
-			fileName = System.getProperty("java.io.tmpdir")  + File.separator + alias + "_" + today.getTime();
+			fileName += File.separator + alias + "_" + today.getTime();
 		String suffix = ".tmp";
 
 		try {

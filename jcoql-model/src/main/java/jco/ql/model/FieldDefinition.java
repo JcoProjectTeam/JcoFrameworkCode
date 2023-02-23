@@ -10,7 +10,7 @@ public class FieldDefinition implements JCOConstants {
 	private JCOValue value;
 
 	public FieldDefinition(String name, JCOValue value) {
-		//ZUN CHECK* perché tutti i punti?
+		//ZUN CHECK* perché tutti i punti? ZZUN 
 		this.name = name.replace(FIELD_SEPARATOR, "");
 		this.value = value;
 	}

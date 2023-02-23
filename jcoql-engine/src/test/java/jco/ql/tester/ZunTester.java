@@ -1,20 +1,14 @@
 package jco.ql.tester;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-
-import jco.ql.model.engine.JCOConstants;
 
 
 public class ZunTester {
-
+	
 	public ZunTester() {	
-    	SimpleDateFormat formatter= new SimpleDateFormat(JCOConstants.DATE_FORMAT_EXT);
-    	Date date = new Date(System.currentTimeMillis());
-    	System.out.println(formatter.format(date));
-    	SimpleDateFormat formatter2= new SimpleDateFormat(JCOConstants.DATE_FORMAT);
-    	Date date2 = new Date(System.currentTimeMillis());
-    	System.out.println(formatter2.format(date2));
+		double x = MyGeoClass2.GeoKmDistance(12.2, 14.21, 9.32, 14.34);
+		System.out.println(x);
+		double y = MyStringClass2.JaroWinklerSimilarity("Ciao Mondo","Ciao Mondino!");
+		System.out.println(y);
     	
 		
 	}

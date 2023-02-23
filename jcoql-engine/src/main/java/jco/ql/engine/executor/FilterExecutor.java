@@ -31,7 +31,7 @@ public class FilterExecutor implements IExecutor<FilterCommand>, JCOConstants {
 
 		LinkedBlockingQueue<DocumentDefinition> queue = new LinkedBlockingQueue<DocumentDefinition>();
 		SynchronizedDuplicateRemover sdr = new SynchronizedDuplicateRemover(queue, command.isRemoveDuplicates());
-		sdr.start();		
+		sdr.start();
 		sdr.setDimensions(collection.getDocumentList().size());
 		sdr.setInfomer(collection.getDocumentList().size(), 20);
 		if (collection.getDocumentList().size() > 100)
@@ -64,7 +64,7 @@ public class FilterExecutor implements IExecutor<FilterCommand>, JCOConstants {
 				throw new ExecuteProcessException("[FILTER]: Failed Thread Sychronization");
 			}
 		}
-		
+
 		// GET the final collection and return it
 		sdr.interrupt();
 		try {
@@ -77,9 +77,8 @@ public class FilterExecutor implements IExecutor<FilterCommand>, JCOConstants {
 
 		SimpleDocumentCollection outCollection = new SimpleDocumentCollection(FILTER_COLLECTION_NAME, outDocs);
 		pipeline.addCollection(outCollection);
-		ZunTimer.getInstance().getMilliPartial("Tempo totale filter");
 		JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + outCollection.getDocumentList().size() + " documents filtered");
-		
+
 	}
-		
+
 }

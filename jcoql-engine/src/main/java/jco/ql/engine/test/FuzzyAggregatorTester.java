@@ -7,16 +7,13 @@ import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
-import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.DocumentValue;
-import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.Environment;
 import jco.ql.parser.JCoQLLexer;
 import jco.ql.parser.JCoQLParser;
 import jco.ql.parser.model.FuzzyAggregator;
 import jco.ql.parser.model.predicate.UsingAggregatorPredicate;
-import jco.ql.parser.model.util.Parameter;
 import java.io.FileReader;
 import java.util.ArrayList;
 

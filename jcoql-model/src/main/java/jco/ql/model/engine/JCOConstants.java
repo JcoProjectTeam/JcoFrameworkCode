@@ -1,5 +1,7 @@
 package jco.ql.model.engine;
 
+import java.io.File;
+
 public interface JCOConstants {
 	// Values for method compareTo
 	public static final int UNCOMPARABLE 	= -2;	
@@ -45,6 +47,8 @@ public interface JCOConstants {
 	public static final String GROUP_COLLECTION_NAME			= "GroupCollection";
 	public static final String LOOKUPFROMWEB_COLLECTION_NAME	= "LookupFromWebCollection";
 	public static final String TEMPORARY_COLLECTION_NAME		= "temporary";
+
+	public static final String JCO_FRAMEWORK_TEMP_DIR			= "JCoFramework" + File.separator + "temp_";
 
 	// Geometric constants
 	public static final double EARTH_RADIUS_KM 				= 6371;

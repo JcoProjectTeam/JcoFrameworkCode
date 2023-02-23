@@ -7,7 +7,7 @@ import jco.ql.parser.model.JavascriptFunction;
 import jco.ql.parser.model.condition.Condition;
 import jco.ql.parser.model.util.Parameter;
 
-public class JavascriptFunctionCommand implements ICommand {
+public class JavascriptFunctionCommand implements ICommand, FunctionCommand {
 	private Instruction instruction = null;
 
     private String functionName;
@@ -28,7 +28,7 @@ public class JavascriptFunctionCommand implements ICommand {
 		code = composeCode();
 	}
 
-
+	@Override
 	public String getFunctionName() {
         return functionName;
     }
@@ -82,6 +82,12 @@ public class JavascriptFunctionCommand implements ICommand {
 	@Override
 	public Instruction getInstruction() {
 		return instruction;
+	}
+
+
+	@Override
+	public int getType() {
+		return JAVASCRIPT_FUNCTION;
 	}
 
 }

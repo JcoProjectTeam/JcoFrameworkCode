@@ -3,6 +3,7 @@ package jco.ql.engine;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +16,9 @@ import jco.ql.engine.state.ProcessState;
 import jco.ql.model.Dictionary;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
+import jco.ql.model.command.FunctionCommand;
 import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
-import jco.ql.model.command.JavascriptFunctionCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
@@ -35,6 +36,7 @@ public class Pipeline implements  JCOConstants {
 	// Collections
 	private List<IDocumentCollection> collections;
 
+	// TODO Eliminare PF
 	private Map<String, Object> objects;
 
 	// Intermediate Files
@@ -57,9 +59,10 @@ public class Pipeline implements  JCOConstants {
 
 
 	// Fuzzy Operator List
-	private LinkedList<FuzzyOperatorCommand> fuzzyOperators;
-	// JavaScript Fuction List
-	private LinkedList<JavascriptFunctionCommand> jsFunctions;
+	private Hashtable<String, FuzzyOperatorCommand> fuzzyOperators;
+	// JavaScript Function List
+	private Hashtable<String, FunctionCommand> jsFunctions;
+
 	private LinkedList<ScriptEngine> jsEngines;
 	private int currentThread = -1;
 
@@ -86,8 +89,8 @@ public class Pipeline implements  JCOConstants {
 		ProcessState emptyState = new ProcessState();
 		state.add(emptyState);
 
-		fuzzyOperators = new LinkedList<>();
-		jsFunctions = new LinkedList<>();
+		fuzzyOperators = new Hashtable<String, FuzzyOperatorCommand>();
+		jsFunctions = new Hashtable<String, FunctionCommand>();
 		jsEngines = new LinkedList<>();
 		for (int i=0; i< (2*EngineConfiguration.getInstance().getNProcessors());i++) {
 				ScriptEngineManager manager = new ScriptEngineManager();
@@ -178,14 +181,6 @@ public class Pipeline implements  JCOConstants {
 		return new DocumentDefinition(fields);
 	}
 
-	public void setFuzzyOperators(List<FuzzyOperatorCommand> listFuzzyOperator) {
-		fuzzyOperators = new LinkedList<>(listFuzzyOperator);
-	}
-
-	public void setJsFunctions(List<JavascriptFunctionCommand> lisJsFunctions) {
-		jsFunctions = new LinkedList<>(lisJsFunctions);
-	}
-
 	public void addCollection(IDocumentCollection collection) {
 		collections.add(collection);
 		currentCollection = collection;
@@ -219,29 +214,31 @@ public class Pipeline implements  JCOConstants {
 		ProcessState s = new ProcessState(fuzzyOp, state.getLast().getCollection());
 		s.setIstruction(istructions.removeFirst());
 		state.add(s);
-		fuzzyOperators.add(fuzzyOp);
+		fuzzyOperators.put(fuzzyOp.getFuzzyOperatorName(), fuzzyOp);
 	}
 	// aggiorna il FUZZY OPERATOR
-	public void updateFuzzyOperator(FuzzyOperatorCommand fuzzyOp, int ndx) {
+	// TODO eliminare
+	public void updateFuzzyOperator(FuzzyOperatorCommand fuzzyOp) {
 		ProcessState s = new ProcessState(fuzzyOp, state.getLast().getCollection());
 		s.setIstruction(istructions.removeFirst());
 		state.add(s);
-		fuzzyOperators.set(ndx, fuzzyOp);
+		fuzzyOperators.put(fuzzyOp.getFuzzyOperatorName(), fuzzyOp);
 	}
 
-	// salva la nuova JS FUNCTION
-	public void addJsFunction(JavascriptFunctionCommand jsFun) {
+	// salva la nuova USER FUNCTION
+	public void addUserFunction(FunctionCommand jsFun) {
 		ProcessState s = new ProcessState(jsFun, state.getLast().getCollection());
 		s.setIstruction(istructions.removeFirst());
 		state.add(s);
-		jsFunctions.add(jsFun);
+		jsFunctions.put(jsFun.getFunctionName(), jsFun);
 	}
-	// aggiorna la JS FUNCTION
-	public void updateJsFunction(JavascriptFunctionCommand jsFun, int ndx) {
+	// TODO eliminare
+	// aggiorna la USER FUNCTION
+	public void updateUserFunction(FunctionCommand jsFun) {
 		ProcessState s = new ProcessState(jsFun, state.getLast().getCollection());
 		s.setIstruction(istructions.removeFirst());
 		state.add(s);
-		jsFunctions.set(ndx, jsFun);
+		jsFunctions.put(jsFun.getFunctionName(), jsFun);
 	}
 
 	public IDocumentCollection getCollection(String alias) {
@@ -284,6 +281,7 @@ public class Pipeline implements  JCOConstants {
 		currentCollectionName = alias;
 	}
 
+	// TODO rivedere tutta la politica del backtrack
 	public void backtrack(DatabaseRegistry registry) {
 		if (!(state.getLast().isEmptyState())) {
 			if (state.getLast().isUseDb()) {
@@ -294,9 +292,11 @@ public class Pipeline implements  JCOConstants {
 		        file.delete();
 				setIntermediateFiles.remove(state.getLast().getCollectionAlias());
 			} else if(state.getLast().isCreateFuzzyOperator()) {
-				fuzzyOperators.removeLast();
+			// TODO PF	2023.01
+//				fuzzyOperators.removeLast();
 			} else if(state.getLast().isCreateJsFunction()) {
-				jsFunctions.removeLast();
+				// TODO PF	2023.01
+//				jsFunctions.removeLast();
 			}
 			// rimuovo l'ultimo stato
 			state.removeLast();
@@ -336,11 +336,11 @@ public class Pipeline implements  JCOConstants {
 					"[GET IR COLLECTION]: IR collection " + collectionName + " does not exits");
 	}
 
-	public List<JavascriptFunctionCommand> getJsFunctions() {
+	public Hashtable<String, FunctionCommand> getJsFunctions() {
 		return jsFunctions;
 	}
 
-	public List<FuzzyOperatorCommand> getFuzzyOperators() {
+	public Hashtable<String, FuzzyOperatorCommand> getFuzzyOperators() {
 		return fuzzyOperators;
 	}
 

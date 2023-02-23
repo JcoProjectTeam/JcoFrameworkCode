@@ -19,6 +19,7 @@ import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.engine.executor.IExecutor;
 import jco.ql.engine.registry.ExecutorRegistry;
 import jco.ql.model.command.ICommand;
+import jco.ql.model.engine.JMH;
 
 @Configuration
 @ComponentScan
@@ -64,7 +65,7 @@ public class JcoEngine implements IEngine {
 	}
 	
 	
-	// PF - Inserted to handle settings
+	// PF - Inserted to handle settings --- TODO move inside EngineConfiguration
 	private void loadSettings() {
 		settings = new Properties();
 		try {
@@ -75,6 +76,7 @@ public class JcoEngine implements IEngine {
 			}
 		} catch (IOException e) {
 			logger.error("Error loading settings from the settings.properties file", e);
+			JMH.addConfigurationMessage("Error loading settings from the settings.properties file\n" + e.toString());
 		}
 	
 	}
