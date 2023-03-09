@@ -1,5 +1,7 @@
 package jco.ql.engine.byZunEvaluator;
 
+import java.util.List;
+
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.JCOConstants;
@@ -8,17 +10,22 @@ import jco.ql.model.value.EValueType;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.predicate.ArrayFunctionFactor;
+import jco.ql.parser.model.predicate.DegreeFunction;
 import jco.ql.parser.model.predicate.IfErrorFunction;
-import jco.ql.parser.model.predicate.MembershipOfFunction;
+import jco.ql.parser.model.predicate.MembershipToFunction;
 import jco.ql.parser.model.predicate.SpecialFunctionFactor;
 import jco.ql.parser.model.predicate.TranslateFunction;
 
 public class SpecialFunctionEvaluator implements JCOConstants {
 
 	public static JCOValue evaluate(SpecialFunctionFactor function, Pipeline pipeline) {
-		if (function.getSpecialFuntionType() == SpecialFunctionFactor.MEMBERSHIP_OF_FUNCTION)
-			return getMembershipOfValue ((MembershipOfFunction)function, pipeline);
-				
+		if (function.getSpecialFuntionType() == SpecialFunctionFactor.MEMBERSHIP_TO_FUNCTION)
+			return getMembershipToValue ((MembershipToFunction)function, pipeline);
+		
+		// added by Balicco
+		if (function.getSpecialFuntionType() == SpecialFunctionFactor.DEGREE_FUNCTION)
+			return getDegreeValue ((DegreeFunction)function, pipeline);
+
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.TRANSLATE_FUNCTION)
 			return getTranslationValue ((TranslateFunction)function, pipeline);
 
@@ -34,15 +41,28 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 
 // ***********************************************
 	
-	private static JCOValue getMembershipOfValue(MembershipOfFunction moFunction, Pipeline pipeline) {
+	private static JCOValue getMembershipToValue(MembershipToFunction mtFunction, Pipeline pipeline) {
 		DocumentDefinition doc = pipeline.getCurrentDoc();
 		if (doc == null)
 			return new SimpleValue ();		// null value
 		
-		return doc.getValue(FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + moFunction.getMemebershipOfFuzzyset());
+		return doc.getValue(FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + mtFunction.getMemebershipOfFuzzyset());
 	}
 
 
+	// added by Balicco
+	private static JCOValue getDegreeValue(DegreeFunction deFunction, Pipeline pipeline) {
+		DocumentDefinition doc = pipeline.getCurrentDoc();
+		if (doc == null)
+			return new SimpleValue ();		// null value
+		List<String> d = deFunction.getDegreeFuzzyset();
+		String str = FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR;
+		for (int i=0; i<d.size(); i++) 
+			str += d.get(i);
+		return doc.getValue(str);
+	}
+
+	
 	// TRANSLATE Strings values if it finds a match. 
 	// otherwise assign the DefaultTranslation OR it leaves the value unchanged, 
 	private static JCOValue getTranslationValue(TranslateFunction translateFunction, Pipeline pipeline) {

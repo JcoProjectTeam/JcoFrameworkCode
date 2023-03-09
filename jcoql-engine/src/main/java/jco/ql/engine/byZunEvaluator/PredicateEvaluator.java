@@ -1,6 +1,10 @@
 package jco.ql.engine.byZunEvaluator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jco.ql.engine.Pipeline;
+import jco.ql.model.FieldDefinition;
 import jco.ql.model.engine.JMH;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
@@ -58,6 +62,19 @@ public class PredicateEvaluator {
 		else
 			JMH.add("Predicate non allowed:\t" + predicate.getType() + " - " + predicate.toString());
 
+		return value;
+	}
+
+	// added by Balicco
+	public static List <FieldDefinition> fuzzyGenericEvaluate(Predicate predicate, Pipeline pipeline, String type) {
+		List <FieldDefinition> value = new ArrayList<FieldDefinition>();		// null type
+		
+		if (predicate.getType() == Predicate.USING_PREDICATE)
+			value = UsingPredicateEvaluator.genericFuzzyEvaluate((UsingPredicate)predicate, pipeline,  type);
+
+		else
+			JMH.add("Predicate non allowed:\t" + predicate.getType() + " - " + predicate.toString());
+		
 		return value;
 	}
 

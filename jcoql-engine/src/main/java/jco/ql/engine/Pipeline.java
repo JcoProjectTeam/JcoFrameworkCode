@@ -19,6 +19,8 @@ import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.FunctionCommand;
 import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
+import jco.ql.model.command.FuzzySetTypeCommand;
+import jco.ql.model.command.GenericFuzzyOperatorCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
@@ -72,10 +74,13 @@ public class Pipeline implements  JCOConstants {
 	// PF. added on 22.07.2021
 	private DocumentDefinition currentDoc;
 	
-	//FI added on 27.10.2022
+	// added by Federici on 27.10.2022
 	private LinkedList<FuzzyAggregatorCommand> fuzzyAggregators;
 	private int fuzzyAggregatorIndex;
 
+	// added by Balicco on 27.1.2023
+	private LinkedList<FuzzySetTypeCommand> fuzzySetType;
+	private LinkedList<GenericFuzzyOperatorCommand> genericFuzzyOperator;
 
 	public Pipeline() {
 		currentCollection = new SimpleDocumentCollection("empty");
@@ -104,8 +109,12 @@ public class Pipeline implements  JCOConstants {
 		dictionaries = new TreeMap<String, Dictionary>();
 		currentDoc = null;
 		
-		//FI added on 27.10.2022
+		// added by Federici on 27.10.2022
 		fuzzyAggregators = new LinkedList<>();
+
+		// added by Balicco on 27.01.2023
+		fuzzySetType = new LinkedList<>();
+		genericFuzzyOperator = new LinkedList<>();
 	}
 	public Pipeline(Pipeline sourcePipeline, int currentThread) {
 		retrieveEnvironment (sourcePipeline);
@@ -133,9 +142,12 @@ public class Pipeline implements  JCOConstants {
 		this.jsFunctions = sourcePipeline.jsFunctions;
 		this.dictionaries = sourcePipeline.dictionaries;		
 		this.jsEngines = sourcePipeline.jsEngines;
-		//FI added on 27.10.2022
+		// added by Federici on 27.10.2022
 		this.fuzzyAggregators = sourcePipeline.fuzzyAggregators;
 		this.fuzzyAggregatorIndex = sourcePipeline.fuzzyAggregatorIndex;
+		// added by Balicco
+		this.fuzzySetType = sourcePipeline.fuzzySetType;
+		this.genericFuzzyOperator = sourcePipeline.genericFuzzyOperator;
 	}
 
 	
@@ -410,4 +422,86 @@ public class Pipeline implements  JCOConstants {
 		this.fuzzyAggregatorIndex = this.fuzzyAggregatorIndex + i;
 	}
 
+	// added by Balicco on 27.1.2023
+	// salva il nuovo FUZZY SET TYPE
+	public void addFuzzySetTypeExecutor(FuzzySetTypeCommand fuzzyType) {
+		ProcessState s = new ProcessState(fuzzyType, state.getLast().getCollection());
+		s.setIstruction(istructions.removeFirst());
+		state.add(s);
+		fuzzySetType.add(fuzzyType);
+	}
+	// added by Balicco on 27.1.2023
+	// aggiorna il FUZZY SET TYPE
+	public void updateFuzzySetTypeExecutor(FuzzySetTypeCommand fuzzyType, int ndx) {
+		ProcessState s = new ProcessState(fuzzyType, state.getLast().getCollection());
+		s.setIstruction(istructions.removeFirst());
+		state.add(s);
+		fuzzySetType.set(ndx, fuzzyType);
+	}
+	// added by Balicco on 27.1.2023
+	// salva il nuovo GENERIC FUZZY OPERATOR
+	public void addGenericFuzzyOperator(GenericFuzzyOperatorCommand genFuzzyOp) {
+		ProcessState s = new ProcessState(genFuzzyOp, state.getLast().getCollection());
+		s.setIstruction(istructions.removeFirst());
+		state.add(s);
+		genericFuzzyOperator.add(genFuzzyOp);
+	}
+	// added by Balicco on 27.1.2023
+	// aggiorna il GENERIC FUZZY OPERATOR
+	public void updateGenericFuzzyOperator(GenericFuzzyOperatorCommand genFuzzyOp, int ndx) {
+		ProcessState s = new ProcessState(genFuzzyOp, state.getLast().getCollection());
+		s.setIstruction(istructions.removeFirst());
+		state.add(s);
+		genericFuzzyOperator.set(ndx, genFuzzyOp);
+	}
+	
+	// added by Balicco on 27.1.2023
+	public boolean hasFuzzySetType(String name) {
+		if (fuzzySetType == null) 
+			return false;
+		for (int i = 0; i < fuzzySetType.size(); i++) 
+			if (fuzzySetType.get(i).getFuzzySetTypeName().equals(name)) 
+				return true;
+		return false;
+	}
+	
+	// added by Balicco on 27.1.2023
+	public List<FuzzySetTypeCommand> getFuzzySetType() {
+		return fuzzySetType;
+	}
+	
+	// added by Balicco on 27.1.2023
+	public FuzzySetTypeCommand getFuzzySetType(String s) {
+		for (int i = 0; i < fuzzySetType.size(); i++) {
+			if (fuzzySetType.get(i).getFuzzySetTypeName().equals(s)) 
+				return fuzzySetType.get(i);
+		}
+		return null;
+	}
+
+	// added by Balicco on 27.1.2023
+	public List<GenericFuzzyOperatorCommand> getGenericFuzzyOperator() {
+		return genericFuzzyOperator;
+	}
+	
+	// added by Balicco on 27.1.2023
+	public GenericFuzzyOperatorCommand getGenericFuzzyOperator(String s) {
+		for (int i = 0; i < fuzzySetType.size(); i++) {
+			if (genericFuzzyOperator.get(i).getGenericFuzzyOperatorName().equals(s)) {
+				return genericFuzzyOperator.get(i);
+			}
+		}
+		return null;
+	}
+	
+	// added by Balicco on 27.1.2023
+	public boolean hasGenericFuzzySet(String name) {
+		if (genericFuzzyOperator == null) 
+			return false;
+		for (int i = 0; i < genericFuzzyOperator.size(); i++) 
+			if (genericFuzzyOperator.get(i).getGenericFuzzyOperatorName().equals(name)) 
+				return true;
+		return false;
+	}
+	
 }

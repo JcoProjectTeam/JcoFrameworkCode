@@ -19,9 +19,14 @@ public class AlphaCutEvaluator implements JCOConstants {
         return document;
     }
 
-    
+
+    // modified by Balicco
     private static boolean evaluateAlphaCut(DocumentDefinition doc, AlphaCut alphacut) {
-    	JCOValue fuzzySet = doc.getValue(FUZZYSETS_FIELD_NAME + FIELD_SEPARATOR + alphacut.on);
+    	JCOValue fuzzySet;
+    	if(alphacut.degree != null)
+    		fuzzySet = doc.getValue(FUZZYSETS_FIELD_NAME + FIELD_SEPARATOR + alphacut.on + alphacut.degree);
+    	else 
+    		fuzzySet = doc.getValue(FUZZYSETS_FIELD_NAME + FIELD_SEPARATOR + alphacut.on);
     	if (fuzzySet != null && fuzzySet.getType() != EValueType.NULL) {
     		Double v = Double.parseDouble(fuzzySet.getStringValue());
             return (v >= alphacut.alphacutValue);

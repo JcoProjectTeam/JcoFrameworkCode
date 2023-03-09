@@ -17,7 +17,6 @@ import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.IDocumentCollection;
-import jco.ql.model.engine.JMH;
 import jco.ql.model.engine.SimpleDocumentCollection;
 
 /**

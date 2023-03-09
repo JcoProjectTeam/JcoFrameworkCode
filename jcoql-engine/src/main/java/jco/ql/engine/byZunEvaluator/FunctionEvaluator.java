@@ -57,6 +57,10 @@ public class FunctionEvaluator implements JCOConstants {
 		if (function.getFunctionType() == FunctionFactor.MAX_FUNCTION)
 			return getMaxValue (function, pipeline);
 
+		// added by Balicco
+		if (function.getFunctionType() == FunctionFactor.SQRT_FUNCTION)
+			return getSqrtValue (function, pipeline);
+
 		if (function.getFunctionType() == FunctionFactor.GEO_DISTANCE_FUNCTION)
 			return getGeodesicDistanceValue (function, pipeline);
 
@@ -227,7 +231,7 @@ public class FunctionEvaluator implements JCOConstants {
 			min = JCOValue.getDoubleValue(minValue);
 
 		for (int i=1; i<factor.functionParams.size(); i++) {
-			JCOValue value = ExpressionPredicateEvaluator.calculate(factor.functionParams.get(0), pipeline);
+			JCOValue value = ExpressionPredicateEvaluator.calculate(factor.functionParams.get(i), pipeline);
 			if (!JCOValue.isNumericValue(value))
 				return new SimpleValue (); // null value
 			else
@@ -254,7 +258,7 @@ public class FunctionEvaluator implements JCOConstants {
 			max = JCOValue.getDoubleValue(maxValue);
 
 		for (int i=1; i<factor.functionParams.size(); i++) {
-			JCOValue value = ExpressionPredicateEvaluator.calculate(factor.functionParams.get(0), pipeline);
+			JCOValue value = ExpressionPredicateEvaluator.calculate(factor.functionParams.get(i), pipeline);
 			if (!JCOValue.isNumericValue(value))
 				return new SimpleValue (); // null value
 			else
@@ -266,6 +270,23 @@ public class FunctionEvaluator implements JCOConstants {
 			}
 		}
 		return maxValue; 
+	}
+
+	
+	// addded by Balicco
+	private static JCOValue getSqrtValue(FunctionFactor factor, Pipeline pipeline) {
+		if (factor.functionParams.size() != 1)
+			return new SimpleValue (); 	// null value
+		JCOValue value = ExpressionPredicateEvaluator.calculate(factor.functionParams.get(0), pipeline);
+
+		if (JCOValue.isNumericValue(value)) {
+			String s =value.getStringValue();
+			double v = Double.parseDouble(s);
+			if (v < 0)
+				return new SimpleValue ();
+			return new SimpleValue (Math.sqrt(v));
+		}
+		return new SimpleValue (); // null value
 	}
 
 	

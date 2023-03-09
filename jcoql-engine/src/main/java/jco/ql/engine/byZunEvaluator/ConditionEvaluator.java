@@ -1,7 +1,14 @@
 package jco.ql.engine.byZunEvaluator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jco.ql.engine.Pipeline;
+import jco.ql.model.DocumentDefinition;
+import jco.ql.model.FieldDefinition;
+import jco.ql.model.command.FuzzySetTypeCommand;
 import jco.ql.model.engine.JCOConstants;
+import jco.ql.model.engine.JMH;
 import jco.ql.model.value.EValueType;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
@@ -11,6 +18,7 @@ import jco.ql.parser.model.condition.Condition;
 import jco.ql.parser.model.condition.ConditionAnd;
 import jco.ql.parser.model.condition.ConditionNot;
 import jco.ql.parser.model.condition.ConditionOr;
+import jco.ql.parser.model.fuzzy.FuzzyOperatorDefinition;
 
 /* All evaluations from now on is on pipeline current doc which is NOT NULL by construction */
 public class ConditionEvaluator implements JCOConstants {
@@ -78,7 +86,31 @@ public class ConditionEvaluator implements JCOConstants {
 	}
 
 
-	/* ************ Classic Evaluation *********************************************** */
+	// added by Balicco
+	// ***************** Generic fuzzy set***************************
+	public static List<FieldDefinition> genericFuzzyEvaluate (Condition condition, Pipeline pipeline, String type) {
+		//Map<String,SimpleValue> value = new TreeMap<>();	// null Value
+		List <FieldDefinition> value = new ArrayList<FieldDefinition>();
+		
+		if (condition == null)
+			return value;
+		
+		if (condition.getType() == Condition.OR_CONDITION)
+			value = GenericFuzzyEvaluateConditionOr ((ConditionOr)condition, pipeline, type);
+		
+		else if (condition.getType() == Condition.AND_CONDITION)
+			value = GenericFuzzyEvaluateConditionAnd ((ConditionAnd)condition, pipeline, type);
+		
+		else if (condition.getType() == Condition.NOT_CONDITION)
+			value = genericFuzzyEvaluateConditionNot ((ConditionNot)condition, pipeline, type);
+			
+		else if (condition.getType() == Condition.PREDICATE_CONDITION)
+			value = PredicateEvaluator.fuzzyGenericEvaluate (condition.getPredicate(), pipeline, type);
+		
+		return value;
+	}
+
+	/* ************ Classical Evaluation *********************************************** */
 	// evaluation in short-circuit
 	private static SimpleValue evaluateConditionOr (ConditionOr condition, Pipeline pipeline) {
 		for (Condition c : condition.getSubConditions())
@@ -157,4 +189,118 @@ public class ConditionEvaluator implements JCOConstants {
 		
 		return new SimpleValue (1 - Double.parseDouble(value.getStringValue()));
 	}
+
+
+	/* ************ Generic Fuzzy Evaluation *********************************************** */
+	// added by Balicco
+	private static List<FieldDefinition> GenericFuzzyEvaluateConditionOr(ConditionOr condition, Pipeline pipeline, String type) {
+		List<FieldDefinition> value;
+		List<FieldDefinition> value2;
+		FuzzyOperatorDefinition  operatorDefinition;
+
+		if (pipeline.getFuzzySetType(type).getDefOr() != null) {
+			operatorDefinition = pipeline.getFuzzySetType(type).getDefOr();
+			value = genericFuzzyEvaluate(condition.getSubConditions().get(0), pipeline, type);
+			
+			for (int i = 1; i < condition.getSubConditions().size(); i++) {
+				value2 = genericFuzzyEvaluate(condition.getSubConditions().get(i), pipeline, type);
+				value = genericEvaluateOrAnd(value, value2, pipeline, operatorDefinition, type);
+			}
+			return value;
+		}
+		JMH.addFuzzyMessage("Operator OR not defined for [" + pipeline.getFuzzySetType(type).getFuzzySetTypeName()+"] fuzzy set type" );
+		return null;
+	}
+	
+	// added by Balicco
+	private static List<FieldDefinition> GenericFuzzyEvaluateConditionAnd(ConditionAnd condition, Pipeline pipeline, String type) {
+		List<FieldDefinition> value;
+		List<FieldDefinition> value2 = null;
+		FuzzyOperatorDefinition  operatorDefinition;
+		
+		if (pipeline.getFuzzySetType(type).getDefAnd() != null) {
+			operatorDefinition = pipeline.getFuzzySetType(type).getDefAnd();
+			value = genericFuzzyEvaluate(condition.getSubConditions().get(0), pipeline, type);
+			
+			for (int i = 1; i < condition.getSubConditions().size(); i++) 
+				value2 = genericFuzzyEvaluate(condition.getSubConditions().get(i), pipeline, type);
+				value = genericEvaluateOrAnd(value, value2, pipeline, operatorDefinition, type);
+			return value;
+		}
+		JMH.addFuzzyMessage("Operator AND not definid for [" + pipeline.getFuzzySetType(type).getFuzzySetTypeName()+"] fuzzy set type" );
+		return null;
+	}
+
+	// added by Balicco
+	private static List<FieldDefinition> genericFuzzyEvaluateConditionNot (ConditionNot condition, Pipeline pipeline, String type) {
+		if (pipeline.getFuzzySetType(type).getDefNot() != null) {
+			List<FieldDefinition> value = genericFuzzyEvaluate(condition.getSubCondition(), pipeline, type);
+			FuzzyOperatorDefinition operatorDefinition = pipeline.getFuzzySetType(type).getDefNot();
+			return genericEvaluateNot(value, pipeline, operatorDefinition, type);
+		}
+		JMH.addFuzzyMessage( "Operator NOT not definite for [" + pipeline.getFuzzySetType(type).getFuzzySetTypeName()+"] fuzzy set type" );
+		return null;
+	}
+	
+	
+	// added by Balicco	
+	public static List<FieldDefinition> genericEvaluateOrAnd(List<FieldDefinition> degree1, List<FieldDefinition> degree2,
+															Pipeline pipeline, FuzzyOperatorDefinition def, String type ) {
+		List<FieldDefinition> value = new ArrayList<>();
+		SimpleValue val;
+		FuzzySetTypeCommand ft = pipeline.getFuzzySetType(type);
+		List<FieldDefinition> derivedDegrees;
+		
+		if (degree1 == null || degree2 == null) 
+			return null;
+		
+		DocumentDefinition doc = new DocumentDefinition();
+		doc.addDocument("x", degree1);
+		doc.addDocument("y", degree2);
+    	Pipeline p = new Pipeline(pipeline);
+    	p.setCurrentDoc(doc);
+    	
+    	for (int i = 0; i < def.degrees.size(); i++) {
+    		val = (SimpleValue) ExpressionPredicateEvaluator.calculate(def.expr.get(i), p);
+    		value.add( new FieldDefinition( def.degrees.get(i), val ) );
+    	}
+    	derivedDegrees = FuzzyOperatorEvaluator.derivedDegreesEvaluate(value, ft.getDerivedDegrees(), ft.getDerivedExpr(), pipeline);
+    	if (!FuzzyOperatorEvaluator.checkConstraint(value, derivedDegrees, pipeline, ft.getConstraint())) {
+			JMH.add("Constraint is not respected for fuzzy set resulting from:" + def.type);
+			return null;
+		}
+    	value.addAll(derivedDegrees);
+		return value;
+	}
+	
+	// added by Balicco
+	public static List<FieldDefinition> genericEvaluateNot(List<FieldDefinition> degrees,Pipeline pipeline, FuzzyOperatorDefinition def, String type ) {
+		List<FieldDefinition> value = new ArrayList<>();
+		SimpleValue val;
+		FuzzySetTypeCommand ft = pipeline.getFuzzySetType(type);
+		List<FieldDefinition> derivedDegrees;
+		
+		if (degrees == null) 
+			return null;
+		
+		DocumentDefinition doc = new DocumentDefinition();
+		doc.addDocument("x", degrees);
+    	Pipeline p = new Pipeline(pipeline);
+    	p.setCurrentDoc(doc);
+    	
+    	for (int i = 0; i < def.degrees.size(); i++) {
+    		val = (SimpleValue) ExpressionPredicateEvaluator.calculate(def.expr.get(i), p);
+    		value.add( new FieldDefinition( def.degrees.get(i), val ) );
+    	}
+    	
+    	derivedDegrees = FuzzyOperatorEvaluator.derivedDegreesEvaluate(value, ft.getDerivedDegrees(), ft.getDerivedExpr(), pipeline);
+    	if (!FuzzyOperatorEvaluator.checkConstraint(value, derivedDegrees, pipeline, ft.getConstraint())) {
+			JMH.add("Constraint is not respected for fuzzy set resulting from: " + def.type);
+			return null;
+		}
+    	value.addAll(derivedDegrees);
+		return value;
+	}
+	
+
 }

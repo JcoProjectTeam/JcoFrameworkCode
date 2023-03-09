@@ -4,6 +4,8 @@ import jco.ql.model.command.ExpandCommand;
 import jco.ql.model.command.FilterCommand;
 import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
+import jco.ql.model.command.FuzzySetTypeCommand;
+import jco.ql.model.command.GenericFuzzyOperatorCommand;
 import jco.ql.model.command.LookupFromWebCommand;
 import jco.ql.model.command.GetCollectionCommand;
 import jco.ql.model.command.GetDictionaryCommand;
@@ -23,6 +25,8 @@ import jco.ql.parser.model.Expand;
 import jco.ql.parser.model.Filter;
 import jco.ql.parser.model.FuzzyAggregator;
 import jco.ql.parser.model.FuzzyOperator;
+import jco.ql.parser.model.FuzzySetType;
+import jco.ql.parser.model.GenericFuzzyOperator;
 import jco.ql.parser.model.LookupFromWeb;
 import jco.ql.parser.model.GetCollection;
 import jco.ql.parser.model.GetDictionary;
@@ -106,10 +110,20 @@ public class Translator implements JCOConstants {
 			LookupFromWeb gfw = (LookupFromWeb) instr;
 			return new LookupFromWebCommand (gfw);
 		}
-		//FI modified 27/11/2022
+		// added by Federici 27/11/2022
 		else if(instr instanceof FuzzyAggregator) {
 			FuzzyAggregator fa = (FuzzyAggregator) instr;
 			return new FuzzyAggregatorCommand(fa);
+		}
+		// added by Balicco 26/1/2023
+		else if(instr instanceof FuzzySetType) {
+			FuzzySetType ft = (FuzzySetType) instr;
+			return new FuzzySetTypeCommand(ft);
+		}
+		//added by Balicco 26/1/2023
+		else if(instr instanceof GenericFuzzyOperator) {
+			GenericFuzzyOperator fgo = (GenericFuzzyOperator) instr;
+			return new GenericFuzzyOperatorCommand(fgo);
 		}
 
 		return null;

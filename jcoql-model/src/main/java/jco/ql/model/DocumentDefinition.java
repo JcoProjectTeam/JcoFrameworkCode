@@ -99,6 +99,17 @@ public class DocumentDefinition implements JCOConstants {
 		return getValue(fieldName, ArrayValue.class);
 	}
 
+	// added by Balicco
+	public void addDocument(String name, List<FieldDefinition> fd) {
+		DocumentValue dv = new DocumentValue(fd);
+		this.fields.put(name, dv);
+	}
+	
+	// added by Balicco
+	public void addDocument(String name, DocumentValue dv) {
+		this.fields.put(name, dv);
+	}
+
 	@JsonIgnore
 	public SimpleValue getSimpleValue(String fieldName) {
 		return getValue(fieldName, SimpleValue.class);
@@ -311,4 +322,11 @@ public class DocumentDefinition implements JCOConstants {
 		this.fields = field;
 	}
 
+	// added by Balicco
+	public boolean isSimple() {
+		if (name == null && fields.size() == 1) {
+			return true;
+		}
+		return false;
+	}
 }
