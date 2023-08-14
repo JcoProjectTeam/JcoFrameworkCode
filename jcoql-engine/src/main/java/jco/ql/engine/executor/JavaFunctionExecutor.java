@@ -30,11 +30,13 @@ public class JavaFunctionExecutor implements IExecutor<JavaFunctionCommand> {
     public void execute(Pipeline pipeline, JavaFunctionCommand command) throws ExecuteProcessException {
     	// PF. 2022.03.24 - New Policy... in case of already existing USER Defined Function, a message is emitted and the newer version replace the old one
         if (compileCode (command)) {
-	        if(pipeline.getJsFunctions().containsKey(command.getFunctionName())) 
+	        if(pipeline.getUserFunctions().containsKey(command.getFunctionName())) 
 	        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\tdefinition of " + command.getFunctionName() + " function has been replaced.");        	
 	
 	        pipeline.addUserFunction(command);
         }
+        else
+        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\tJava function " + command.getFunctionName() + " cannot be compiled.");        	
     }
     
     

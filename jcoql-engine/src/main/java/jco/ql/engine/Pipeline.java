@@ -17,10 +17,8 @@ import jco.ql.model.Dictionary;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.FunctionCommand;
-import jco.ql.model.command.FuzzyAggregatorCommand;
-import jco.ql.model.command.FuzzyOperatorCommand;
-import jco.ql.model.command.FuzzySetTypeCommand;
-import jco.ql.model.command.GenericFuzzyOperatorCommand;
+import jco.ql.model.command.FuzzyFunctionCommand;
+import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
@@ -38,7 +36,9 @@ public class Pipeline implements  JCOConstants {
 	// Collections
 	private List<IDocumentCollection> collections;
 
-	// TODO Eliminare PF
+	// TODO Eliminare PF ... ZUN CHECK
+	// a catena si arriva fino al joinExecutor... 
+	//non dovrebbero esserci problemi, ma bisogna indagare
 	private Map<String, Object> objects;
 
 	// Intermediate Files
@@ -54,33 +54,27 @@ public class Pipeline implements  JCOConstants {
 
 	private LinkedList<ProcessState> state;
 
-	// contiene le istruzioni che sono state inviate dall'utente. Serve per il
-	// messaggio "##GET-PROCESS##"
+	// Contains the instruction sent by the interface.
+	// It is needed for the "##GET-PROCESS##" messsages
 	// ZUN CHECK* sostituire String con Instruction
 	private LinkedList<String> istructions;
 
 
-	// Fuzzy Operator List
-	private Hashtable<String, FuzzyOperatorCommand> fuzzyOperators;
-	// JavaScript Function List
-	private Hashtable<String, FunctionCommand> jsFunctions;
+	// JavaScript/Java Function List
+	private Hashtable<String, FunctionCommand> userFunctions;
+	// Fuzzy Functions (Operator, Generic, Aggregator) List
+	private Hashtable<String, FuzzyFunctionCommand> fuzzyFunctions;
+	// added by Balicco on 27.1.2023
+	private Hashtable<String, FuzzySetModelCommand> fuzzySetModels;
 
 	private LinkedList<ScriptEngine> jsEngines;
 	private int currentThread = -1;
-
 
 	// PF. added on 22.07.2021
 	private Map<String, Dictionary> dictionaries;
 	// PF. added on 22.07.2021
 	private DocumentDefinition currentDoc;
 	
-	// added by Federici on 27.10.2022
-	private LinkedList<FuzzyAggregatorCommand> fuzzyAggregators;
-	private int fuzzyAggregatorIndex;
-
-	// added by Balicco on 27.1.2023
-	private LinkedList<FuzzySetTypeCommand> fuzzySetType;
-	private LinkedList<GenericFuzzyOperatorCommand> genericFuzzyOperator;
 
 	public Pipeline() {
 		currentCollection = new SimpleDocumentCollection("empty");
@@ -90,16 +84,18 @@ public class Pipeline implements  JCOConstants {
 		jsonHandler = new JSONHandler();
 
 		state = new LinkedList<>();
-		//creo lo stato iniziale
+		// init processState
 		ProcessState emptyState = new ProcessState();
 		state.add(emptyState);
 
-		fuzzyOperators = new Hashtable<String, FuzzyOperatorCommand>();
-		jsFunctions = new Hashtable<String, FunctionCommand>();
+		fuzzyFunctions = new Hashtable<String, FuzzyFunctionCommand>();
+		userFunctions = new Hashtable<String, FunctionCommand>();
+		// added by Balicco on 27.01.2023
+		fuzzySetModels = new Hashtable<String, FuzzySetModelCommand>() ;
+
 		jsEngines = new LinkedList<>();
 		for (int i=0; i< (2*EngineConfiguration.getInstance().getNProcessors());i++) {
 				ScriptEngineManager manager = new ScriptEngineManager();
-	//	        ScriptEngine engine = manager.getEngineByName("JavaScript");
 	        ScriptEngine engine = manager.getEngineByName("nashorn");
 	        jsEngines.add(engine);
 		}
@@ -109,12 +105,6 @@ public class Pipeline implements  JCOConstants {
 		dictionaries = new TreeMap<String, Dictionary>();
 		currentDoc = null;
 		
-		// added by Federici on 27.10.2022
-		fuzzyAggregators = new LinkedList<>();
-
-		// added by Balicco on 27.01.2023
-		fuzzySetType = new LinkedList<>();
-		genericFuzzyOperator = new LinkedList<>();
 	}
 	public Pipeline(Pipeline sourcePipeline, int currentThread) {
 		retrieveEnvironment (sourcePipeline);
@@ -138,16 +128,12 @@ public class Pipeline implements  JCOConstants {
 	// PF. added on 26.07.2021
 	private void retrieveEnvironment (Pipeline sourcePipeline) {
 		this.state = sourcePipeline.state;
-		this.fuzzyOperators = sourcePipeline.fuzzyOperators;
-		this.jsFunctions = sourcePipeline.jsFunctions;
+		this.fuzzyFunctions = sourcePipeline.fuzzyFunctions;
+		this.userFunctions = sourcePipeline.userFunctions;
 		this.dictionaries = sourcePipeline.dictionaries;		
 		this.jsEngines = sourcePipeline.jsEngines;
-		// added by Federici on 27.10.2022
-		this.fuzzyAggregators = sourcePipeline.fuzzyAggregators;
-		this.fuzzyAggregatorIndex = sourcePipeline.fuzzyAggregatorIndex;
 		// added by Balicco
-		this.fuzzySetType = sourcePipeline.fuzzySetType;
-		this.genericFuzzyOperator = sourcePipeline.genericFuzzyOperator;
+		this.fuzzySetModels = sourcePipeline.fuzzySetModels;
 	}
 
 	
@@ -175,6 +161,7 @@ public class Pipeline implements  JCOConstants {
 		return getObjects().get(alias);
 	}
 
+	
 	public DocumentDefinition getAsDocument() {
 		List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
 		for (Entry<String, Object> entry : objects.entrySet()) {
@@ -193,6 +180,7 @@ public class Pipeline implements  JCOConstants {
 		return new DocumentDefinition(fields);
 	}
 
+	
 	public void addCollection(IDocumentCollection collection) {
 		collections.add(collection);
 		currentCollection = collection;
@@ -221,37 +209,47 @@ public class Pipeline implements  JCOConstants {
 	}
 
 	
-	// salva il nuovo FUZZY OPERATOR
-	public void addFuzzyOperator(FuzzyOperatorCommand fuzzyOp) {
-		ProcessState s = new ProcessState(fuzzyOp, state.getLast().getCollection());
+	// salva la nuova USER FUNCTION (Java or Javascript)
+	public void addUserFunction(FunctionCommand userFun) {
+		ProcessState s = new ProcessState(userFun, state.getLast().getCollection());
 		s.setIstruction(istructions.removeFirst());
 		state.add(s);
-		fuzzyOperators.put(fuzzyOp.getFuzzyOperatorName(), fuzzyOp);
-	}
-	// aggiorna il FUZZY OPERATOR
-	// TODO eliminare
-	public void updateFuzzyOperator(FuzzyOperatorCommand fuzzyOp) {
-		ProcessState s = new ProcessState(fuzzyOp, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
-		state.add(s);
-		fuzzyOperators.put(fuzzyOp.getFuzzyOperatorName(), fuzzyOp);
+		userFunctions.put(userFun.getFunctionName(), userFun);
 	}
 
-	// salva la nuova USER FUNCTION
-	public void addUserFunction(FunctionCommand jsFun) {
-		ProcessState s = new ProcessState(jsFun, state.getLast().getCollection());
+	
+	// salva il nuovo FUZZY FUNCTION (OPERATOR, GENERIC OPERATOR, AGGREGATOR)
+	public void addFuzzyFunction(FuzzyFunctionCommand fuzzyFunction) {
+		ProcessState s = new ProcessState(fuzzyFunction, state.getLast().getCollection());
 		s.setIstruction(istructions.removeFirst());
 		state.add(s);
-		jsFunctions.put(jsFun.getFunctionName(), jsFun);
+		fuzzyFunctions.put(fuzzyFunction.getFuzzyFunctionName(), fuzzyFunction);
 	}
-	// TODO eliminare
-	// aggiorna la USER FUNCTION
-	public void updateUserFunction(FunctionCommand jsFun) {
-		ProcessState s = new ProcessState(jsFun, state.getLast().getCollection());
+
+
+	// added by Balicco on 27.1.2023 salva il nuovo FUZZY SET MODEL
+	public void addFuzzySetModel(FuzzySetModelCommand fuzzyModel) {
+		ProcessState s = new ProcessState(fuzzyModel, state.getLast().getCollection());
 		s.setIstruction(istructions.removeFirst());
 		state.add(s);
-		jsFunctions.put(jsFun.getFunctionName(), jsFun);
+		fuzzySetModels.put(fuzzyModel.getFuzzySetModelName(), fuzzyModel);
 	}
+
+	public Hashtable<String, FunctionCommand> getUserFunctions() {
+		return userFunctions;
+	}
+
+	public Hashtable<String, FuzzyFunctionCommand> getFuzzyFunctions() {
+		return fuzzyFunctions;
+	}
+
+	public Hashtable<String, FuzzySetModelCommand> getFuzzySetModels() {
+		return fuzzySetModels;
+	}
+	public FuzzySetModelCommand getFuzzySetModel (String fuzzysetModel) {
+		return fuzzySetModels.get(fuzzysetModel);
+	}
+
 
 	public IDocumentCollection getCollection(String alias) {
 		// Se è temporary restituisci currentCollection
@@ -303,10 +301,10 @@ public class Pipeline implements  JCOConstants {
 				File file = new File(state.getLast().getFileName());
 		        file.delete();
 				setIntermediateFiles.remove(state.getLast().getCollectionAlias());
-			} else if(state.getLast().isCreateFuzzyOperator()) {
+			} else if(state.getLast().isCreateFuzzyFunction()) {
 			// TODO PF	2023.01
 //				fuzzyOperators.removeLast();
-			} else if(state.getLast().isCreateJsFunction()) {
+			} else if(state.getLast().isCreateUserFunction()) {
 				// TODO PF	2023.01
 //				jsFunctions.removeLast();
 			}
@@ -348,14 +346,6 @@ public class Pipeline implements  JCOConstants {
 					"[GET IR COLLECTION]: IR collection " + collectionName + " does not exits");
 	}
 
-	public Hashtable<String, FunctionCommand> getJsFunctions() {
-		return jsFunctions;
-	}
-
-	public Hashtable<String, FuzzyOperatorCommand> getFuzzyOperators() {
-		return fuzzyOperators;
-	}
-
 	// PF. added on 22.07.2021
 	public void addDictionary(IDocumentCollection collection, String dictionaryNane) {
 		String key, value;
@@ -392,116 +382,5 @@ public class Pipeline implements  JCOConstants {
 	public void setDictionaries (Map<String, Dictionary> dictionaries) {
 		this.dictionaries = dictionaries;
 	}
-	
-	public LinkedList<FuzzyAggregatorCommand> getFuzzyAggregators(){
-		return fuzzyAggregators;
-	}
-	
-	//FI added on 27.10.2022
-	public void addFuzzyAggregator(FuzzyAggregatorCommand fuzzyAg) {
-		ProcessState s = new ProcessState(fuzzyAg, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
-		state.add(s);
-		fuzzyAggregators.add(fuzzyAg);
-	}
-	
-	public void updateFuzzyAggregator(FuzzyAggregatorCommand fuzzyAg, int ndx) {
-		ProcessState s = new ProcessState(fuzzyAg, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
-		state.add(s);
-		fuzzyAggregators.set(ndx, fuzzyAg);
-	}
-	
-	public int getFuzzyAggregatorIndex(){
-		return fuzzyAggregatorIndex;
-	}
-	public void setFuzzyAggregatorIndex(int i){
-		this.fuzzyAggregatorIndex = i;
-	}
-	public void incFuzzyAggregatorIndex(int i){
-		this.fuzzyAggregatorIndex = this.fuzzyAggregatorIndex + i;
-	}
 
-	// added by Balicco on 27.1.2023
-	// salva il nuovo FUZZY SET TYPE
-	public void addFuzzySetTypeExecutor(FuzzySetTypeCommand fuzzyType) {
-		ProcessState s = new ProcessState(fuzzyType, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
-		state.add(s);
-		fuzzySetType.add(fuzzyType);
-	}
-	// added by Balicco on 27.1.2023
-	// aggiorna il FUZZY SET TYPE
-	public void updateFuzzySetTypeExecutor(FuzzySetTypeCommand fuzzyType, int ndx) {
-		ProcessState s = new ProcessState(fuzzyType, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
-		state.add(s);
-		fuzzySetType.set(ndx, fuzzyType);
-	}
-	// added by Balicco on 27.1.2023
-	// salva il nuovo GENERIC FUZZY OPERATOR
-	public void addGenericFuzzyOperator(GenericFuzzyOperatorCommand genFuzzyOp) {
-		ProcessState s = new ProcessState(genFuzzyOp, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
-		state.add(s);
-		genericFuzzyOperator.add(genFuzzyOp);
-	}
-	// added by Balicco on 27.1.2023
-	// aggiorna il GENERIC FUZZY OPERATOR
-	public void updateGenericFuzzyOperator(GenericFuzzyOperatorCommand genFuzzyOp, int ndx) {
-		ProcessState s = new ProcessState(genFuzzyOp, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
-		state.add(s);
-		genericFuzzyOperator.set(ndx, genFuzzyOp);
-	}
-	
-	// added by Balicco on 27.1.2023
-	public boolean hasFuzzySetType(String name) {
-		if (fuzzySetType == null) 
-			return false;
-		for (int i = 0; i < fuzzySetType.size(); i++) 
-			if (fuzzySetType.get(i).getFuzzySetTypeName().equals(name)) 
-				return true;
-		return false;
-	}
-	
-	// added by Balicco on 27.1.2023
-	public List<FuzzySetTypeCommand> getFuzzySetType() {
-		return fuzzySetType;
-	}
-	
-	// added by Balicco on 27.1.2023
-	public FuzzySetTypeCommand getFuzzySetType(String s) {
-		for (int i = 0; i < fuzzySetType.size(); i++) {
-			if (fuzzySetType.get(i).getFuzzySetTypeName().equals(s)) 
-				return fuzzySetType.get(i);
-		}
-		return null;
-	}
-
-	// added by Balicco on 27.1.2023
-	public List<GenericFuzzyOperatorCommand> getGenericFuzzyOperator() {
-		return genericFuzzyOperator;
-	}
-	
-	// added by Balicco on 27.1.2023
-	public GenericFuzzyOperatorCommand getGenericFuzzyOperator(String s) {
-		for (int i = 0; i < fuzzySetType.size(); i++) {
-			if (genericFuzzyOperator.get(i).getGenericFuzzyOperatorName().equals(s)) {
-				return genericFuzzyOperator.get(i);
-			}
-		}
-		return null;
-	}
-	
-	// added by Balicco on 27.1.2023
-	public boolean hasGenericFuzzySet(String name) {
-		if (genericFuzzyOperator == null) 
-			return false;
-		for (int i = 0; i < genericFuzzyOperator.size(); i++) 
-			if (genericFuzzyOperator.get(i).getGenericFuzzyOperatorName().equals(name)) 
-				return true;
-		return false;
-	}
-	
 }

@@ -1,6 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
-
-import java.util.List;
+package jco.ql.engine.evaluator;
 
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
@@ -10,9 +8,9 @@ import jco.ql.model.value.EValueType;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.predicate.ArrayFunctionFactor;
-import jco.ql.parser.model.predicate.DegreeFunction;
+import jco.ql.parser.model.predicate.ExtentFunction;
 import jco.ql.parser.model.predicate.IfErrorFunction;
-import jco.ql.parser.model.predicate.MembershipToFunction;
+import jco.ql.parser.model.predicate.MembershipArray;
 import jco.ql.parser.model.predicate.SpecialFunctionFactor;
 import jco.ql.parser.model.predicate.TranslateFunction;
 
@@ -20,11 +18,19 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 
 	public static JCOValue evaluate(SpecialFunctionFactor function, Pipeline pipeline) {
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.MEMBERSHIP_TO_FUNCTION)
-			return getMembershipToValue ((MembershipToFunction)function, pipeline);
+			return getMembershipToValue ((ExtentFunction)function, pipeline);
+
+		// added 21.06.2023
+		if (function.getSpecialFuntionType() == SpecialFunctionFactor.EXTENT_FUNCTION)
+			return getExtentValue ((ExtentFunction)function, pipeline);
 		
+		// added 10.08.2023
+		if (function.getSpecialFuntionType() == SpecialFunctionFactor.MEMBERSHIP_ARRAY)
+			return MembershipArrayEvaluator.evaluate ((MembershipArray)function, pipeline);
+
 		// added by Balicco
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.DEGREE_FUNCTION)
-			return getDegreeValue ((DegreeFunction)function, pipeline);
+			return getDegreeValue ((ExtentFunction)function, pipeline);
 
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.TRANSLATE_FUNCTION)
 			return getTranslationValue ((TranslateFunction)function, pipeline);
@@ -41,25 +47,47 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 
 // ***********************************************
 	
-	private static JCOValue getMembershipToValue(MembershipToFunction mtFunction, Pipeline pipeline) {
+	private static JCOValue getMembershipToValue(ExtentFunction function, Pipeline pipeline) {
+		JCOValue fv = new SimpleValue ();		// null value
+		DocumentDefinition doc = pipeline.getCurrentDoc();
+		if (doc == null)
+			return fv;							// null value
+		
+		String str = FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + function.getFuzzysetName();
+		fv = doc.getValue(str);
+		if (JCOValue.isFuzzyValue(fv))
+			return fv;
+
+		JMH.addFuzzyMessage("MEMBERSHIP_TO Special Function failed:\t" + str + " is not a fuzzyset membership");
+		return new SimpleValue ();				// null value
+	}
+
+
+	private static JCOValue getExtentValue(ExtentFunction function, Pipeline pipeline) {
 		DocumentDefinition doc = pipeline.getCurrentDoc();
 		if (doc == null)
 			return new SimpleValue ();		// null value
 		
-		return doc.getValue(FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + mtFunction.getMemebershipOfFuzzyset());
+		return doc.getValue(FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + function.getFuzzysetName());
 	}
 
 
 	// added by Balicco
-	private static JCOValue getDegreeValue(DegreeFunction deFunction, Pipeline pipeline) {
+	private static JCOValue getDegreeValue(ExtentFunction function, Pipeline pipeline) {
+		JCOValue fv = new SimpleValue ();		// null value
 		DocumentDefinition doc = pipeline.getCurrentDoc();
 		if (doc == null)
-			return new SimpleValue ();		// null value
-		List<String> d = deFunction.getDegreeFuzzyset();
-		String str = FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR;
-		for (int i=0; i<d.size(); i++) 
-			str += d.get(i);
-		return doc.getValue(str);
+			return fv;							// null value
+
+		String str = FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + function.getFuzzysetName();
+		if (function.getDegreeName() != null)
+			str += function.getDegreeName();
+		fv = doc.getValue(str);
+		if (JCOValue.isFuzzyValue(fv))
+			return fv;
+
+		JMH.addFuzzyMessage("DEGREE Special Function failed:\t" + str + " is not a fuzzyset degree");
+		return new SimpleValue ();				// null value
 	}
 
 	

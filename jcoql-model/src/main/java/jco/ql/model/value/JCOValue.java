@@ -29,6 +29,16 @@ public interface JCOValue {
 			return true;
 		return false;
 	}
+	
+	
+	public static boolean isFuzzyValue (JCOValue v) {
+		if (isNumericValue(v)) {
+			double fv = getDoubleValue (v); 
+			if (fv >= 0 && fv <= 1)
+				return true;
+		}			
+		return false;
+	}
 
 	public  static boolean isIntValue (JCOValue v) {
 		if (v == null)

@@ -8,8 +8,8 @@ import java.util.List;
 import jco.ql.byZun.ZunTicker;
 import jco.ql.engine.Pipeline;
 import jco.ql.engine.annotation.Executor;
-import jco.ql.engine.byZunEvaluator.ConditionEvaluator;
-import jco.ql.engine.byZunEvaluator.GenerateEvaluator;
+import jco.ql.engine.evaluator.ConditionEvaluator;
+import jco.ql.engine.evaluator.GenerateEvaluator;
 import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.engine.executor.threads.Primer;
 import jco.ql.model.DocumentDefinition;
@@ -17,6 +17,7 @@ import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.GroupCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JCOConstants;
+import jco.ql.model.engine.JMH;
 import jco.ql.model.engine.SimpleDocumentCollection;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.DocumentValue;
@@ -112,7 +113,7 @@ public class GroupExecutor implements IExecutor<GroupCommand>, JCOConstants {
 		}
 		outCollection.getDocumentList().addAll(unselectedDocCollection.getDocumentList());
 		pipeline.addCollection(outCollection);
-				
+		JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + outCollection.getDocumentList().size() + " documents grouped");				
 	}	
 
 		
@@ -188,7 +189,7 @@ public class GroupExecutor implements IExecutor<GroupCommand>, JCOConstants {
 
 			else if (sv.compareTo(svActual) == LESS_THAN)
 				if (sf.versus == SortField.ASCENDING)
-						return true;
+					return true;
 				else
 					return false;
 		}

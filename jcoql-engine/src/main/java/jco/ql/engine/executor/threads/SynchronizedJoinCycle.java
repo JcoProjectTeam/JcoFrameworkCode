@@ -8,13 +8,13 @@ import javax.script.ScriptException;
 
 import org.locationtech.jts.geom.Geometry;
 
-import jco.ql.byZun.ZunTicker;
 import jco.ql.engine.Pipeline;
-import jco.ql.engine.byZunEvaluator.ExpressionFactorEvaluator;
-import jco.ql.engine.byZunEvaluator.SpatialFunctionEvaluator;
 import jco.ql.engine.evaluator.CaseEvaluator;
+import jco.ql.engine.evaluator.ExpressionFactorEvaluator;
+import jco.ql.engine.evaluator.GenerateEvaluator;
 import jco.ql.engine.evaluator.GeometryEvaluator;
 import jco.ql.engine.evaluator.SetFuzzySetsEvaluator;
+import jco.ql.engine.evaluator.SpatialFunctionEvaluator;
 import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.model.Case;
 import jco.ql.model.DocumentDefinition;
@@ -28,6 +28,7 @@ import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.JoinCollections;
 import jco.ql.parser.model.util.AddField;
+import jco.ql.parser.model.util.GenerateSection;
 import jco.ql.parser.model.util.SpatialFunction;
 
 public class SynchronizedJoinCycle extends Thread implements JCOConstants {
@@ -69,7 +70,7 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 	            	throw new ExecuteProcessException("[SynchronizedJoinCycle]: terminated");
 				}
 			}
-			ZunTicker.tick();
+//			ZunTicker.tick();
     		// fundamental
     		i += nThreads;  
     	}
@@ -141,6 +142,7 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 					newDoc.addField(new FieldDefinition(FUZZYSETS_FIELD_NAME, new DocumentValue(new DocumentDefinition(fuzzySetList))));
 			}
 			
+			/* CASES and GENERATE SECTION are complementary */
 			Case caseFilter = command.getCaseFilter();
 			if(caseFilter != null) {
 				try {
@@ -151,6 +153,11 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 	            	throw new ExecuteProcessException("[SynchronizedJoinCycle]: CASE terminated");
 				}
 			} 
+			/* GENERATE SECTION */
+			GenerateSection generateSection = command.getGenerateSection();
+			if (generateSection != null)
+				newDoc = GenerateEvaluator.evaluate(docPipeline, generateSection);
+
 		} 
 
 		return newDoc;

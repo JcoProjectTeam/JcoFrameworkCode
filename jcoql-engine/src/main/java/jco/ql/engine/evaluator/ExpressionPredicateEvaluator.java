@@ -1,4 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import jco.ql.engine.Pipeline;
 import jco.ql.model.engine.JMH;
@@ -103,7 +103,7 @@ public class ExpressionPredicateEvaluator {
 				}
 				// operation not allowed
 				else {
-					JMH.add("Opeartor non allowed");
+					JMH.add("Operator non allowed");
 				}
 			}
 			// Expression.DIV
@@ -117,7 +117,7 @@ public class ExpressionPredicateEvaluator {
 				}
 				// operation not allowed
 				else 
-					JMH.add("Opeartor non allowed");
+					JMH.add("Operator non allowed");
 			}
 
 		return value;

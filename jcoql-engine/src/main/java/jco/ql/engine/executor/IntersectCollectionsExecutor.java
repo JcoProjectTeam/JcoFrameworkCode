@@ -115,7 +115,6 @@ public class IntersectCollectionsExecutor implements IExecutor<IntersectCollecti
 			List<DocumentDefinition> tempDocs = singleCollection.getDocumentList();
 
 			if (docs != null) {
-
 				/* Lo stream di documenti viene filtrato ad ogni passo */
 				stream = stream.filter(d -> {
 					return (tempDocs.contains(d));

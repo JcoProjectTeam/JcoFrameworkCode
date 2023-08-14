@@ -85,7 +85,7 @@ public class SetFrequencyShellCommand {
 		int finalNumber = Integer.parseInt(number);
 
 		if ("M".equalsIgnoreCase(category))
-			return finalNumber*60*1000;        		//every hour is equal to 60000 milliseconds
+			return finalNumber*60*1000;        		//every minute is equal to 60000 milliseconds
 		else if ("H".equalsIgnoreCase(category))
 			return finalNumber*60*60*1000;        	//every hour is equal to 3600000 milliseconds
 		else if ("D".equalsIgnoreCase(category))

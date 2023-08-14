@@ -4,7 +4,7 @@ import jco.ql.model.command.ExpandCommand;
 import jco.ql.model.command.FilterCommand;
 import jco.ql.model.command.FuzzyAggregatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
-import jco.ql.model.command.FuzzySetTypeCommand;
+import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.command.GenericFuzzyOperatorCommand;
 import jco.ql.model.command.LookupFromWebCommand;
 import jco.ql.model.command.GetCollectionCommand;
@@ -25,7 +25,7 @@ import jco.ql.parser.model.Expand;
 import jco.ql.parser.model.Filter;
 import jco.ql.parser.model.FuzzyAggregator;
 import jco.ql.parser.model.FuzzyOperator;
-import jco.ql.parser.model.FuzzySetType;
+import jco.ql.parser.model.FuzzySetModel;
 import jco.ql.parser.model.GenericFuzzyOperator;
 import jco.ql.parser.model.LookupFromWeb;
 import jco.ql.parser.model.GetCollection;
@@ -116,9 +116,9 @@ public class Translator implements JCOConstants {
 			return new FuzzyAggregatorCommand(fa);
 		}
 		// added by Balicco 26/1/2023
-		else if(instr instanceof FuzzySetType) {
-			FuzzySetType ft = (FuzzySetType) instr;
-			return new FuzzySetTypeCommand(ft);
+		else if(instr instanceof FuzzySetModel) {
+			FuzzySetModel fm = (FuzzySetModel) instr;
+			return new FuzzySetModelCommand(fm);
 		}
 		//added by Balicco 26/1/2023
 		else if(instr instanceof GenericFuzzyOperator) {

@@ -1,4 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,13 +6,16 @@ import java.util.List;
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
-import jco.ql.model.command.FuzzySetTypeCommand;
+import jco.ql.model.command.FuzzyAggregatorCommand;
+import jco.ql.model.command.FuzzyFunctionCommand;
+import jco.ql.model.command.FuzzyOperatorCommand;
+import jco.ql.model.command.FuzzySetModelCommand;
+import jco.ql.model.command.GenericFuzzyOperatorCommand;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
 import jco.ql.model.value.EValueType;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
-import jco.ql.parser.model.predicate.UsingAggregatorPredicate;
 import jco.ql.parser.model.predicate.UsingPredicate;
 
 /* All evaluations from now on is on pipeline current doc which is NOT NULL by construction 
@@ -21,17 +24,18 @@ import jco.ql.parser.model.predicate.UsingPredicate;
 public class UsingPredicateEvaluator implements JCOConstants {
 
 	public static SimpleValue fuzzyEvaluate(UsingPredicate usingPredicate, Pipeline pipeline) {
+		if (pipeline.getCurrentDoc() == null)
+			return new SimpleValue ();
+
 		SimpleValue value = new SimpleValue ();	// null type
 		if (usingPredicate.usingType == UsingPredicate.USING_FUZZY_SET)
 			value = evaluateFuzzySet(usingPredicate, pipeline);
-		else if (usingPredicate.usingType == UsingPredicate.USING_FUZZY_OPERATOR)
-			value = FuzzyOperatorEvaluator.evaluate(usingPredicate, pipeline);
+		else if (usingPredicate.usingType == UsingPredicate.USING_FUNCTION)
+			value = evaluateFuzzyFunction (usingPredicate, pipeline);
 		else if (usingPredicate.usingType == UsingPredicate.USING_SUB_CONDITION)
 			value = ConditionEvaluator.fuzzyEvaluate(usingPredicate.subUsingCondition, pipeline);
 		else if (usingPredicate.usingType == UsingPredicate.USING_IF_FAILS)
 			value = evaluateIfFails (usingPredicate, pipeline);
-		else if (usingPredicate.usingType == UsingPredicate.USING_FUZZY_AGGREGATOR)//FI added
-			value = FuzzyAggregatorEvaluator.evaluate((UsingAggregatorPredicate)usingPredicate, pipeline);
 		
 		return value;
 	}
@@ -39,8 +43,6 @@ public class UsingPredicateEvaluator implements JCOConstants {
 	
 	private static SimpleValue evaluateFuzzySet(UsingPredicate usingPredicate, Pipeline pipeline) {
 		DocumentDefinition doc = pipeline.getCurrentDoc();
-		if (doc == null)
-			return new SimpleValue ();		// null value
 		
 		// modified by Balicco
 		JCOValue checkDoc = doc.getValue(FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + usingPredicate.fuzzySet);
@@ -53,7 +55,27 @@ public class UsingPredicateEvaluator implements JCOConstants {
 			return new SimpleValue ();		// null value			
 		return outValue;
 	}
+	
+	private static SimpleValue evaluateFuzzyFunction(UsingPredicate usingPredicate, Pipeline pipeline) {
+		SimpleValue outValue = new SimpleValue();
+		String operator = usingPredicate.fuzzyFunction;
+		FuzzyFunctionCommand ffc = pipeline.getFuzzyFunctions().get(operator);
 
+		if (ffc == null)
+			JMH.add("Generic Fuzzy Operator " + operator + " not defined");
+		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_OPERATOR) 
+			JMH.add("Fuzzy Operator " + operator + " it is not supported for classical fuzzy set ");
+		else if (ffc.getType() == FuzzyFunctionCommand.OPERATOR) {
+			FuzzyOperatorCommand foc = (FuzzyOperatorCommand) ffc;
+			outValue = FuzzyOperatorEvaluator.evaluate(foc, usingPredicate, pipeline);			
+		}
+		else if (ffc.getType() == FuzzyFunctionCommand.AGGREGATOR) {
+			FuzzyAggregatorCommand fac = (FuzzyAggregatorCommand) ffc;
+			outValue = FuzzyAggregatorEvaluator.evaluate(fac, usingPredicate, pipeline);			
+		}
+		
+		return outValue;
+	}
 
 	private static SimpleValue evaluateIfFails(UsingPredicate usingPredicate, Pipeline pipeline) {
 		SimpleValue defaultValue = new SimpleValue (usingPredicate.getDefaultValue());
@@ -70,21 +92,38 @@ public class UsingPredicateEvaluator implements JCOConstants {
 
 	/* ********************* Generic Fuzzy Set ***********************************************************/
 	// added by Balicco
-	public static List<FieldDefinition> genericFuzzyEvaluate(UsingPredicate usingPredicate, Pipeline pipeline, String type) {
+	public static List<FieldDefinition> genericFuzzyEvaluate(UsingPredicate usingPredicate, Pipeline pipeline, String fuzzysetModel) {
 		List <FieldDefinition> value = new ArrayList<>();	// null type
 
 		if (usingPredicate.usingType == UsingPredicate.USING_FUZZY_SET)
-			value = evaluateGenericFuzzySet(usingPredicate, pipeline, type);
-		else if (usingPredicate.usingType == UsingPredicate.USING_FUZZY_OPERATOR) 
-			value = FuzzyOperatorEvaluator.evaluate(usingPredicate, pipeline, type);
+			value = evaluateGenericFuzzySet(usingPredicate, pipeline, fuzzysetModel);
+		else if (usingPredicate.usingType == UsingPredicate.USING_FUNCTION) 
+			value = evaluateGenericFunction (usingPredicate, pipeline, fuzzysetModel);
 		else if (usingPredicate.usingType == UsingPredicate.USING_SUB_CONDITION)
-			value = ConditionEvaluator.genericFuzzyEvaluate(usingPredicate.subUsingCondition, pipeline, type);
+			value = ConditionEvaluator.genericFuzzyEvaluate(usingPredicate.subUsingCondition, pipeline, fuzzysetModel);
 		else if (usingPredicate.usingType == UsingPredicate.USING_IF_FAILS)
 			JMH.add("Predicate " + UsingPredicate.USING_IF_FAILS + " it is not supported for generic fuzzy set");
-		else if (usingPredicate.usingType == UsingPredicate.USING_FUZZY_AGGREGATOR)//FI added
-			JMH.add("Predicate " + UsingPredicate.USING_FUZZY_AGGREGATOR + " it is not supported for generic fuzzy set");
 		
 		return value;
+	}
+	// PF
+	private static List<FieldDefinition> evaluateGenericFunction (UsingPredicate usingPredicate, Pipeline pipeline, String fuzzysetModel) {
+		List <FieldDefinition> value = new ArrayList<>();	// null type
+		String operator = usingPredicate.fuzzyFunction;
+		FuzzyFunctionCommand ffc = pipeline.getFuzzyFunctions().get(operator);
+
+		if (ffc == null)
+			JMH.add("Generic Fuzzy Operator " + operator + " not defined");
+		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_OPERATOR) {
+			GenericFuzzyOperatorCommand gfoc = (GenericFuzzyOperatorCommand)ffc;
+			value = FuzzyOperatorEvaluator.evaluateGeneric(gfoc, usingPredicate, pipeline, fuzzysetModel);			
+		}
+		else if (ffc.getType() == FuzzyFunctionCommand.OPERATOR)
+			JMH.add("Fuzzy Operator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
+		else if (ffc.getType() == FuzzyFunctionCommand.AGGREGATOR)
+			JMH.add("Fuzzy Aggregator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
+
+		return value;		
 	}
 	
 	// added by Balicco
@@ -92,11 +131,8 @@ public class UsingPredicateEvaluator implements JCOConstants {
 		DocumentDefinition doc = pipeline.getCurrentDoc();
 		List<FieldDefinition> outValue = new ArrayList<FieldDefinition>();
 		SimpleValue Value;
-		FuzzySetTypeCommand ft = pipeline.getFuzzySetType(type); 
+		FuzzySetModelCommand ft = pipeline.getFuzzySetModel(type); 
 		
-		
-		if (doc == null)
-			return null;		// null value
 		
 		//check fuzzy set 
 		JCOValue checkDoc = doc.getValue(FUZZYSETS_FIELD_NAME_DOT + FIELD_SEPARATOR + usingPredicate.fuzzySet);
@@ -112,11 +148,11 @@ public class UsingPredicateEvaluator implements JCOConstants {
 		//Type 
 		Value = (SimpleValue)doc.getValue(FUZZYSETS_FIELD_NAME_DOT+FIELD_SEPARATOR+usingPredicate.fuzzySet+FIELD_SEPARATOR+"type");
 		if (Value == null) {
-			JMH.addFuzzyMessage("Type [" + ft.getFuzzySetTypeName() + "] for fuzzy set [" + usingPredicate.fuzzySet + "] not found");
+			JMH.addFuzzyMessage("Type [" + ft.getFuzzySetModelName() + "] for fuzzy set [" + usingPredicate.fuzzySet + "] not found");
 			return null;
 		}
 		if (!Value.getStringValue().equals(type)  ) {
-			JMH.addFuzzyMessage("Wrong type [" + ft.getFuzzySetTypeName() + "] for fuzzy set [" + usingPredicate.fuzzySet + "] ");
+			JMH.addFuzzyMessage("Wrong type [" + ft.getFuzzySetModelName() + "] for fuzzy set [" + usingPredicate.fuzzySet + "] ");
 			return null;
 		}
 		

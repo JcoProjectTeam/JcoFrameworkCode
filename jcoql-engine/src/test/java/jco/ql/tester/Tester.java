@@ -1,8 +1,8 @@
 package jco.ql.tester;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
-
-import org.locationtech.jts.geom.Geometry;
 
 public class Tester {
 	class MyPoint {
@@ -15,8 +15,11 @@ public class Tester {
 	}
 
     public static void main (String[] args){
-    	Tester t = new Tester();
-    	t.go();
+    	BigDecimal x = new BigDecimal (13);
+    	System.out.println("A1:\t" + x);
+    	x=x.divide(new BigDecimal(3), MathContext.DECIMAL64);
+    	System.out.println("A1:\t" + x);
+    	
     	
 	} 
     

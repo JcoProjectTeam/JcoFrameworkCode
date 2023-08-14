@@ -1,8 +1,10 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.JCOConstants;
+import jco.ql.model.engine.JMH;
+import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.predicate.ExpressionFactor;
@@ -14,34 +16,71 @@ import jco.ql.parser.model.util.Value;
 public class ExpressionFactorEvaluator implements JCOConstants {
 
 	public static JCOValue evaluate(ExpressionFactor factor, Pipeline pipeline) {
+		JCOValue jv = new SimpleValue ();
 
 		if (factor.getType() == ExpressionFactor.SUB_CONDITION)
-			return ConditionEvaluator.evaluate(factor.subCondition, pipeline);
+			jv  = ConditionEvaluator.evaluate(factor.subCondition, pipeline);
 		
 		if (factor.getType() == ExpressionFactor.SUB_EXPRESSION)
-			return ExpressionPredicateEvaluator.calculate(factor.subExpression, pipeline);
+			jv  = ExpressionPredicateEvaluator.calculate(factor.subExpression, pipeline);
 		
 		//FI modified on 05/11/2022
 		if (factor.getType() == ExpressionFactor.VALUE)
-			return getFactorValue (factor, pipeline);
+			jv  = getFactorValue (factor, pipeline);
 
 		if (factor.getType() == ExpressionFactor.ID)
-			return getIDValue (factor, pipeline);
+			jv  = getIDValue (factor, pipeline);
 
 		if (factor.getType() == ExpressionFactor.FIELDNAME)
-			return getFieldValue (factor, pipeline);
+			jv  = getFieldValue (factor, pipeline);
 		
 		if (factor.getType() == ExpressionFactor.FUNCTION)
-			return FunctionEvaluator.evaluate ((FunctionFactor)factor, pipeline);
+			jv  = FunctionEvaluator.evaluate ((FunctionFactor)factor, pipeline);
 
 		if (factor.getType() == ExpressionFactor.SPECIAL_FUNCTION)
-			return SpecialFunctionEvaluator.evaluate ((SpecialFunctionFactor)factor, pipeline);
+			jv  = SpecialFunctionEvaluator.evaluate ((SpecialFunctionFactor)factor, pipeline);
 		
 		//FI modified on 05/11/2022
 		if(factor.getType() == ExpressionFactor.ARRAY_REF)
-			return ArrayReferenceEvaluator.evaluate(factor.reference, pipeline);
-					
-		return new SimpleValue ();		// null value
+			jv  = ArrayReferenceEvaluator.evaluate(factor.reference, pipeline);
+		
+		//PF added on 08/08/2023
+		if(factor.getType() == ExpressionFactor.ARRAY)
+			jv  = getArrayValue(factor, pipeline);
+		
+		// PF 07/.2023 - after the factor has been evaluated, check if it has an exponent
+		if (factor.hasExponent())
+			jv = getExponentialValue (jv, factor, pipeline);
+		return jv;	
+	}
+
+
+	private static JCOValue getArrayValue(ExpressionFactor factor, Pipeline pipeline) {
+		ArrayValue av = new ArrayValue();
+		for (ExpressionFactor f: factor.array) 
+			av.add(ExpressionFactorEvaluator.evaluate(f, pipeline));
+
+		return av;
+	}
+
+
+	private static JCOValue getExponentialValue(JCOValue jv, ExpressionFactor factor, Pipeline pipeline) {
+		if (!JCOValue.isNumericValue(jv)) {
+			JMH.add("Operator non allowed for non-numeric base:\t" + jv.toString());
+			return new SimpleValue();	// null value
+		}
+			
+		JCOValue exp = ExpressionFactorEvaluator.evaluate(factor.exp, pipeline);
+		if (!JCOValue.isNumericValue(exp)) {
+			JMH.add("Operator non allowed for non-numeric exponent:\t" + exp.toString());
+			return new SimpleValue();	// null value
+		}
+		
+		double b = JCOValue.getDoubleValue(jv);
+		double e = JCOValue.getDoubleValue(exp);
+		double v = Math.pow(b, e);
+		JCOValue value = new SimpleValue (v);
+		return value; 
 	}
 
 	/* ***************************************************************** */
@@ -67,9 +106,6 @@ public class ExpressionFactorEvaluator implements JCOConstants {
 		if (v.isApex())
 			return new SimpleValue (v.value);
 		
-		if(v.isPos()) 
-			return new SimpleValue(pipeline.getFuzzyAggregatorIndex()+1);
-
 		return new SimpleValue ();		// null value
 	}
 
@@ -88,8 +124,10 @@ public class ExpressionFactorEvaluator implements JCOConstants {
 		DocumentDefinition doc = pipeline.getCurrentDoc();
 		if (doc == null)
 			return new SimpleValue ();		// null value
-
-		return doc.getValue(factor.field.toString());
+		JCOValue jv = doc.getValue(factor.field.toString());
+		if (jv == null)
+			jv = new SimpleValue();
+		return jv;
 	}
 
 

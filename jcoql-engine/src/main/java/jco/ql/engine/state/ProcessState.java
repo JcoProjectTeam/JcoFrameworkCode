@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jco.ql.model.command.FunctionCommand;
-import jco.ql.model.command.FuzzyAggregatorCommand;
-import jco.ql.model.command.FuzzyOperatorCommand;
-import jco.ql.model.command.FuzzySetTypeCommand;
-import jco.ql.model.command.GenericFuzzyOperatorCommand;
+import jco.ql.model.command.FuzzyFunctionCommand;
+import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.SimpleDocumentCollection;
 
 public class ProcessState {
-
 	private IDocumentCollection currentCollection;
 	private String istruction;
-
 	private boolean emptyState;
 
 	//variabili per lo stato "USEDB"
@@ -27,18 +23,14 @@ public class ProcessState {
 	private String collectionAlias;
 	private String fileName;
 
-	// variabili per lo stato Create Fuzzy Operator
-	private boolean isCreateFuzzyOperator;
+	// variabili per lo stato Create Fuzzy Function (Operator, Aggregator, Generic Operator)
+	private boolean isCreateFuzzyFunction;
 	
-	// added by Federici 30/10/22
-	private boolean isCreateFuzzyAggregator;
-
 	// added by Balicco 27/1/23
-	private boolean isCreateFuzzySetType;
-	private boolean isCreateGenericFuzzyOperator;
+	private boolean isCreateFuzzySetModel;
 
-	// variabili per lo stato Create JS Function
-	private boolean isCreateJsFunction;
+	// variabili per lo stato Create JS/Java Function
+	private boolean isCreateUserFunction;
 
 
 	public ProcessState() {
@@ -47,84 +39,37 @@ public class ProcessState {
 		emptyState = true;
 		useDb = false;
 		setIntermediateAs = false;
-		isCreateFuzzyOperator = false;
-		isCreateJsFunction = false;
-		isCreateFuzzyAggregator = false;
+		isCreateFuzzyFunction = false;
+		isCreateUserFunction = false;
 	}
 
 	public ProcessState(IDocumentCollection coll) {
-		emptyState = false;
-		useDb = false;
-		setIntermediateAs = false;
-		this.currentCollection = coll;
-		isCreateFuzzyOperator = false;
-		isCreateJsFunction = false;
-		isCreateFuzzyAggregator = false;
+		this ();
+		currentCollection = coll;
 	}
 
-	public ProcessState(FuzzyOperatorCommand fuzzyOp, IDocumentCollection coll) {
-		isCreateFuzzyOperator = true;
-		isCreateFuzzyAggregator = false;
-		useDb = false;
-		emptyState = false;
-		setIntermediateAs = false;
-		this.currentCollection = coll;
-		isCreateJsFunction = false;
-		istruction = "";
-	}
-	
-	// added by Federici 30/10/2022
-	public ProcessState(FuzzyAggregatorCommand fuzzyAg, IDocumentCollection coll) {
-		isCreateFuzzyAggregator = true;
-		isCreateFuzzyOperator = false;
-		useDb = false;
-		emptyState = false;
-		setIntermediateAs = false;
-		this.currentCollection = coll;
-		isCreateJsFunction = false;
-		istruction = "";
-	}
-
-	// added by Balicco 27/1/2023
-	public ProcessState(FuzzySetTypeCommand fuzzyAg, IDocumentCollection coll) {
-		useDb = false;
-		emptyState = false;
-		setIntermediateAs = false;
-		this.currentCollection = coll;
-		isCreateJsFunction = false;
-		istruction = "";
-		isCreateFuzzyOperator = false;
-		isCreateFuzzyAggregator = false;
-		isCreateFuzzySetType = true;
-		isCreateGenericFuzzyOperator = false;
+	public ProcessState(FuzzyFunctionCommand fuzzyOp, IDocumentCollection coll) {
+		this();
+		isCreateFuzzyFunction = true;
+		currentCollection = coll;
 	}
 	
 	// added by Balicco 27/1/2023
-	public ProcessState(GenericFuzzyOperatorCommand fuzzyAg, IDocumentCollection coll) {
-		useDb = false;
-		emptyState = false;
-		setIntermediateAs = false;
-		this.currentCollection = coll;
-		isCreateJsFunction = false;
-		istruction = "";
-		isCreateFuzzyOperator = false;
-		isCreateFuzzyAggregator = true;
-		isCreateFuzzySetType = false;
-		isCreateGenericFuzzyOperator = true;
+	public ProcessState(FuzzySetModelCommand fuzzyAg, IDocumentCollection coll) {
+		this();
+		currentCollection = coll;
+		isCreateFuzzySetModel = true;
+	}
+	
+
+	public ProcessState(FunctionCommand userFunction, IDocumentCollection coll) {
+		this();
+		isCreateUserFunction = true;
+		currentCollection = coll;
 	}
 
-	public ProcessState(FunctionCommand jsFunction, IDocumentCollection coll) {
-		isCreateFuzzyOperator = false;
-		isCreateFuzzyAggregator = false;
-		useDb = false;
-		emptyState = false;
-		setIntermediateAs = false;
-		istruction = "";
-		isCreateJsFunction = true;
-		this.currentCollection = coll;
-	}
-
-
+	// ------------------------------------------------
+	
 	public IDocumentCollection getCollection() {
 		return currentCollection;
 	}
@@ -151,26 +96,17 @@ public class ProcessState {
 		return setIntermediateAs;
 	}
 
-	public boolean isCreateFuzzyOperator() {
-		return isCreateFuzzyOperator;
+	public boolean isCreateFuzzyFunction() {
+		return isCreateFuzzyFunction;
 	}
 	
 	// added by Balicco 27/1/2023
 	public boolean isCreateFuzzySetType() {
-		return isCreateFuzzySetType;
+		return isCreateFuzzySetModel;
 	}
 	
-	// added by Balicco 27/1/2023
-	public boolean isCreateGenericFuzzyOperator() {
-		return isCreateGenericFuzzyOperator;
-	}
-	
-	public boolean isCreateFuzzyAggregator() {
-		return isCreateFuzzyAggregator;
-	}
-
-	public boolean isCreateJsFunction() {
-		return isCreateJsFunction;
+	public boolean isCreateUserFunction() {
+		return isCreateUserFunction;
 	}
 
 	public void setIstruction(String istr) {

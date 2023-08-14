@@ -13,11 +13,10 @@ public class FuzzyOperatorExecutor implements IExecutor<FuzzyOperatorCommand> {
     @Override
     public void execute(Pipeline pipeline, FuzzyOperatorCommand foCommand) throws ExecuteProcessException {
     	// PF. 2022.03.24 - New Policy... in case of already existing Fuzzy Operator, a message is emitted and the newer version replace the old one
-    	if (pipeline.getFuzzyOperators().contains(foCommand.getFuzzyOperatorName()))
+    	if (pipeline.getFuzzyFunctions().containsKey(foCommand.getFuzzyOperatorName()))
     		JMH.addFuzzyMessage("[" + foCommand.getInstruction().getInstructionName() + "]: definition of " + foCommand.getFuzzyOperatorName() + " has been replaced.");
-    	pipeline.addFuzzyOperator(foCommand);
+    	pipeline.addFuzzyFunction(foCommand);
 		JMH.addJCOMessage("[" + foCommand.getInstruction().getInstructionName() + "] executed:\t" + foCommand.getFuzzyOperatorName() + " fuzzy operator registered");
     }
     
-
 }

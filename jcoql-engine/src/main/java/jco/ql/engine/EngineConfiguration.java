@@ -17,6 +17,8 @@ public class EngineConfiguration implements JCOConstants {
 	private Properties settings;
 	private int nProcessors = 1;
 	private String tempDirectory;
+
+	
 	
 	public EngineConfiguration () {
 		Date today = new Date();

@@ -43,6 +43,13 @@ public class JavaFunctionCommand implements ICommand, FunctionCommand {
         return functionName;
     }
 
+	
+	@Override
+	public int getType() {
+		return JAVA_FUNCTION;
+	}
+
+
 	public String getCode () {
 		return code;
 	}
@@ -111,10 +118,5 @@ public class JavaFunctionCommand implements ICommand, FunctionCommand {
 		return instruction;
 	}
 
-
-	@Override
-	public int getType() {
-		return JAVA_FUNCTION;
-	}
 
 }

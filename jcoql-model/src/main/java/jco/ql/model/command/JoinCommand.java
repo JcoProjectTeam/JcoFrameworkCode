@@ -1,6 +1,7 @@
 package jco.ql.model.command;
 
 import jco.ql.parser.model.util.AddField;
+import jco.ql.parser.model.util.GenerateSection;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class JoinCommand implements ICommand {
 	private List<AddField> addFields;
 	private SetFuzzySetsCommand setFuzzySets;
 	private Case caseFilter;
+	private GenerateSection generateSection;
 	private boolean removeDuplicates;
 
 	
@@ -38,6 +40,9 @@ public class JoinCommand implements ICommand {
 		caseFilter = null;
 		if (jc.hasCaseClause())
 			caseFilter = new Case(jc.caseClause);
+		generateSection = null;
+		if (jc.hasGenerateSection())
+			generateSection = jc.generateSection;
 
 		removeDuplicates = jc.isRemoveDuplicates();
 	}
@@ -65,6 +70,11 @@ public class JoinCommand implements ICommand {
 	
 	public Case getCaseFilter() {
 		return caseFilter;
+	}
+
+	
+	public GenerateSection getGenerateSection() {
+		return generateSection;
 	}
 
 	

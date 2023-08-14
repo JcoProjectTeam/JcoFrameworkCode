@@ -49,19 +49,22 @@ public class SaveAsExecutor implements IExecutor<SaveAsCommand> {
 
 		if (command.getDbName() != null) {
 			IDatabase database = databaseRegistry.getDatabase(command.getDbName());
-			database.addCollection(outCollection);			
-			
+			if (database != null) {
+				database.addCollection(outCollection);						
+				JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + outCollection.getDocumentList().size() + " documents saved");
+			}
+			else
+				JMH.addIOMessage("[" + command.getInstruction().getInstructionName() + "] Error:\t DB " + command.getDbName() + " not defined");				
 		} 
 		// PF. Extends SAVE AS to run as SET INTERMEDIATE
 		else {
 			JSONHandler j = new JSONHandler();
 			String fileName = j.createFile(outCollection, command.getCollectionName());
 			pipeline.addFiles(command.getCollectionName(), fileName);			
+			JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + outCollection.getDocumentList().size() + " documents saved");
 		}
 			
 		pipeline.addCollection(outCollection);
-		JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + outCollection.getDocumentList().size() + " documents saved");
-
 	}
 
 }

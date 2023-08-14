@@ -3,8 +3,6 @@ package jco.ql.engine.evaluator;
 import javax.script.ScriptException;
 
 import jco.ql.engine.Pipeline;
-import jco.ql.engine.byZunEvaluator.ConditionEvaluator;
-import jco.ql.engine.byZunEvaluator.GenerateEvaluator;
 import jco.ql.model.Case;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.JCOConstants;

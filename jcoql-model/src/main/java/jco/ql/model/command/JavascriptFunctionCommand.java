@@ -29,6 +29,12 @@ public class JavascriptFunctionCommand implements ICommand, FunctionCommand {
 	}
 
 	@Override
+	public int getType() {
+		return JAVASCRIPT_FUNCTION;
+	}
+
+
+	@Override
 	public String getFunctionName() {
         return functionName;
     }
@@ -84,10 +90,5 @@ public class JavascriptFunctionCommand implements ICommand, FunctionCommand {
 		return instruction;
 	}
 
-
-	@Override
-	public int getType() {
-		return JAVASCRIPT_FUNCTION;
-	}
 
 }

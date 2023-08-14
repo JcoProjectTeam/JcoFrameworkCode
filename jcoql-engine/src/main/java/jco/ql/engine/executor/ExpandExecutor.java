@@ -7,7 +7,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.Pipeline;
 import jco.ql.engine.annotation.Executor;
-import jco.ql.engine.byZunEvaluator.ConditionEvaluator;
+import jco.ql.engine.evaluator.ConditionEvaluator;
 import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.engine.executor.threads.SynchronizedDuplicateRemover;
 import jco.ql.engine.executor.threads.SynchronizedExpandCycle;
@@ -72,12 +72,17 @@ public class ExpandExecutor implements IExecutor<ExpandCommand> {
 									nThreads = 2*EngineConfiguration.getInstance().getNProcessors()-1;
 								
 								// PF threads creation
-								threads = new SynchronizedExpandCycle[nThreads];
-								for (int i=0; i<nThreads; i++) {
-									// save current doc other fields
-									List<FieldDefinition> outputList2 = currentDoc.getFields();
-									threads[i] = new SynchronizedExpandCycle(i, nThreads, queue, unpack, listValues, outputList2);
+								// save current doc other fields
+								List<FieldDefinition> outputList2 = currentDoc.getFields();
+								for (int ndx=0; ndx<outputList2.size(); ndx++) {
+									if (outputList2.get(ndx).getName().equals("_id")) {
+										outputList2.remove(ndx);
+										break;
+									}
 								}
+								threads = new SynchronizedExpandCycle[nThreads];
+								for (int i=0; i<nThreads; i++) 										
+									threads[i] = new SynchronizedExpandCycle(i, nThreads, queue, unpack, listValues, outputList2);
 	
 								// PF threads launching
 								for (int i=0; i<nThreads; i++)

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jco.ql.engine.Pipeline;
-import jco.ql.engine.byZunEvaluator.ExpressionFactorEvaluator;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
 import jco.ql.model.engine.JCOConstants;

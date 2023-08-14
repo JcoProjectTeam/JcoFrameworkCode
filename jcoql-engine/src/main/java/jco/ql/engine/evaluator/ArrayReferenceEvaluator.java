@@ -1,4 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 
 
@@ -16,9 +16,9 @@ import jco.ql.parser.model.predicate.ArrayReference;
 public class ArrayReferenceEvaluator {
 	
 	public static JCOValue evaluate(ArrayReference ref, Pipeline pipeline) {
-		ArrayValue array = pipeline.getCurrentDoc().getArrayValue(ref.id_array);
+		ArrayValue array = pipeline.getCurrentDoc().getArrayValue(ref.idArray);
 		if(array == null) {
-			JMH.add("Array not declared: \t" + ref.id_array);
+			JMH.add("Array not declared: \t" + ref.idArray);
 			return new SimpleValue();
 		}
 		
@@ -32,7 +32,7 @@ public class ArrayReferenceEvaluator {
 		}
 		if(index.intValue() <0 || index.intValue() >= array.getValues().size())
 		{
-			JMH.add("Index out of acceptable range for array: \t" + ref.id_array);
+			JMH.add("Index out of acceptable range for array: \t" + ref.idArray);
 			return new SimpleValue();
 		}
 		
@@ -42,16 +42,16 @@ public class ArrayReferenceEvaluator {
 		if(!ref.hasFields() && (value.getType() == EValueType.DECIMAL || value.getType() == EValueType.INTEGER))
 			return value;
 		else if(value.getType() == EValueType.DOCUMENT && ref.hasFields()) {
-			JCOValue valueFromDocument = ((DocumentValue) value).getValue(ref.array_field.toString());
+			JCOValue valueFromDocument = ((DocumentValue) value).getValue(ref.arrayField.toString());
 			if(valueFromDocument.getType() == EValueType.DECIMAL || valueFromDocument.getType() == EValueType.INTEGER)
 				return valueFromDocument;
 			else {
-				JMH.add("Found no numeric value in field : \t" + ref.array_field.toString());
+				JMH.add("Found no numeric value in field : \t" + ref.arrayField.toString());
 				return new SimpleValue();
 			}			
 		}
 		else {
-			JMH.add("Wrong type of value in array : " + ref.id_array);
+			JMH.add("Wrong type of value in array : " + ref.idArray);
 			return new SimpleValue();
 		}
 			

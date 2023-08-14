@@ -1,4 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,6 +157,8 @@ public class FunctionEvaluator implements JCOConstants {
 	private static JCOValue toFloatValue(FunctionFactor factor, Pipeline pipeline) {
 		JCOValue value = ExpressionPredicateEvaluator.calculate(factor.functionParams.get(0), pipeline);
 		double toFloat = 0.0; 	// default Value for NULL & ARRAY & DOCUMENT 
+		if (value == null || value.getType()==null)
+			JMH.add("ERRORE");
 		if (value.getType() == EValueType.BOOLEAN) {
 			if (value.getStringValue().equalsIgnoreCase(TRUE_LCST))
 				toFloat = 1.0;

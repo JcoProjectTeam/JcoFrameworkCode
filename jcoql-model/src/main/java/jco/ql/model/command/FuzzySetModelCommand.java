@@ -2,7 +2,7 @@ package jco.ql.model.command;
 
 import java.util.List;
 
-import jco.ql.parser.model.FuzzySetType;
+import jco.ql.parser.model.FuzzySetModel;
 import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.condition.Condition;
 import jco.ql.parser.model.fuzzy.FuzzyOperatorDefinition;
@@ -15,9 +15,9 @@ import jco.ql.parser.model.util.Parameter;
 *
 */
 
-public class FuzzySetTypeCommand implements ICommand {
+public class FuzzySetModelCommand implements ICommand {
 	private Instruction 			instruction = null;
-    private String 					fuzzySetTypeName;
+    private String 					fuzzySetModelName;
     private List<Parameter> 		degrees;
 	private List<String> 			derivedDegrees;
 	private List<Expression> 		derivedExpr;
@@ -27,9 +27,9 @@ public class FuzzySetTypeCommand implements ICommand {
 	private FuzzyOperatorDefinition defNot;
 
 
-    public FuzzySetTypeCommand(FuzzySetType ft) {
+    public FuzzySetModelCommand(FuzzySetModel ft) {
     	instruction 				= ft;
-        fuzzySetTypeName			= ft.fuzzySetType;
+        fuzzySetModelName			= ft.fuzzySetModel;
         degrees						= ft.degrees;
         derivedDegrees				= ft.derivedDegrees;
     	derivedExpr 				= ft.derivedExpr;
@@ -40,8 +40,8 @@ public class FuzzySetTypeCommand implements ICommand {
     }   
 
         
-    public String getFuzzySetTypeName() {
-        return fuzzySetTypeName;
+    public String getFuzzySetModelName() {
+        return fuzzySetModelName;
     }
 
     public List<Parameter> getDegrees() {

@@ -103,7 +103,7 @@ public class UseDbExecutor implements IExecutor<UseDbCommand> {
 			JMH.addIOMessage("[" + command.getInstruction().getInstructionName() + "]: reference to database " + dbname + " has been replaced.");
 		registry.registerDatabase(dbname, db);
 		JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + dbname);
-		// PF - what's for? // ZUN CHECK*
+		// PF - what's for? // ZUN CHECK* TODO
 		pipeline.addCollection(dbnames);
 
 	}

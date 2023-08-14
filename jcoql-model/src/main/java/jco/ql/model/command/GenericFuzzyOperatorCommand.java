@@ -15,31 +15,41 @@ import jco.ql.parser.model.util.Parameter;
 *
 */
 
-public class GenericFuzzyOperatorCommand implements ICommand {
+public class GenericFuzzyOperatorCommand implements ICommand, FuzzyFunctionCommand {
 	private Instruction 		instruction = null;
     private String 				genericFuzzyOperatorName;
     private List<Parameter> 	parameters;
     private Condition 			precondition;
     private List<Expression> 	evaluate;
     private List<FuzzyPolyline> polylines;
-    private String 				fuzzyTypeName ;
+    private String 				fuzzysetModelName ;
     private List<Parameter> 	degrees;
 
 
     public GenericFuzzyOperatorCommand(GenericFuzzyOperator fgo) {
-    	instruction 			= fgo;
-    	genericFuzzyOperatorName= fgo.genericFuzzyOperator;
-    	parameters 				= fgo.parameters;
-		precondition 			= fgo.precondition;
-		fuzzyTypeName 			= fgo.fuzzyTypeName;
-		evaluate 				= fgo.evaluate;
-		polylines 				= fgo.polylines;
-		degrees 				= fgo.degrees;
+    	instruction 				= fgo;
+    	genericFuzzyOperatorName	= fgo.genericFuzzyOperator;
+    	parameters 					= fgo.parameters;
+		precondition 				= fgo.precondition;
+		fuzzysetModelName 			= fgo.fuzzyTypeName;
+		evaluate 					= fgo.evaluate;
+		polylines 					= fgo.polylines;
+		degrees 					= fgo.degrees;
 		
     }   
 
         
-    public String getGenericFuzzyOperatorName() {
+	@Override
+	public int getType() {
+		return GENERIC_OPERATOR;
+	}
+
+	@Override
+	public String getFuzzyFunctionName() {
+        return genericFuzzyOperatorName;
+	}
+
+	public String getGenericFuzzyOperatorName() {
         return genericFuzzyOperatorName;
     }
 
@@ -59,8 +69,8 @@ public class GenericFuzzyOperatorCommand implements ICommand {
         return polylines;
     }
     
-    public String getFuzzyTypeName() {
-		return fuzzyTypeName;
+    public String getFuzzysetModelName() {
+		return fuzzysetModelName;
 	}
     
     public List<Parameter> getDegrees() {
@@ -71,4 +81,5 @@ public class GenericFuzzyOperatorCommand implements ICommand {
 	public Instruction getInstruction() {
 		return instruction;
 	}
+
 }

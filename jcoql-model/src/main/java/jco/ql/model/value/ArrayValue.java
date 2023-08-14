@@ -46,7 +46,10 @@ public class ArrayValue implements JCOValue {
 	public String toString() {
 		StringJoiner stringJoiner = new StringJoiner(", ", "[", "]");
 		for(JCOValue value : values) {
-			stringJoiner.add(value.getStringValue());
+			if (JCOValue.isStringValue(value))
+				stringJoiner.add("\"" + value.getStringValue() + "\"");
+			else
+				stringJoiner.add(value.getStringValue());
 		}
 		return stringJoiner.toString();
 	}

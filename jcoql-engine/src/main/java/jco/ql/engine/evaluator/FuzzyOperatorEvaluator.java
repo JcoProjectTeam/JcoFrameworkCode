@@ -1,4 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.FuzzyOperatorCommand;
-import jco.ql.model.command.FuzzySetTypeCommand;
+import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.command.GenericFuzzyOperatorCommand;
 import jco.ql.model.engine.JMH;
 import jco.ql.model.value.EValueType;
@@ -20,35 +20,29 @@ import jco.ql.parser.model.util.Parameter;
 
 public class FuzzyOperatorEvaluator {
 
-    public static SimpleValue evaluate (UsingPredicate usingPredicate, Pipeline pipeline) {
-    	if (!pipeline.getFuzzyOperators().containsKey(usingPredicate.fuzzyOperator)) {
-    		JMH.addFuzzyMessage("Fuzzy Operator not found:\t" + usingPredicate.fuzzyOperator);
-    		return new SimpleValue (); // null
-    	}
-
-    	FuzzyOperatorCommand fo = pipeline.getFuzzyOperators().get(usingPredicate.fuzzyOperator);
-    	if (fo.getParameters().size() != usingPredicate.fuzzyOperatorParameters.size()) {
-    		JMH.addFuzzyMessage("Wrong number of parameters for Fuzzy Operator:\t" + fo.getFuzzyOperatorName());
+    public static SimpleValue evaluate (FuzzyOperatorCommand foc, UsingPredicate usingPredicate, Pipeline pipeline) {
+    	if (foc.getParameters().size() != usingPredicate.fuzzyFunctionParameters.size()) {
+    		JMH.addFuzzyMessage("Wrong number of parameters for Fuzzy Operator:\t" + foc.getFuzzyOperatorName());
     		return new SimpleValue (); // null
     	}
     	
     	List<JCOValue> actualParameters = getActualParameters (usingPredicate, pipeline);
-    	if (!checkParameters (actualParameters, fo.getParameters())) {
-    		JMH.addFuzzyMessage("Wrong type of parameters for Fuzzy Operator:\t" + fo.getFuzzyOperatorName());
+    	if (!checkParameters (actualParameters, foc.getParameters())) {
+    		JMH.addFuzzyMessage("Wrong type of parameters for Fuzzy Operator:\t" + foc.getFuzzyOperatorName());
     		return new SimpleValue (); // null    		
     	}
     	
-    	DocumentDefinition fuzzyDoc = createFuzzyDoc (actualParameters, fo.getParameters());   	
+    	DocumentDefinition fuzzyDoc = createFuzzyDoc (actualParameters, foc.getParameters());   	
     	Pipeline fuzzyPipeline = new Pipeline(pipeline);
     	fuzzyPipeline.setCurrentDoc(fuzzyDoc);
-    	if (fo.getPrecondition() != null)
-    		if (!ConditionEvaluator.matchCondition(fo.getPrecondition(), fuzzyPipeline)) {
-	    		JMH.addFuzzyMessage("Precondition not matched for Fuzzy Operator:\t" + fo.getFuzzyOperatorName());
+    	if (foc.getPrecondition() != null)
+    		if (!ConditionEvaluator.matchCondition(foc.getPrecondition(), fuzzyPipeline)) {
+	    		JMH.addFuzzyMessage("Precondition not matched for Fuzzy Operator:\t" + foc.getFuzzyOperatorName());
 	    		return new SimpleValue (); // null    		
 	    	}
 
-    	JCOValue eval = ExpressionPredicateEvaluator.calculate(fo.getEvaluate(), fuzzyPipeline);
-    	SimpleValue membership = getMembership (eval, fo);
+    	JCOValue eval = ExpressionPredicateEvaluator.calculate(foc.getEvaluate(), fuzzyPipeline);
+    	SimpleValue membership = getMembership (eval, foc);
     	
     	return membership;
     }
@@ -57,7 +51,7 @@ public class FuzzyOperatorEvaluator {
 
     private static List<JCOValue> getActualParameters(UsingPredicate usingPredicate, Pipeline pipeline) {
     	List<JCOValue> actualParameters = new ArrayList<JCOValue> ();
-    	for (Expression expr : usingPredicate.fuzzyOperatorParameters)
+    	for (Expression expr : usingPredicate.fuzzyFunctionParameters)
     		actualParameters.add(ExpressionPredicateEvaluator.calculate(expr, pipeline));
 		return actualParameters;
 	}
@@ -88,7 +82,7 @@ public class FuzzyOperatorEvaluator {
     
 	private static SimpleValue getMembership(JCOValue eval, FuzzyOperatorCommand fo) {
 		double x0, x1, y0, y1, membership;
-		if (eval.getType() != EValueType.INTEGER && eval.getType() != EValueType.DECIMAL) {
+		if (!JCOValue.isNumericValue(eval)) {
     		JMH.addFuzzyMessage("EVALUATE expression returns wrong type value for Fuzzy Operator:\t" + fo.getFuzzyOperatorName());
     		return new SimpleValue (); // null    					
 		}
@@ -116,60 +110,52 @@ public class FuzzyOperatorEvaluator {
 	
 	/* ******************************Generic fuzzy operator*********************************************** */
 	// added by Balicco
-	public static List<FieldDefinition> evaluate (UsingPredicate usingPredicate, Pipeline pipeline, String type) {
+	public static List<FieldDefinition> evaluateGeneric (GenericFuzzyOperatorCommand gfoc, UsingPredicate usingPredicate, Pipeline pipeline, String fuzzysetModel) {
 		List<FieldDefinition> degrees = new ArrayList<>();
     	List<JCOValue> evalList = new ArrayList<>();
-		int ndx = alreadyExistsGeneric(pipeline, usingPredicate.fuzzyOperator);
 		
-		//fuzzy operator error check
-		if (!pipeline.hasGenericFuzzySet(usingPredicate.fuzzyOperator)) {		//==if (ndx == -1)
-			JMH.addFuzzyMessage("Wrong generic fuzzy set operator: [" + usingPredicate.fuzzyOperator + "] not found");
-			return null;		
-		}
-		if (!pipeline.getGenericFuzzyOperator(usingPredicate.fuzzyOperator).getFuzzyTypeName().equals(type)) {
-    		JMH.addFuzzyMessage("Wrong type name: [" + type + "] for fuzzy operator: [" + usingPredicate.fuzzyOperator + "]");
+    	if (!gfoc.getFuzzysetModelName().equals(fuzzysetModel)) {
+    		JMH.addFuzzyMessage("Wrong fuzzyset model: [" + fuzzysetModel + "] for fuzzy operator: [" + usingPredicate.fuzzyFunction + "]");
     		return null;		
     	}
-    	
-		GenericFuzzyOperatorCommand gfo = pipeline.getGenericFuzzyOperator().get(ndx);
-		FuzzySetTypeCommand ft = pipeline.getFuzzySetType(gfo.getFuzzyTypeName());
-		
+
+    	FuzzySetModelCommand fsmc = pipeline.getFuzzySetModel(fuzzysetModel);		
     	//fuzzy operator check
-    	if (gfo.getParameters().size() != usingPredicate.fuzzyOperatorParameters.size()) {
-    		JMH.addFuzzyMessage("Wrong number of parameters for Fuzzy Operator:\t" + gfo.getGenericFuzzyOperatorName());
+    	if (gfoc.getParameters().size() != usingPredicate.fuzzyFunctionParameters.size()) {
+    		JMH.addFuzzyMessage("Wrong number of parameters for Fuzzy Operator:\t" + gfoc.getGenericFuzzyOperatorName());
     		return null; // null
     	}
     	
     	//paramiter check
     	List<JCOValue> actualParameters = getActualParameters (usingPredicate, pipeline);
-    	if (!checkParameters (actualParameters, gfo.getParameters())) {
-    		JMH.addFuzzyMessage("Wrong type of parameters for Fuzzy Operator:\t" + gfo.getGenericFuzzyOperatorName());
+    	if (!checkParameters (actualParameters, gfoc.getParameters())) {
+    		JMH.addFuzzyMessage("Wrong type of parameters for Fuzzy Operator:\t" + gfoc.getGenericFuzzyOperatorName());
     		return null; // null    		
     	}
     	
     	//precondition check
-    	DocumentDefinition fuzzyDoc = createFuzzyDoc (actualParameters, gfo.getParameters());
+    	DocumentDefinition fuzzyDoc = createFuzzyDoc (actualParameters, gfoc.getParameters());
     	Pipeline fuzzyPipeline = new Pipeline(pipeline);
     	fuzzyPipeline.setCurrentDoc(fuzzyDoc);
-    	if (gfo.getPrecondition() != null)
-    		if (!ConditionEvaluator.matchCondition(gfo.getPrecondition(), fuzzyPipeline)) {
-	    		JMH.addFuzzyMessage("Precondition not matched for Fuzzy Operator:\t" + gfo.getGenericFuzzyOperatorName());
+    	if (gfoc.getPrecondition() != null)
+    		if (!ConditionEvaluator.matchCondition(gfoc.getPrecondition(), fuzzyPipeline)) {
+	    		JMH.addFuzzyMessage("Precondition not matched for Fuzzy Operator:\t" + gfoc.getGenericFuzzyOperatorName());
 	    		return null; // null    		
     		}
 
     	//eval
-    	for (int i = 0; i < gfo.getEvaluate().size(); i++) 
-			evalList.add(ExpressionPredicateEvaluator.calculate(gfo.getEvaluate().get(i), fuzzyPipeline));
+    	for (int i = 0; i < gfoc.getEvaluate().size(); i++) 
+			evalList.add(ExpressionPredicateEvaluator.calculate(gfoc.getEvaluate().get(i), fuzzyPipeline));
     	
-    	for (int i = 0; i < ft.getDegrees().size(); i++) 
-    		degrees.add( new FieldDefinition(ft.getDegrees().get(i).name, getDegree(evalList.get(i) , gfo, i) ) );
+    	for (int i = 0; i < fsmc.getDegrees().size(); i++) 
+    		degrees.add( new FieldDefinition(fsmc.getDegrees().get(i).name, getDegree(evalList.get(i) , gfoc, i) ) );
     	
     	//derived degree
-		List<FieldDefinition> derivedDegrees = derivedDegreesEvaluate(degrees, ft.getDerivedDegrees(), ft.getDerivedExpr(), pipeline);
+		List<FieldDefinition> derivedDegrees = derivedDegreesEvaluate(degrees, fsmc.getDerivedDegrees(), fsmc.getDerivedExpr(), pipeline);
     	
     	//constraint
-		if (!checkConstraint(degrees, derivedDegrees, pipeline, ft.getConstraint())) {
-			JMH.add("Constraint is not respected for " + gfo.getFuzzyTypeName());
+		if (!checkConstraint(degrees, derivedDegrees, pipeline, fsmc.getConstraint())) {
+			JMH.add("Constraint is not respected for " + gfoc.getFuzzysetModelName());
 			return null;
 		}
     	
@@ -178,17 +164,7 @@ public class FuzzyOperatorEvaluator {
     	return degrees;
     }
 	
-	
-	// added by Balicco
-	// return the index of FO in the list. -1 if the FO is not (yet) existing
-    private static int alreadyExistsGeneric(Pipeline pipeline, String foName) {
-        for(int i = 0; i < pipeline.getGenericFuzzyOperator().size(); i++) {
-            if(pipeline.getGenericFuzzyOperator().get(i).getGenericFuzzyOperatorName().equals(foName)) {
-                return i;
-            }
-        }
-        return -1;
-    }
+
 
     
 	// added by Balicco

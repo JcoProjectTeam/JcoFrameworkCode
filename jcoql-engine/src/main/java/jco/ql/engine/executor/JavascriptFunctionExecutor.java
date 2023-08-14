@@ -12,7 +12,7 @@ public class JavascriptFunctionExecutor implements IExecutor<JavascriptFunctionC
     @Override
     public void execute(Pipeline pipeline, JavascriptFunctionCommand command) throws ExecuteProcessException {
     	// PF. 2022.03.24 - New Policy... in case of already existing USER Defined Function, a message is emitted and the newer version replace the old one
-        if(pipeline.getJsFunctions().containsKey(command.getFunctionName())) 
+        if(pipeline.getUserFunctions().containsKey(command.getFunctionName())) 
         	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]: definition of " + command.getFunctionName() + " function has been replaced.");        	
 
         pipeline.addUserFunction(command);

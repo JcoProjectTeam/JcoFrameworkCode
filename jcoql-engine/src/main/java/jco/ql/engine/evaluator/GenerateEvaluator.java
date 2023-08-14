@@ -1,12 +1,8 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import java.util.List;
 
 import jco.ql.engine.Pipeline;
-import jco.ql.engine.evaluator.AlphaCutEvaluator;
-import jco.ql.engine.evaluator.GenerateCommandEvaluator;
-import jco.ql.engine.evaluator.GeometricOptionEvaluator;
-import jco.ql.engine.evaluator.KeepingDroppingFuzzySetsEvaluator;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.parser.model.fuzzy.FuzzySetDefinition;
 import jco.ql.parser.model.util.BuildAction;
@@ -26,7 +22,7 @@ public class GenerateEvaluator {
 				checkForPipeline.setCurrentDoc(outDoc);
 			List<FuzzySetDefinition> generateFuzzy = gs.fuzzySetDefinitions;
 			for (FuzzySetDefinition checkForFuzzySet : generateFuzzy) 
-					outDoc = CheckForFuzzySetEvaluator.evaluate (checkForFuzzySet, checkForPipeline);
+				outDoc = CheckForFuzzySetEvaluator.evaluate (checkForFuzzySet, checkForPipeline);
 		}
 		
 		/* ALPHA-CUT */

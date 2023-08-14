@@ -1,4 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import java.util.List;
 
@@ -54,8 +54,8 @@ public class CheckForFuzzySetEvaluator implements JCOConstants{
     	List<FieldDefinition> degrees;
     	curDoc = checkForPipeline.getCurrentDoc();
     	
-    	if (!checkForPipeline.hasFuzzySetType(checkForFuzzySet.type)) {
-    		JMH.addFuzzyMessage("Wrong fuzzy set type name: [" + checkForFuzzySet.type + "] is not found");
+    	if (!checkForPipeline.getFuzzySetModels().containsKey(checkForFuzzySet.type)) {
+    		JMH.addFuzzyMessage("Wrong fuzzy set model name: [" + checkForFuzzySet.type + "] is not found");
     		return curDoc;		
     	}
     	degrees = ConditionEvaluator.genericFuzzyEvaluate (checkForFuzzySet.using, checkForPipeline, checkForFuzzySet.type);

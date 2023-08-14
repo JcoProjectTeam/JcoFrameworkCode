@@ -37,6 +37,15 @@ public class DocumentDefinition implements JCOConstants {
 	public DocumentDefinition(String name) {
 		this.name = name;
 		this.fields = new TreeMap<String, JCOValue>();
+		FieldDefinition fd = new FieldDefinition("name", new SimpleValue (name));
+		addField (fd);
+		
+	}
+
+	// PF - Added on 08.08.2023
+	public DocumentDefinition(FieldDefinition field) {
+		this ();
+		addField (field);
 	}
 
 	public DocumentDefinition(List<FieldDefinition> fields) {
@@ -216,9 +225,6 @@ public class DocumentDefinition implements JCOConstants {
 //		if(fields.containsKey(MONGODB_ID_FIELD_NAME))
 //			fields.remove(MONGODB_ID_FIELD_NAME);
 		StringBuffer output = new StringBuffer ("{\n");
-		if (name != null) {
-			output.append("\t\"name\": \"" + name + "\",\n");
-		}
 		StringJoiner joiner = new StringJoiner(",\n");
 		Iterator<String> keys = fields.keySet().iterator();
 		while (keys.hasNext()) {

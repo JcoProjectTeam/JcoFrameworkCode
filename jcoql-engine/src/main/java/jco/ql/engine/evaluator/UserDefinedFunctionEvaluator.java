@@ -1,4 +1,4 @@
-package jco.ql.engine.byZunEvaluator;
+package jco.ql.engine.evaluator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -25,12 +25,14 @@ public class UserDefinedFunctionEvaluator {
 
 	public static JCOValue evaluate(FunctionFactor functionCall, Pipeline pipeline) {
     	JCOValue value = new SimpleValue();		// null value
-    	if (!pipeline.getJsFunctions().containsKey(functionCall.functionName)) {
+
+    	if (!pipeline.getUserFunctions().containsKey(functionCall.functionName)) {
     		JMH.addJSMessage("Function not found:\t" + functionCall.functionName);
     		return value; // null
     	}
 
-    	FunctionCommand function = pipeline.getJsFunctions().get(functionCall.functionName);
+    	FunctionCommand function = pipeline.getUserFunctions().get(functionCall.functionName);
+
     	if (function instanceof JavaFunctionCommand) {
 	    	JavaFunctionCommand jf = (JavaFunctionCommand) function;
 	    	value = evaluateJavaFunction (jf, functionCall, pipeline);
@@ -39,7 +41,7 @@ public class UserDefinedFunctionEvaluator {
 	    	JavascriptFunctionCommand jsf = (JavascriptFunctionCommand) function;
 	    	value = evaluateJavascriptFunction (jsf, functionCall, pipeline);
     	}
-    	return value; // null
+    	return value;
 	}
 
 	
@@ -66,7 +68,6 @@ public class UserDefinedFunctionEvaluator {
 	    	}
     	}
 
-    	// TODO
 		Object mArg [] = new Object [actualParameters.size()];
 		for (int i=0; i<actualParameters.size(); i++)
 			mArg [i] = actualParameters.get(i).getValue();
@@ -86,7 +87,6 @@ public class UserDefinedFunctionEvaluator {
 				value = new SimpleValue (javaRes.toString());
 
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-			// TODO Auto-generated catch block
 			JMH.addJSMessage("Cannot invoke Java function " + jfc.getFunctionName() + "\n" + e1.toString());
 			e1.printStackTrace();
 		}

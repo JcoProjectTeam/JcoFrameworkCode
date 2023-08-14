@@ -8,6 +8,9 @@ public interface JCOConstants {
 	public static final int LESS_THAN		= -1;	
 	public static final int EQUAL 			= 0;	
 	public static final int GREATER_THAN	= 1;	
+	public static final int INSERT_AFTER	= 1;	
+	public static final int INSERT_BEFORE	= -1;	
+	
 	
 	public static final String TRUE_UCST	= "TRUE";			
 	public static final String FALSE_UCST 	= "FALSE";			

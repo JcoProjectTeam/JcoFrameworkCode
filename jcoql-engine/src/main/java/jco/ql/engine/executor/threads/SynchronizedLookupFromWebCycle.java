@@ -6,10 +6,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.script.ScriptException;
 
-import jco.ql.byZun.ZunTicker;
 import jco.ql.engine.Pipeline;
-import jco.ql.engine.byZunEvaluator.ConditionEvaluator;
-import jco.ql.engine.byZunEvaluator.ExpressionPredicateEvaluator;
+import jco.ql.engine.evaluator.ConditionEvaluator;
+import jco.ql.engine.evaluator.ExpressionPredicateEvaluator;
 import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.engine.executor.GetCollectionExecutor;
 import jco.ql.model.DocumentDefinition;
@@ -71,7 +70,7 @@ public class SynchronizedLookupFromWebCycle extends Thread implements JCOConstan
             	throw new ExecuteProcessException("[SynchronizedLookupFromWebCycle]: terminated");
 			}
 
-			ZunTicker.tick();    		
+//			ZunTicker.tick();    		
     		// fundamental
     		i += nThreads;  
     	}
