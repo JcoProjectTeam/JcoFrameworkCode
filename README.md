@@ -14,7 +14,7 @@ Download the whole content of this repository in a folder on your computer.
 Open a command shell window on the folder where you download the code repository.    
 Launch the following commands:  
 1. \> gradlew cleanEclipse
-2. \> gradlew Eclpse  
+2. \> gradlew Eclipse  
 3. \> gradlew updateDependencies  
 
 Once the _gradlew_ scripts have been launched with no error, open your Eclipse IDE, create a new _workspace_, and use the _"Existing Gradle Project"_ from the _Import_ wizard. In case of success the Eclipse should present a configuration like this:  
