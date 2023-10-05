@@ -88,11 +88,10 @@ public class FuzzyAggregatorEvaluator implements JCOConstants {
 	private static DocumentDefinition getActualParameters(FuzzyAggregatorCommand fa, UsingPredicate usingAggregatorPredicate, Pipeline pipeline) {
 		DocumentDefinition d = new DocumentDefinition ();
 		
-		// other Fuzzy Aggregator parameters
 		for (int i=0; i<usingAggregatorPredicate.fuzzyFunctionParameters.size(); i++) {
 			Expression expr = usingAggregatorPredicate.fuzzyFunctionParameters.get(i);
 			JCOValue jv = ExpressionPredicateEvaluator.calculate(expr, pipeline);
-			FieldDefinition fd = new FieldDefinition(fa.getParameters().get(i+1).name, jv);
+			FieldDefinition fd = new FieldDefinition(fa.getParameters().get(i).name, jv);
 			d.addField(fd);
 		}	
 		return d;

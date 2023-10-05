@@ -3,11 +3,11 @@ package jco.ql.byZun;
 
 public class ZunTicker {
 
-    private static ZunTicker only = new ZunTicker();
     private String label;
     private int step, maxStep, stint, nStint, stintLen;
     private long t0, t1, t2;
 
+    private static ZunTicker only = new ZunTicker();
     private ZunTicker() {
     	label = "Default task";
     	step = 0;
@@ -18,7 +18,7 @@ public class ZunTicker {
         t1 = t0;
         t2 = t0;
     }
-    
+
     public static ZunTicker getInstance() {
         return only;
     }

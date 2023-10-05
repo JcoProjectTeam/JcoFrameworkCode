@@ -20,6 +20,7 @@ import jco.ql.engine.registry.DatabaseRegistry;
 import jco.ql.engine.registry.Servers;
 import jco.ql.model.command.ICommand;
 import jco.ql.model.engine.IDocumentCollection;
+import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
 import jco.ql.parser.Environment;
 import jco.ql.parser.JCoQLParser;
@@ -31,7 +32,7 @@ import jco.ql.parser.model.Instruction;
  *
  */
 
-public class ParserLauncher {
+public class ParserLauncher implements JCOConstants {
 
 	private final AnnotationConfigApplicationContext context;
 	private final JcoEngine engine;
@@ -39,6 +40,7 @@ public class ParserLauncher {
 	private final Servers s;
 	private final List<ServerConfiguration> configurations;
 
+	
 	public ParserLauncher() throws IOException  {
 		context = new AnnotationConfigApplicationContext(JcoEngine.class);
 		engine = context.getBean(JcoEngine.class);
@@ -51,6 +53,7 @@ public class ParserLauncher {
 		readConfig(is);
 	}
 
+	
 	public void readConfig(InputStream is) {
 		Properties prop = new Properties();
 		try {
@@ -82,6 +85,7 @@ public class ParserLauncher {
 		}
 	}
 
+	
 	/*
 	 * for (Configuration con : configurations) { if
 	 * (con.getType().toLowerCase().equals("mongodb")) { //MongoDbDatabase db =
@@ -180,4 +184,47 @@ public class ParserLauncher {
 		return getConfigurations();
 	}
 
+	
+	/*
+	 * 	PF. 2023.09.15 - The following methods allow for configuring the JcoEngine
+	 * */
+	
+	public void unNProcessors (int n) {
+		
+	}
+		
+	public void setDiscardMongoId () {
+		
+	}
+	public void unsetDiscardMongoId () {
+		
+	}
+	
+	public void setActiveBacktrack () {
+		
+	}
+	public void unsetActiveBacktrack () {
+		
+	}
+	
+	public void setSpacialIndexing () {
+		
+	}
+	public void unsetSpacialIndexing () {
+		
+	}
+	
+	public void setMessagesInDoc () {
+		
+	}
+	public void unsetMessagesInDocs () {
+		
+	}
+		
+	public void setTracePerformance () {
+		
+	}
+	public void unsetTracePerformance () {
+		
+	}
 }

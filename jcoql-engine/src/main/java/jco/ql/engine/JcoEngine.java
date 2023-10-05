@@ -1,11 +1,6 @@
 package jco.ql.engine;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Properties;
 
 import javax.script.ScriptException;
 
@@ -19,7 +14,6 @@ import jco.ql.engine.exception.ExecuteProcessException;
 import jco.ql.engine.executor.IExecutor;
 import jco.ql.engine.registry.ExecutorRegistry;
 import jco.ql.model.command.ICommand;
-import jco.ql.model.engine.JMH;
 
 @Configuration
 @ComponentScan
@@ -28,13 +22,12 @@ public class JcoEngine implements IEngine {
 
 	protected ExecutorRegistry executorRegistry;
 	protected Pipeline pipeline;
-	private Properties settings;
 
 	@Autowired
 	public JcoEngine(ExecutorRegistry executorRegistry) {
 		super();
 		this.executorRegistry = executorRegistry;
-		loadSettings ();
+		EngineConfiguration.getInstance().loadSettings();
 		pipeline = new Pipeline();
 	}
 
@@ -64,22 +57,6 @@ public class JcoEngine implements IEngine {
 				execute(command);
 	}
 	
-	
-	// PF - Inserted to handle settings --- TODO move inside EngineConfiguration
-	private void loadSettings() {
-		settings = new Properties();
-		try {
-			InputStream fis = new FileInputStream(Paths.get(EngineConfiguration.SETTINGS_CONFIG_PATH, EngineConfiguration.SETTINGS_CONFIG_FILE).toFile());
-			if(fis != null) {
-				settings.load(fis);
-				EngineConfiguration.getInstance().setSettings(settings);
-			}
-		} catch (IOException e) {
-			logger.error("Error loading settings from the settings.properties file", e);
-			JMH.addConfigurationMessage("Error loading settings from the settings.properties file\n" + e.toString());
-		}
-	
-	}
 	
 	private IExecutor<ICommand> getExecutor(Class<? extends ICommand> clazz) {
 		return executorRegistry.getExecutor(clazz);

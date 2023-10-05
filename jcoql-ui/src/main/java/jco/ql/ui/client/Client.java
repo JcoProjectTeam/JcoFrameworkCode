@@ -16,8 +16,6 @@ import jco.ql.ui.client.gui.Login;
 import jco.ql.ui.client.gui.MainFrame;
 
 public class Client {
-
-	
 	private Socket clientSocket;
 	static DataInputStream din;
 	static DataOutputStream dout;
@@ -25,12 +23,14 @@ public class Client {
 	private static MainFrame gui;
 	private static String serverConf;
 
+	
 	public Client() {
 		clientMsg = new ClientMessages();
 		clientSocket = new Socket();
 		serverConf = "";
 	}
 
+	
 	public boolean connect(String hostname, int portNumber) {
 		try {
 			clientSocket = new Socket(hostname, portNumber);
@@ -45,36 +45,43 @@ public class Client {
 		return true;
 	}
 
+	
 	public void executeJCO(String msg) {
 		sendMessage(clientMsg.executeJCO(msg));
 	}
 
+	
 	public void backtrack() {
 		sendMessage(clientMsg.backtrack());
 	}
 
+	
 	public void getTemporaryCollection() {
 		sendMessage(clientMsg.getMsgTemporaryCollection());
 	}
 
+	
 	public void getProcess() {
 		sendMessage(clientMsg.getMsgGetProcess());
 	}
 
+	
 	public void getIRList() {
 		sendMessage(clientMsg.getMsgIRLIst());
 	}
 
+	
 	public void getIRCollection(String collectionName) {
 		sendMessage(clientMsg.getMsgIRCollection(collectionName));
 	}
 
+	
 	public void addServer(String fileName) {
 		sendMessage(clientMsg.getMsgAddServerConf(fileName));
 	}
 
+	
 	public void sendMessage(String msg) {
-
 		try {
 			dout.writeUTF(msg);
 			dout.flush();
@@ -93,27 +100,27 @@ public class Client {
 			text = br.readLine();
 			if (text.equals("##SUCCESS##")) {
 				result = "Done.";
-
-			} else if (text.equals("##BEGIN-ERROR##")) {
+			} 
+			else if (text.equals("##BEGIN-ERROR##")) {
 				int firstindex = text.length();
 				int lastindex = s.lastIndexOf("##END-ERROR##");
 				result = s.substring(firstindex, lastindex);
 				final JPanel panel = new JPanel();
 			    JOptionPane.showMessageDialog(panel, result, "Error", JOptionPane.ERROR_MESSAGE);
-
-			} else if (text.equals("##ACK##")) {
+			} 
+			else if (text.equals("##ACK##")) {
 				result = "Done.";
 				gui.resetInstructionArea();
-
-			} else if (text.equals("##BEGIN-COLLECTION##")) {
+			} 
+			else if (text.equals("##BEGIN-COLLECTION##")) {
 				int firstindex = text.length();
 				int lastindex = s.lastIndexOf("##END-COLLECTION##");
 				String collection = s.substring(firstindex, lastindex);
 //				gui.showCollection(collection);
 				gui.getProcessStateFrame().createTree(collection);
 				result = "Done.";
-
-			} else if (text.equals("##BEGIN-PROCESS##")) {
+			} 
+			else if (text.equals("##BEGIN-PROCESS##")) {
 				//System.out.println("TEXT: \n" + s);
 				int firstindex = text.length();
 				int lastindex = s.lastIndexOf("##END-PROCESS##");
@@ -121,38 +128,37 @@ public class Client {
 					result = s.substring(firstindex+1, lastindex-1);
 				else
 					result = "";
-				//System.out.println("RESULT: \n" + result);
 				gui.printIstruction(result);
-
-			} else if (text.equals("##BEGIN-IR-LIST##")) {
+			} 
+			else if (text.equals("##BEGIN-IR-LIST##")) {
 				int firstindex = text.length();
 				int lastindex = s.lastIndexOf("##END-IR-LIST##");
 				result = s.substring(firstindex, lastindex);
-
 				gui.getProcessStateFrame().addElementToList(result);
-
-
-			} else if (text.equals("##BEGIN-SERVER-CONF##")) {
+			} 
+			else if (text.equals("##BEGIN-SERVER-CONF##")) {
 				int firstindex = text.length();
 				int lastindex = s.lastIndexOf("##END-SERVER-CONF##");
 				result = s.substring(firstindex, lastindex);
 				if(!serverConf.equals("")) {
 					serverConf = result;
 					gui.getServerConfFrame().showConfigurations(serverConf);
-				}else
+				}
+				else
 					serverConf = result;
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return "  <<< \n" + s;
 	}
 
+	
 	public String getServerConf() {
 		return serverConf;
 	}
 
+	
 	public void close() {
 		try {
 			clientSocket.close();
@@ -163,12 +169,12 @@ public class Client {
 		}
 	}
 
+	
 	public static void main(String[] args) {
 		UIManager.put("OptionPane.messageFont", new Font("Arial", Font.BOLD, 17));
 		UIManager.put("OptionPane.buttonFont", new Font("Arial", Font.PLAIN, 14));
 		Client c = new Client();
 
-		// PF - What is for?
 		Login login = new Login(c);
 
 		while(!c.clientSocket.isConnected()) {
@@ -201,8 +207,6 @@ public class Client {
 				e.printStackTrace();
 			}
 		}
-
 		c.close();
-
 	}
 }

@@ -43,8 +43,8 @@ public class LookupFromWebExecutor implements IExecutor<LookupFromWebCommand>, J
 		SynchronizedLookupFromWebCycle[] threads;
 		int nThreads = 1;
 		//PF per il LookupFromWeb uso tutti i processori fisici meno uno
-		if (EngineConfiguration.getInstance().getNProcessors() > 1)
-			nThreads = EngineConfiguration.getInstance().getNProcessors()-1;
+		if (EngineConfiguration.getNProcessors() > 1)
+			nThreads = EngineConfiguration.getNProcessors()-1;
 
 		// PF threads creation
 		threads = new SynchronizedLookupFromWebCycle[nThreads];

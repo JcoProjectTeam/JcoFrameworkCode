@@ -43,7 +43,7 @@ public class JSONHandler {
 		 * dei file temporanei
 		 */
 		Date today = new Date();
-		String fileName = EngineConfiguration.getInstance().getTempDirectory();
+		String fileName = EngineConfiguration.getTempDirectory();
 		if (fileName.endsWith(File.separator))
 			fileName += alias + "_" + today.getTime();
 		else

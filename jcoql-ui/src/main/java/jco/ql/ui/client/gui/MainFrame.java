@@ -27,6 +27,19 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.text.Element;
 
 import jco.ql.ui.client.Client;
+import javax.swing.JSpinner;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import com.jgoodies.forms.factories.DefaultComponentFactory;
+import javax.swing.JMenuBar;
+import javax.swing.ButtonGroup;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.BoxLayout;
+import javax.swing.JSeparator;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainFrame extends JFrame {
 
@@ -41,6 +54,7 @@ public class MainFrame extends JFrame {
 	private ConsoleFrame console;
 	private ProcessStateFrame processFrame;
 	private ServerConfFrame serverconf;
+	private final ButtonGroup buttonGroup = new ButtonGroup();
 
 	public MainFrame(Client c) {
 		this.client = c;
@@ -53,7 +67,7 @@ public class MainFrame extends JFrame {
 		setLocationRelativeTo(null);
 		setTitle("J-CO-UI: User Interface");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(800, 700);
+		setSize(756, 733);
 		setLocationRelativeTo(null);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -63,9 +77,10 @@ public class MainFrame extends JFrame {
 		JScrollPane commandAreaScroll = new JScrollPane(
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 	            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		commandAreaScroll.setBounds(12, 360, 600, 280);
+		commandAreaScroll.setBounds(10, 403, 600, 280);
 		contentPane.add(commandAreaScroll);
 
+		// Command Area
 		JTextArea commandArea = new JTextArea();
 		commandArea.setWrapStyleWord(true);
         commandArea.setLineWrap(true);
@@ -74,11 +89,15 @@ public class MainFrame extends JFrame {
 		commandArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		// PF. Added
 		commandArea.setTabSize(2);
-		commandArea.setText("//CommandArea");
+		
+		JLabel lblCommandArea = DefaultComponentFactory.getInstance().createTitle("Input Area");
+		lblCommandArea.setFont(new Font("Trebuchet MS", Font.PLAIN, 11));
+		commandAreaScroll.setColumnHeaderView(lblCommandArea);
 
+		// Execute button
 		JButton btnExecute = new JButton("Execute");
-		btnExecute.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		btnExecute.setBounds(632, 478, 109, 40);
+		btnExecute.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
+		btnExecute.setBounds(620, 403, 104, 38);
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				client.executeJCO(commandArea.getText());
@@ -86,14 +105,15 @@ public class MainFrame extends JFrame {
 		});
 		contentPane.add(btnExecute);
 
+		// Show console button
 		JButton btnShowConsole = new JButton();
 		btnShowConsole.setLayout(new BorderLayout());
 		   JLabel lab1 = new JLabel("Show");
 		   lab1.setHorizontalAlignment(SwingConstants.CENTER);
-		   lab1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		   lab1.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
 		   JLabel lab2 = new JLabel("console");
 		   lab2.setHorizontalAlignment(SwingConstants.CENTER);
-		   lab2.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		   lab2.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
 		   btnShowConsole.add(BorderLayout.NORTH,lab1);
 		   btnShowConsole.add(BorderLayout.SOUTH,lab2);
 		btnShowConsole.addActionListener(new ActionListener() {
@@ -101,12 +121,13 @@ public class MainFrame extends JFrame {
 				console.setVisible(true);
 			}
 		});
-		btnShowConsole.setBounds(503, 297, 109, 50);
+		btnShowConsole.setBounds(491, 340, 118, 50);
 		contentPane.add(btnShowConsole);
 
+		// Backtrack button
 		JButton btnBacktrack = new JButton("Backtrack");
-		btnBacktrack.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		btnBacktrack.setBounds(12, 297, 109, 50);
+		btnBacktrack.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
+		btnBacktrack.setBounds(10, 340, 118, 50);
 		btnBacktrack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				client.backtrack();
@@ -114,14 +135,15 @@ public class MainFrame extends JFrame {
 		});
 		contentPane.add(btnBacktrack);
 
+		// Inspect state button
 		JButton btnInspectProcessState = new JButton();
 		btnInspectProcessState.setLayout(new BorderLayout());
 		   JLabel l1 = new JLabel("Inspect");
 		   l1.setHorizontalAlignment(SwingConstants.CENTER);
-		   l1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		   l1.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
 		   JLabel l2 = new JLabel("state");
 		   l2.setHorizontalAlignment(SwingConstants.CENTER);
-		   l2.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		   l2.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
 		   btnInspectProcessState.add(BorderLayout.NORTH,l1);
 		   btnInspectProcessState.add(BorderLayout.SOUTH,l2);
 			btnInspectProcessState.addActionListener(new ActionListener() {
@@ -131,27 +153,29 @@ public class MainFrame extends JFrame {
 				client.getIRList();
 			}
 		});
-		btnInspectProcessState.setBounds(176, 297, 109, 50);
+		btnInspectProcessState.setBounds(171, 340, 118, 50);
 		contentPane.add(btnInspectProcessState);
 
+		// Save button
 		JButton btnSave = new JButton("Save");
-		btnSave.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnSave.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveFile();
 			}
 		});
-		btnSave.setBounds(632, 120, 109, 40);
+		btnSave.setBounds(620, 33, 104, 38);
 		contentPane.add(btnSave);
 
+		// Server Config button
 		JButton btnServerConfiguration = new JButton();
 		btnServerConfiguration.setLayout(new BorderLayout());
 		   JLabel label1 = new JLabel("Server");
 		   label1.setHorizontalAlignment(SwingConstants.CENTER);
-		   label1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		   label1.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
 		   JLabel label2 = new JLabel("Config");
 		   label2.setHorizontalAlignment(SwingConstants.CENTER);
-		   label2.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		   label2.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
 		   btnServerConfiguration.add(BorderLayout.NORTH,label1);
 		   btnServerConfiguration.add(BorderLayout.SOUTH,label2);
 		btnServerConfiguration.addActionListener(new ActionListener() {
@@ -159,22 +183,21 @@ public class MainFrame extends JFrame {
 				serverconf = new ServerConfFrame(client.getServerConf(), client);
 			}
 		});
-		btnServerConfiguration.setBounds(340, 297, 109, 50);
+		btnServerConfiguration.setBounds(332, 340, 118, 50);
 		contentPane.add(btnServerConfiguration);
 
 		JScrollPane instructionAreaScroll = new JScrollPane(
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 	            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		instructionAreaScroll.setBounds(12, 13, 600, 260);
+		instructionAreaScroll.setBounds(10, 33, 600, 285);
 		contentPane.add(instructionAreaScroll);
 
+		// Instruction Areas
 		instructionArea = new JTextArea();
 		instructionArea.setWrapStyleWord(true);
         instructionArea.setLineWrap(true);
         //PF. orig 18
         instructionArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        //PF. added
-        instructionArea.setText("//instruciontArea");
         instructionArea.setTabSize(2);
         instructionArea.setEditable(false);
 
@@ -213,6 +236,92 @@ public class MainFrame extends JFrame {
 		instructionAreaScroll.setViewportView(instructionArea);
 		instructionAreaScroll.setRowHeaderView(lines);
 		instructionAreaScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		JLabel lblInstructionArea = DefaultComponentFactory.getInstance().createLabel("Instruction Area");
+		lblInstructionArea.setFont(new Font("Trebuchet MS", Font.PLAIN, 11));
+		instructionAreaScroll.setColumnHeaderView(lblInstructionArea);
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 784, 22);
+		contentPane.add(menuBar);
+		
+		JMenu mnSettings = new JMenu("Settings");
+		mnSettings.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		menuBar.add(mnSettings);
+		mnSettings.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		JPanel mntPanel = new JPanel();
+		mnSettings.add(mntPanel);
+		mntPanel.setLayout(new BoxLayout(mntPanel, BoxLayout.X_AXIS));
+		
+		JLabel lblSpinnerLabel = new JLabel("  # Processors                       ");
+		lblSpinnerLabel.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		mntPanel.add(lblSpinnerLabel);
+		
+		JSpinner processorSpinner = new JSpinner();
+		processorSpinner.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		processorSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+		mntPanel.add(processorSpinner);
+		
+		JSeparator separator = new JSeparator();
+		mnSettings.add(separator);
+		
+		JMenuItem mntTrack = new JMenuItem("Track instructions execution time");
+		mntTrack.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		mntTrack.setSelected(true);
+		mnSettings.add(mntTrack);
+		
+		JSeparator separator_1 = new JSeparator();
+		mnSettings.add(separator_1);
+		
+		JMenuItem mntSpatial = new JMenuItem("Activate Spatial Indexing");
+		mntSpatial.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		mnSettings.add(mntSpatial);
+		mntSpatial.setHorizontalAlignment(SwingConstants.LEFT);
+		mntSpatial.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.print(mntSpatial.getText());
+				if ("Activate Spatial Indexing".equals(mntSpatial.getText()))
+					mntSpatial.setText("Deactivate Spatial Indexing");
+				else
+					mntSpatial.setText("Activate Spatial Indexing");
+				System.out.println("\t-->\t" + mntSpatial.getText());
+			}
+		});
+		buttonGroup.add(mntSpatial);
+		
+		JSeparator separator_2 = new JSeparator();
+		mnSettings.add(separator_2);
+		
+		JMenuItem mntBacktrack = new JMenuItem("Activate Backtrack");
+		mntBacktrack.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		mnSettings.add(mntBacktrack);
+		mntBacktrack.setSelected(true);
+		
+		JSeparator separator_3 = new JSeparator();
+		mnSettings.add(separator_3);
+		
+		JMenuItem mntMessages = new JMenuItem("Store messages in document");
+		mntMessages.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		mnSettings.add(mntMessages);
+		mntMessages.setSelected(true);
+		
+		JSeparator separator_4 = new JSeparator();
+		mnSettings.add(separator_4);
+		
+		JMenuItem mntMongoId = new JMenuItem("Remove MongoDB  \"_id\"  attribute");
+		mntMongoId.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		});
+		mntMongoId.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				// ******
+			}
+		});
+		mntMongoId.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		mnSettings.add(mntMongoId);
 
 
 		contentPane.revalidate();

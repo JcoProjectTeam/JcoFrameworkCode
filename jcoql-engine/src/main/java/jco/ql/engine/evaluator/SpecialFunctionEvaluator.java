@@ -2,13 +2,17 @@ package jco.ql.engine.evaluator;
 
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
+import jco.ql.model.FieldDefinition;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
+import jco.ql.model.value.ArrayValue;
+import jco.ql.model.value.DocumentValue;
 import jco.ql.model.value.EValueType;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.predicate.ArrayFunctionFactor;
 import jco.ql.parser.model.predicate.ExtentFunction;
+import jco.ql.parser.model.predicate.ExtractArray;
 import jco.ql.parser.model.predicate.IfErrorFunction;
 import jco.ql.parser.model.predicate.MembershipArray;
 import jco.ql.parser.model.predicate.SpecialFunctionFactor;
@@ -26,7 +30,7 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 		
 		// added 10.08.2023
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.MEMBERSHIP_ARRAY)
-			return MembershipArrayEvaluator.evaluate ((MembershipArray)function, pipeline);
+			return getMembershipArray((MembershipArray)function, pipeline);
 
 		// added by Balicco
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.DEGREE_FUNCTION)
@@ -38,6 +42,10 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.IF_ERROR_FUNCTION)
 			return getIfErrorValue ((IfErrorFunction)function, pipeline);
 
+		// added 04.09.2023
+		if (function.getSpecialFuntionType() == SpecialFunctionFactor.EXTRACT_ARRAY_FUNCTION)
+			return getExtractArray ((ExtractArray)function, pipeline);
+		
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.ARRAY_FUNCTION)
 			return ArrayFunctionEvaluator.evaluate ((ArrayFunctionFactor)function, pipeline);
 
@@ -122,6 +130,59 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 	}
 
 
+	private static JCOValue getMembershipArray(MembershipArray function, Pipeline pipeline) {
+    	DocumentDefinition doc = pipeline.getCurrentDoc();
+    	ArrayValue arrayValue = new ArrayValue ();
+
+		if(function.getMembershipArrayType() == MembershipArray.MA_ALL) {
+	    	JCOValue fsv = doc.getValue(JCOConstants.FUZZYSETS_FIELD_NAME);
+	    	if (fsv != null && JCOValue.isDocumentValue(fsv)) {
+		    	DocumentValue dv = (DocumentValue) fsv;
+		    	for (FieldDefinition fd: dv.getFields())
+		    		arrayValue.add(fd.getValue());				    		
+	    	}
+		}
+ 		else if(function.getMembershipArrayType() == MembershipArray.MA_SELECTED) {
+ 	    	for (String fsn: function.fuzzySetsSelected) {
+ 	        	JCOValue jv = doc.getValue(JCOConstants.FUZZYSETS_FIELD_NAME + JCOConstants.DOT + fsn);
+ 	    		arrayValue.add(jv);
+ 	    	} 			
+ 		}
+ 		else if(function.getMembershipArrayType() == MembershipArray.MA_FROM_ARRAY) {
+ 	    	JCOValue arrayField = doc.getValue(function.arrayName.toString());
+ 	    	if (JCOValue.isArrayValue(arrayField)) {
+	 	    	ArrayValue array = (ArrayValue) arrayField;
+	 	    	for (JCOValue jv : array.getValues()) 
+	 	    		if (JCOValue.isDocumentValue(jv)) {
+	 	    			DocumentValue dv = (DocumentValue) jv;
+	 	            	JCOValue v = dv.getValue(JCOConstants.FUZZYSETS_FIELD_NAME + JCOConstants.DOT + function.fuzzySet);
+	 	            	if (v != null)
+	 	            		arrayValue.add(v);    			
+	 	    		}
+ 	    	}
+ 		}
+
+		return arrayValue;
+	}
+
+
+	private static JCOValue getExtractArray(ExtractArray function, Pipeline pipeline) {
+    	DocumentDefinition doc = pipeline.getCurrentDoc();
+    	ArrayValue arrayValue = new ArrayValue ();
+    	JCOValue arrayField = doc.getValue(function.arrayName.toString());
+    	if (JCOValue.isArrayValue(arrayField)) {
+	    	ArrayValue array = (ArrayValue) arrayField;
+	    	for (JCOValue jv : array.getValues()) 
+	    		if (JCOValue.isDocumentValue(jv)) {
+	    			DocumentValue dv = (DocumentValue) jv;
+	            	JCOValue v = dv.getValue(function.fieldName.toString());
+ 	            	if (v != null)
+ 	            		arrayValue.add(v);    			
+	    		}
+    	}
+
+		return arrayValue;
+	}
 
 
 }

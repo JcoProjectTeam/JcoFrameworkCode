@@ -38,7 +38,6 @@ public class JoinExecutor implements IExecutor<JoinCommand>, JCOConstants {
 		SynchronizedDuplicateRemover sdr = new SynchronizedDuplicateRemover(queue, command.isRemoveDuplicates());
 		sdr.start();
 //	PF	end
-
 		final SimpleDocumentCollection outCollection;
 
 		final IDocumentCollection leftCollection;// = getCollection (command.getLeftCollection(), pipeline);
@@ -86,8 +85,8 @@ public class JoinExecutor implements IExecutor<JoinCommand>, JCOConstants {
 				SynchronizedJoinCycle[] threads;
 				int nThreads = 1;
 				//PF per il filter uso tutti i processori fisici meno uno
-				if (EngineConfiguration.getInstance().getNProcessors() > 1)
-					nThreads = EngineConfiguration.getInstance().getNProcessors()-1;
+				if (EngineConfiguration.getNProcessors() > 1)
+					nThreads = EngineConfiguration.getNProcessors()-1;
 
 				// PF threads creation
 				threads = new SynchronizedJoinCycle[nThreads];

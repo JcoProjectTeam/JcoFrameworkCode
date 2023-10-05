@@ -42,7 +42,7 @@ public class JavaFunctionExecutor implements IExecutor<JavaFunctionCommand> {
     
 	private boolean compileCode(JavaFunctionCommand jfc) {
 		try {
-	        String tmpProperty = EngineConfiguration.getInstance().getTempDirectory();
+	        String tmpProperty = EngineConfiguration.getTempDirectory();
 	        Path javaFile = Paths.get(tmpProperty, jfc.getClassName() + ".java");
 	        Files.write(javaFile, jfc.getCode().getBytes());
 
@@ -77,7 +77,7 @@ public class JavaFunctionExecutor implements IExecutor<JavaFunctionCommand> {
     @SuppressWarnings({ "resource", "rawtypes", "unchecked" })
 	private boolean validateFunction (JavaFunctionCommand jfc ) {
     	// Create a File object on the root of the directory containing the class file
-    	File file = new File(EngineConfiguration.getInstance().getTempDirectory());
+    	File file = new File(EngineConfiguration.getTempDirectory());
 
     	try {
     	    // Convert File to a URL

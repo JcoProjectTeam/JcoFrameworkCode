@@ -8,6 +8,7 @@ import javax.script.ScriptException;
 
 import org.locationtech.jts.geom.Geometry;
 
+import jco.ql.byZun.ZunTicker;
 import jco.ql.engine.Pipeline;
 import jco.ql.engine.evaluator.CaseEvaluator;
 import jco.ql.engine.evaluator.ExpressionFactorEvaluator;
@@ -60,6 +61,7 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 
     	DocumentDefinition rd;    	
     	while (i < rightDocs.size()) {
+    		ZunTicker.tick();
     		rd = rightDocs.get(i);
 			DocumentDefinition doc = performJoin (ld, rd, command); 
 			if(doc != null) {

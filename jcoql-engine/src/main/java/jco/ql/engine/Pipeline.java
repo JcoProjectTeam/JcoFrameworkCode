@@ -94,7 +94,7 @@ public class Pipeline implements  JCOConstants {
 		fuzzySetModels = new Hashtable<String, FuzzySetModelCommand>() ;
 
 		jsEngines = new LinkedList<>();
-		for (int i=0; i< (2*EngineConfiguration.getInstance().getNProcessors());i++) {
+		for (int i=0; i< (2*EngineConfiguration.getNProcessors());i++) {
 				ScriptEngineManager manager = new ScriptEngineManager();
 	        ScriptEngine engine = manager.getEngineByName("nashorn");
 	        jsEngines.add(engine);

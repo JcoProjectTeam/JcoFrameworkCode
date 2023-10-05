@@ -32,6 +32,7 @@ public class ZunParserTester {
 //		fileIn = ZunProperties.getScriptPath() + "\\2.TEST NeuroComputing\\3.testNeurocomputingJava.txt";
 		fileIn = ZunProperties.getScriptPath() + "\\10.TEST Soco 2023\\script.txt";
 		fileIn = ZunProperties.getScriptPath() + "\\scriptFA.txt";
+		fileIn = ZunProperties.getScriptPath() + "\\11.TEST Webist 2023\\script.txt";
 
   	try {
   		// Inizializzazione del parser (antlr docet):

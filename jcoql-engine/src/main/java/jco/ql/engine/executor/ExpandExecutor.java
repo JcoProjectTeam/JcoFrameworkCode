@@ -68,8 +68,8 @@ public class ExpandExecutor implements IExecutor<ExpandCommand> {
 								int nThreads = 1;
 								sdr.setInfomer(listValues.size(), 20);
 								//PF per il filter uso tutti i processori logici meno uno
-								if (EngineConfiguration.getInstance().getNProcessors() > 1)
-									nThreads = 2*EngineConfiguration.getInstance().getNProcessors()-1;
+								if (EngineConfiguration.getNProcessors() > 1)
+									nThreads = 2*EngineConfiguration.getNProcessors()-1;
 								
 								// PF threads creation
 								// save current doc other fields

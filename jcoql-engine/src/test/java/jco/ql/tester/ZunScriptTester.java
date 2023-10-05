@@ -62,7 +62,7 @@ public class ZunScriptTester {
 			ZunWarningTracker.getInstance().addWarning("Properties:  \t" + propFileName);
 			ZunWarningTracker.getInstance().addWarning("FileInProlog:\t" + fileInProlog);
 			ZunWarningTracker.getInstance().addWarning("FileInTest:  \t" + fileInTest);
-			ZunWarningTracker.getInstance().addWarning("th:  \t" + EngineConfiguration.getInstance().getNProcessors()+ "\n");
+			ZunWarningTracker.getInstance().addWarning("th:  \t" + EngineConfiguration.getNProcessors()+ "\n");
 
 			
 		  	String prolog = getScript (fileInProlog);
@@ -83,7 +83,7 @@ public class ZunScriptTester {
 //				ZunTimer.getInstance().getTotal("##### Total execution time");
 //				ZunTimer.getInstance().getMilliTotal("##### Total execution time");
 			}
-			ZunWarningTracker.getInstance().addWarning("th:  \t" + EngineConfiguration.getInstance().getNProcessors()+ "\n");
+			ZunWarningTracker.getInstance().addWarning("th:  \t" + EngineConfiguration.getNProcessors()+ "\n");
 			ZunWarningTracker.getInstance().println();
 		    List<String> list = JMH.getConfigurationChannelDev();
 		    System.out.println("-------------------- Configuration ChannelDev ------------------------");

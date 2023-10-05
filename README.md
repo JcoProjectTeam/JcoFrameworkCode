@@ -25,7 +25,7 @@ Once the _gradlew_ scripts have been launched with no error, open your Eclipse I
 ## Reset of Eclipse Settings
 If it is necessary to reset the Eclipse folder, open a command shell window on the folder where you download the repository and launch the following commands:  
 1. \> gradlew cleanEclipse  
-2. \> gradlew Eclpse  
+2. \> gradlew Eclipse  
   
   
   
