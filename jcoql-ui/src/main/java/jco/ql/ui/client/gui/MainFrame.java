@@ -30,7 +30,6 @@ import jco.ql.ui.client.Client;
 import javax.swing.JSpinner;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
 import javax.swing.JMenuBar;
 import javax.swing.ButtonGroup;
 import javax.swing.SpinnerNumberModel;
@@ -38,10 +37,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JSeparator;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class MainFrame extends JFrame {
+	public static final String TRUE = "true";
+	public static final String FALSE = "false";
+	
 
 	/**
 	 * 
@@ -55,11 +55,21 @@ public class MainFrame extends JFrame {
 	private ProcessStateFrame processFrame;
 	private ServerConfFrame serverconf;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private Color colorActive = new Color (50,200,50);
+	private Color colorDeactive = new Color (250,50,0);
+	private Font font1 = new Font("Trebuchet MS", Font.PLAIN, 12);
+	private int nProcessors = 1;
+	private boolean isTracker = true;
+	private boolean isBacktrack = false;
+	private boolean isRemoveMongoId = true;
+	private boolean isSpatialIndex = false;
+	private boolean isMsgIndDocs = false;
 
 	public MainFrame(Client c) {
 		this.client = c;
 		console = new ConsoleFrame();
 		createAndShowGUI();
+//		getGuiSettings();
 	}
 
 	private void createAndShowGUI() {
@@ -90,7 +100,7 @@ public class MainFrame extends JFrame {
 		// PF. Added
 		commandArea.setTabSize(2);
 		
-		JLabel lblCommandArea = DefaultComponentFactory.getInstance().createTitle("Input Area");
+		JLabel lblCommandArea = new JLabel ("JCO Input area"); //DefaultComponentFactory.getInstance().createTitle("Input Area");
 		lblCommandArea.setFont(new Font("Trebuchet MS", Font.PLAIN, 11));
 		commandAreaScroll.setColumnHeaderView(lblCommandArea);
 
@@ -237,7 +247,7 @@ public class MainFrame extends JFrame {
 		instructionAreaScroll.setRowHeaderView(lines);
 		instructionAreaScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		
-		JLabel lblInstructionArea = DefaultComponentFactory.getInstance().createLabel("Instruction Area");
+		JLabel lblInstructionArea = new JLabel ("JCO Instruction Area"); //DefaultComponentFactory.getInstance().createLabel("Instruction Area");
 		lblInstructionArea.setFont(new Font("Trebuchet MS", Font.PLAIN, 11));
 		instructionAreaScroll.setColumnHeaderView(lblInstructionArea);
 		
@@ -246,7 +256,7 @@ public class MainFrame extends JFrame {
 		contentPane.add(menuBar);
 		
 		JMenu mnSettings = new JMenu("Settings");
-		mnSettings.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		mnSettings.setFont(font1);
 		menuBar.add(mnSettings);
 		mnSettings.setHorizontalAlignment(SwingConstants.LEFT);
 		
@@ -255,75 +265,144 @@ public class MainFrame extends JFrame {
 		mntPanel.setLayout(new BoxLayout(mntPanel, BoxLayout.X_AXIS));
 		
 		JLabel lblSpinnerLabel = new JLabel("  # Processors                       ");
-		lblSpinnerLabel.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
+		lblSpinnerLabel.setFont(font1);
 		mntPanel.add(lblSpinnerLabel);
 		
 		JSpinner processorSpinner = new JSpinner();
-		processorSpinner.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
-		processorSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+		processorSpinner.setFont(font1);
+		processorSpinner.setModel(new SpinnerNumberModel(nProcessors, Integer.valueOf(1), null, Integer.valueOf(1)));
+		processorSpinner.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				client.setNProcessors(processorSpinner.getModel().getValue().toString());				
+ 			}
+		});
 		mntPanel.add(processorSpinner);
 		
 		JSeparator separator = new JSeparator();
 		mnSettings.add(separator);
 		
-		JMenuItem mntTrack = new JMenuItem("Track instructions execution time");
-		mntTrack.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
-		mntTrack.setSelected(true);
-		mnSettings.add(mntTrack);
-		
 		JSeparator separator_1 = new JSeparator();
 		mnSettings.add(separator_1);
 		
-		JMenuItem mntSpatial = new JMenuItem("Activate Spatial Indexing");
-		mntSpatial.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
-		mnSettings.add(mntSpatial);
-		mntSpatial.setHorizontalAlignment(SwingConstants.LEFT);
-		mntSpatial.addActionListener(new ActionListener() {
+		JMenuItem mntTrack = new JMenuItem("Track instructions execution time");
+		mntTrack.setFont(font1);
+		mntTrack.setSelected(true);
+		if (isTracker)
+			mntTrack.setBackground(colorActive);
+		else
+			mntTrack.setBackground(colorDeactive);
+		mntTrack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.print(mntSpatial.getText());
-				if ("Activate Spatial Indexing".equals(mntSpatial.getText()))
-					mntSpatial.setText("Deactivate Spatial Indexing");
-				else
-					mntSpatial.setText("Activate Spatial Indexing");
-				System.out.println("\t-->\t" + mntSpatial.getText());
+				if (mntTrack.getBackground().equals(colorDeactive)) {
+					mntTrack.setBackground(colorActive);
+					client.setTrackTime(TRUE);
+				}
+				else {
+					mntTrack.setBackground(colorDeactive);
+					client.setTrackTime("false");
+				}
 			}
 		});
-		buttonGroup.add(mntSpatial);
+		mnSettings.add(mntTrack);
 		
 		JSeparator separator_2 = new JSeparator();
 		mnSettings.add(separator_2);
 		
-		JMenuItem mntBacktrack = new JMenuItem("Activate Backtrack");
-		mntBacktrack.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
-		mnSettings.add(mntBacktrack);
-		mntBacktrack.setSelected(true);
+		JMenuItem mntSpatial = new JMenuItem("Spatial Indexing");
+		mntSpatial.setFont(font1);
+		if (isSpatialIndex)
+			mntSpatial.setBackground(colorActive);
+		else
+			mntSpatial.setBackground(colorDeactive);
+		mnSettings.add(mntSpatial);
+		mntSpatial.setHorizontalAlignment(SwingConstants.LEFT);
+		mntSpatial.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (mntSpatial.getBackground().equals(colorDeactive)) {
+					mntSpatial.setBackground(colorActive);
+					client.setSpatialIndex(TRUE);
+				}
+				else {
+					mntSpatial.setBackground(colorDeactive);
+					client.setSpatialIndex(FALSE);
+				}
+			}
+		});
+		buttonGroup.add(mntSpatial);
 		
 		JSeparator separator_3 = new JSeparator();
 		mnSettings.add(separator_3);
 		
-		JMenuItem mntMessages = new JMenuItem("Store messages in document");
-		mntMessages.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
-		mnSettings.add(mntMessages);
-		mntMessages.setSelected(true);
+		JMenuItem mntBacktrack = new JMenuItem("Backtrack");
+		mntBacktrack.setBackground(new Color(240, 240, 240));
+		mntBacktrack.setFont(font1);
+		if (isBacktrack)
+			mntBacktrack.setBackground(colorActive);
+		else
+			mntBacktrack.setBackground(colorDeactive);
+		mntBacktrack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (mntBacktrack.getBackground().equals(colorDeactive)) {
+					mntBacktrack.setBackground(colorActive);
+					client.setBacktrack(TRUE);
+				}
+				else {
+					mntBacktrack.setBackground(colorDeactive);
+					client.setBacktrack(FALSE);
+				}
+			}
+		});
+		mnSettings.add(mntBacktrack);
+		mntBacktrack.setSelected(true);
 		
 		JSeparator separator_4 = new JSeparator();
 		mnSettings.add(separator_4);
 		
+		JMenuItem mntMessages = new JMenuItem("Store messages in document");
+		mntMessages.setBackground(new Color(240, 240, 240));
+		if (isMsgIndDocs)
+			mntMessages.setBackground(colorActive);
+		else
+			mntMessages.setBackground(colorDeactive);
+		mntMessages.setFont(font1);
+		mntMessages.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (mntMessages.getBackground().equals(colorDeactive)) {
+					mntMessages.setBackground(colorActive);
+					client.setStoreMsg(TRUE);
+				}
+				else {
+					mntMessages.setBackground(colorDeactive);
+					client.setStoreMsg(FALSE);
+				}
+			}
+		});
+		mnSettings.add(mntMessages);
+		mntMessages.setSelected(true);
+		
+		JSeparator separator_5 = new JSeparator();
+		mnSettings.add(separator_5);
+		
 		JMenuItem mntMongoId = new JMenuItem("Remove MongoDB  \"_id\"  attribute");
-		mntMongoId.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+		mntMongoId.setFont(font1);
+		if (isRemoveMongoId)
+			mntMongoId.setBackground(colorActive);
+		else
+			mntMongoId.setBackground(colorDeactive);
+		mntMongoId.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (mntMongoId.getBackground().equals(colorDeactive)) {
+					mntMongoId.setBackground(colorActive);
+					client.setRemoveMongoId(TRUE);
+				}
+				else {
+					mntMongoId.setBackground(colorDeactive);
+					client.setRemoveMongoId(FALSE);
+				}
 			}
 		});
-		mntMongoId.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				// ******
-			}
-		});
-		mntMongoId.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
 		mnSettings.add(mntMongoId);
-
-
+		
 		contentPane.revalidate();
 		contentPane.repaint();
 	}

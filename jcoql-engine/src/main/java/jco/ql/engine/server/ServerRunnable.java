@@ -9,6 +9,9 @@ import java.net.Socket;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.log4j.pattern.IntegerPatternConverter;
+
+import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.parser.ParserLauncher;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JMH;
@@ -79,36 +82,68 @@ public class ServerRunnable implements Runnable {
 	  				if (JMH.getChannel(JMH.PARSER_CHANNEL).size() > 0)
   						sendMessage(msg.getParserMsg(JMH.getChannel(JMH.PARSER_CHANNEL)));
   				}
-
-			} else if (text.equals("##BACKTRACK##")) {
+			} 
+			else if (text.equals("##BACKTRACK##")) {
 				pl.backtrack();
 				// se arrivo qui non ci sono stati errori nell'esecuzione
 				sendMessage(msg.getAck());
 				sendMessage(msg.getMsgProcess(pl.getProcess()));
 
-			} else if (text.equals("##GET-TEMPORARY-COLLECTION##")) {
+			} 
+			else if (text.equals("##GET-TEMPORARY-COLLECTION##")) {
 				IDocumentCollection collection = pl.getTemporaryCollection();
 				sendMessage(msg.getMsgCollection(collection.toString()));
 
-			} else if (text.equals("##GET-PROCESS##")) {
+			} 
+			else if (text.equals("##GET-PROCESS##")) {
 				List<String> process = pl.getProcess();
 				sendMessage(msg.getMsgProcess(process));
 
-			} else if (text.equals("##GET-IR-LIST##")) {
+			} 
+			else if (text.equals("##GET-IR-LIST##")) {
 				Collection<String> irlist = pl.getIRList();
 				sendMessage(msg.getMsgIRList(irlist));
 
-			} else if (text.equals("##GET-IR-COLLECTION##")) {
+			} 
+			else if (text.equals("##GET-IR-COLLECTION##")) {
 				String collectionName = br.readLine();
 				IDocumentCollection collection = pl.getIRCollection(collectionName);
 				sendMessage(msg.getMsgCollection(collection.toString()));
 
-			} else if (text.equals("##ADD-SERVER-CONF##")) {
+			} 
+			else if (text.equals("##ADD-SERVER-CONF##")) {
 				int firstindex = text.length();
 				int lastindex = s.lastIndexOf("##END-SERVER-CONF##");
 				pl.addServer(s.substring(firstindex, lastindex));
 				// rispondo con la nuova lista dei server disponibili
 				sendMessage(msg.getMsgServerConf(pl.getConfigurations()));
+			} 
+			else if (text.equals("##GET-SETTINGS##")) {
+				sendMessage(msg.getSettingConfiguration());
+			} 
+			else if (text.equals("##BEGING-SETTINGS##")) {
+				String setting = br.readLine();
+				String value = br.readLine();
+				System.out.println(text);
+				System.out.println(setting);
+				System.out.println(value);
+				if ("Processors:".equals(setting)) 
+					EngineConfiguration.setNProcessors(Integer.parseInt(value));
+				else if ("Tracker:".equals(setting)) 
+					EngineConfiguration.setTrackTimes("true".equals(value));
+				else if ("Spatial Index::".equals(setting)) 
+					EngineConfiguration.setSpatialIndexing("true".equals(value));					
+				else if ("Backtrack:".equals(setting)) 
+					EngineConfiguration.setBacktrack("true".equals(value));					
+				else if ("Msg in Docs:".equals(setting)) 
+					EngineConfiguration.setBacktrack("true".equals(value));					
+				else if ("Remove MongoDb Id:".equals(setting)) 
+					EngineConfiguration.setRemoveMondgoId("true".equals(value));					
+			}
+			else {				
+				System.out.println(text);
+				while ((text=br.readLine())!= null)
+					System.out.println(text);
 			}
 
 		} catch (Exception e) {

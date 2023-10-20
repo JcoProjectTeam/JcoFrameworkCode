@@ -81,6 +81,41 @@ public class Client {
 	}
 
 	
+// --------------------- PF 2023.10.13 --- setting messages
+	public void setNProcessors(String np) {
+		sendMessage(clientMsg.getMsgSetSettings(ClientMessages.SET_PROCESSORS, np));		
+	}
+
+	public void setTrackTime(String b) {
+		sendMessage(clientMsg.getMsgSetSettings(ClientMessages.SET_TRACKER, b));		
+	}
+
+
+	public void setSpatialIndex(String b) {
+		sendMessage(clientMsg.getMsgSetSettings(ClientMessages.SET_SPATIAL_INDEX, b));		
+	}
+
+
+	public void setBacktrack(String b) {
+		sendMessage(clientMsg.getMsgSetSettings(ClientMessages.SET_BACKTRACK, b));		
+	}
+
+
+	public void setStoreMsg(String b) {
+		sendMessage(clientMsg.getMsgSetSettings(ClientMessages.SET_MSG_IN_DOCS, b));		
+	}
+
+
+	public void setRemoveMongoId(String b) {
+		sendMessage(clientMsg.getMsgSetSettings(ClientMessages.SET_MONGO_ID, b));		
+	}
+
+	// --------------------- PF 2023.10.13 --- setting messages - END
+
+	
+	
+	
+	
 	public void sendMessage(String msg) {
 		try {
 			dout.writeUTF(msg);
@@ -209,4 +244,5 @@ public class Client {
 		}
 		c.close();
 	}
+
 }

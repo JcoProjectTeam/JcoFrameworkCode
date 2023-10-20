@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.ServerConfiguration;
 
 /**
@@ -134,5 +135,17 @@ public class ServerMessages {
         output.append("\n}");
        
 		return prefix + output.toString() + suffix;
+	}
+
+	// PF 2023.10.14
+	public String getSettingConfiguration() {
+		String msg = "##BEGIN-SETTING-CONFIGURATIO##\n";
+		msg += "\nProcessors:\n" + EngineConfiguration.getNProcessors();
+		msg += "\nTracker:\n" + EngineConfiguration.isTrackTimes();
+		msg += "\nSpatial Index:\n" + EngineConfiguration.isSpatialIndexing();
+		msg += "\nBacktrack:\n" + EngineConfiguration.isBacktrack();
+		msg += "\nMsg in Docs:\n" + EngineConfiguration.isMsgInDoc();
+		msg += "\nRemove MongoDb Id:\n" + EngineConfiguration.isRemoveMondgoId();
+		return msg;
 	}
 }

@@ -14,6 +14,14 @@ import javax.swing.JPanel;
  *
  */
 public class ClientMessages {
+	public static final String SETTINGS_BEGIN = "##BEGING-SETTINGS##\n";
+	public static final int SET_PROCESSORS = 1;
+	public static final int SET_TRACKER = 2;
+	public static final int SET_SPATIAL_INDEX = 3;
+	public static final int SET_BACKTRACK = 4;
+	public static final int SET_MSG_IN_DOCS = 5;
+	public static final int SET_MONGO_ID = 6;
+	
 
 	public ClientMessages() {
 	}
@@ -62,6 +70,27 @@ public class ClientMessages {
 		return prefix + collectionName + suffix;
 	}
 
+	// PF 2023.10.12
+	public String getMsgSetSettings(int setMsg, String vl) {
+		String msg = SETTINGS_BEGIN;
+		if (setMsg == SET_PROCESSORS)
+			msg += "Processors:\n" + vl;
+		else if (setMsg == SET_TRACKER)
+			msg += "Tracker:\n" + vl;
+		else if (setMsg == SET_SPATIAL_INDEX)
+			msg += "Spatial Index:\n" + vl;
+		else if (setMsg == SET_BACKTRACK)
+			msg += "Backtrack:\n" + vl;
+		else if (setMsg == SET_MSG_IN_DOCS)
+			msg += "Msg in Docs:\n" + vl;
+		else if (setMsg == SET_MONGO_ID)
+			msg += "Remove MongoDb Id:\n" + vl;
+
+		// TODO Auto-generated method stub
+		return msg;
+	}
+
+	
 	/**
 	 * 
 	 * @param fileName
@@ -95,4 +124,5 @@ public class ClientMessages {
 
 		return prefix + result + suffix;
 	}
+
 }
