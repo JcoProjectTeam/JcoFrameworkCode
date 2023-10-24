@@ -38,7 +38,6 @@ public class Client {
 			dout = new DataOutputStream(clientSocket.getOutputStream());
 		} catch (IOException e) {
 			final JPanel panel = new JPanel();
-
 		    JOptionPane.showMessageDialog(panel, "Invalid host or port number","Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -108,6 +107,10 @@ public class Client {
 
 	public void setRemoveMongoId(String b) {
 		sendMessage(clientMsg.getMsgSetSettings(ClientMessages.SET_MONGO_ID, b));		
+	}
+
+	public void retrieveSettings() {
+		sendMessage(clientMsg.getMsgAllSettings());				
 	}
 
 	// --------------------- PF 2023.10.13 --- setting messages - END
@@ -182,6 +185,13 @@ public class Client {
 				else
 					serverConf = result;
 			}
+			else if (text.equals("##BEGIN-SETTING-CONFIGURATIO##")) {
+		        gui.manageSettings(s);	
+			}
+			else {
+				System.out.println("XXXXXXX:\t"+text);
+			}
+			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -223,6 +233,8 @@ public class Client {
 		}
 
 		gui = new MainFrame(c);
+		c.retrieveSettings();
+//		gui.getSettings ();
 		while (c.clientSocket.isConnected()) {
 			try {
 				if (din.available() > 0) {
@@ -244,5 +256,6 @@ public class Client {
 		}
 		c.close();
 	}
+
 
 }

@@ -139,7 +139,7 @@ public class ServerMessages {
 
 	// PF 2023.10.14
 	public String getSettingConfiguration() {
-		String msg = "##BEGIN-SETTING-CONFIGURATIO##\n";
+		String msg = "##BEGIN-SETTING-CONFIGURATIO##";
 		msg += "\nProcessors:\n" + EngineConfiguration.getNProcessors();
 		msg += "\nTracker:\n" + EngineConfiguration.isTrackTimes();
 		msg += "\nSpatial Index:\n" + EngineConfiguration.isSpatialIndexing();
@@ -148,4 +148,6 @@ public class ServerMessages {
 		msg += "\nRemove MongoDb Id:\n" + EngineConfiguration.isRemoveMondgoId();
 		return msg;
 	}
+
+
 }

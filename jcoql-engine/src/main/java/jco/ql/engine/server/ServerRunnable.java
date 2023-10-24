@@ -9,8 +9,6 @@ import java.net.Socket;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.pattern.IntegerPatternConverter;
-
 import jco.ql.engine.EngineConfiguration;
 import jco.ql.engine.parser.ParserLauncher;
 import jco.ql.model.engine.IDocumentCollection;

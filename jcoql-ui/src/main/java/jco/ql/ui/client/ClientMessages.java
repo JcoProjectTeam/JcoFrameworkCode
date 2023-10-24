@@ -40,6 +40,7 @@ public class ClientMessages {
 	public String executeJCO(String msg) {
 		String prefix = "##BEGIN-PROCESS##\n";
 		String suffix = "\n##END-PROCESS##";
+
 		return prefix + msg + suffix;
 	}
 
@@ -71,6 +72,9 @@ public class ClientMessages {
 	}
 
 	// PF 2023.10.12
+	public String getMsgAllSettings() {
+		return "##GET-SETTINGS##";
+	}
 	public String getMsgSetSettings(int setMsg, String vl) {
 		String msg = SETTINGS_BEGIN;
 		if (setMsg == SET_PROCESSORS)

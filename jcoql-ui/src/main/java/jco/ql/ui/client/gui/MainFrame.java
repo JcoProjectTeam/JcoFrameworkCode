@@ -7,10 +7,12 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -27,6 +29,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.text.Element;
 
 import jco.ql.ui.client.Client;
+
 import javax.swing.JSpinner;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -58,18 +61,26 @@ public class MainFrame extends JFrame {
 	private Color colorActive = new Color (50,200,50);
 	private Color colorDeactive = new Color (250,50,0);
 	private Font font1 = new Font("Trebuchet MS", Font.PLAIN, 12);
+	private Font iaFont1 = new Font("Consolas", Font.PLAIN, 12);
+	private Font iaFont2 = new Font("Consolas", Font.PLAIN, 11);
+
 	private int nProcessors = 1;
 	private boolean isTracker = true;
 	private boolean isBacktrack = false;
 	private boolean isRemoveMongoId = true;
 	private boolean isSpatialIndex = false;
 	private boolean isMsgIndDocs = false;
-
+	private JSpinner processorSpinner;
+	private JMenuItem mntTrack;
+	private JMenuItem mntSpatial;
+	private JMenuItem mntBacktrack;
+	private JMenuItem mntMessages;
+	private JMenuItem mntMongoId;
+	
 	public MainFrame(Client c) {
 		this.client = c;
 		console = new ConsoleFrame();
-		createAndShowGUI();
-//		getGuiSettings();
+		createAndShowGUI();	
 	}
 
 	private void createAndShowGUI() {
@@ -207,15 +218,15 @@ public class MainFrame extends JFrame {
 		instructionArea.setWrapStyleWord(true);
         instructionArea.setLineWrap(true);
         //PF. orig 18
-        instructionArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        instructionArea.setFont(iaFont1); 
         instructionArea.setTabSize(2);
         instructionArea.setEditable(false);
 
-		JTextArea lines = new JTextArea("1");
-		lines.setBackground(Color.LIGHT_GRAY);
-		lines.setEditable(false);
+		JTextArea iaLines = new JTextArea("1");
+		iaLines.setBackground(Color.LIGHT_GRAY);
+		iaLines.setEditable(false);
 		// PF. Dim barra laterale - orig 18
-		lines.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		iaLines.setFont(iaFont1);
 
 		instructionArea.getDocument().addDocumentListener(new DocumentListener(){
 			public String getText(){
@@ -229,26 +240,26 @@ public class MainFrame extends JFrame {
 			}
 			@Override
 			public void changedUpdate(DocumentEvent de) {
-				lines.setText(getText());
+				iaLines.setText(getText());
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent de) {
-				lines.setText(getText());
+				iaLines.setText(getText());
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent de) {
-				lines.setText(getText());
+				iaLines.setText(getText());
 			}
 
 		});
 		instructionAreaScroll.setViewportView(instructionArea);
-		instructionAreaScroll.setRowHeaderView(lines);
+		instructionAreaScroll.setRowHeaderView(iaLines);
 		instructionAreaScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		
 		JLabel lblInstructionArea = new JLabel ("JCO Instruction Area"); //DefaultComponentFactory.getInstance().createLabel("Instruction Area");
-		lblInstructionArea.setFont(new Font("Trebuchet MS", Font.PLAIN, 11));
+		lblInstructionArea.setFont(iaFont2);
 		instructionAreaScroll.setColumnHeaderView(lblInstructionArea);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -268,7 +279,7 @@ public class MainFrame extends JFrame {
 		lblSpinnerLabel.setFont(font1);
 		mntPanel.add(lblSpinnerLabel);
 		
-		JSpinner processorSpinner = new JSpinner();
+		processorSpinner = new JSpinner();
 		processorSpinner.setFont(font1);
 		processorSpinner.setModel(new SpinnerNumberModel(nProcessors, Integer.valueOf(1), null, Integer.valueOf(1)));
 		processorSpinner.addChangeListener(new ChangeListener() {
@@ -284,7 +295,7 @@ public class MainFrame extends JFrame {
 		JSeparator separator_1 = new JSeparator();
 		mnSettings.add(separator_1);
 		
-		JMenuItem mntTrack = new JMenuItem("Track instructions execution time");
+		mntTrack = new JMenuItem("Track instructions execution time");
 		mntTrack.setFont(font1);
 		mntTrack.setSelected(true);
 		if (isTracker)
@@ -308,7 +319,7 @@ public class MainFrame extends JFrame {
 		JSeparator separator_2 = new JSeparator();
 		mnSettings.add(separator_2);
 		
-		JMenuItem mntSpatial = new JMenuItem("Spatial Indexing");
+		mntSpatial = new JMenuItem("Spatial Indexing");
 		mntSpatial.setFont(font1);
 		if (isSpatialIndex)
 			mntSpatial.setBackground(colorActive);
@@ -333,7 +344,7 @@ public class MainFrame extends JFrame {
 		JSeparator separator_3 = new JSeparator();
 		mnSettings.add(separator_3);
 		
-		JMenuItem mntBacktrack = new JMenuItem("Backtrack");
+		mntBacktrack = new JMenuItem("Backtrack");
 		mntBacktrack.setBackground(new Color(240, 240, 240));
 		mntBacktrack.setFont(font1);
 		if (isBacktrack)
@@ -358,7 +369,7 @@ public class MainFrame extends JFrame {
 		JSeparator separator_4 = new JSeparator();
 		mnSettings.add(separator_4);
 		
-		JMenuItem mntMessages = new JMenuItem("Store messages in document");
+		mntMessages = new JMenuItem("Store messages in document");
 		mntMessages.setBackground(new Color(240, 240, 240));
 		if (isMsgIndDocs)
 			mntMessages.setBackground(colorActive);
@@ -383,7 +394,7 @@ public class MainFrame extends JFrame {
 		JSeparator separator_5 = new JSeparator();
 		mnSettings.add(separator_5);
 		
-		JMenuItem mntMongoId = new JMenuItem("Remove MongoDB  \"_id\"  attribute");
+		mntMongoId = new JMenuItem("Remove MongoDB  \"_id\"  attribute");
 		mntMongoId.setFont(font1);
 		if (isRemoveMongoId)
 			mntMongoId.setBackground(colorActive);
@@ -484,5 +495,57 @@ public class MainFrame extends JFrame {
 	    public String getDescription(){
 	        return "Text files (*.txt)";
 	    }
+	}
+
+	public void manageSettings(String s) {
+		BufferedReader br = new BufferedReader(new StringReader(s));
+		try {
+			String text = br.readLine();
+			while ((text = br.readLine()) != null ) {
+				String value = br.readLine();
+				if ("Processors:".equals(text)) {
+					nProcessors = Integer.parseInt(value);
+					processorSpinner.setValue(nProcessors);
+				}
+				else if ("Tracker:".equals(text)) {
+					isTracker = "true".equals(value);
+					if (isTracker)
+						mntTrack.setBackground(colorActive);
+					else
+						mntTrack.setBackground(colorDeactive);
+				}
+				else if ("Spatial Index:".equals(text)) {
+					isSpatialIndex = "true".equals(value);
+					if (isSpatialIndex)
+						mntSpatial.setBackground(colorActive);
+					else
+						mntSpatial.setBackground(colorDeactive);
+				}
+				else if ("Backtrack:".equals(text)) {
+					isBacktrack = "true".equals(value);
+					if (isBacktrack)
+						mntBacktrack.setBackground(colorActive);
+					else
+						mntBacktrack.setBackground(colorDeactive);
+				}
+				else if ("Msg in Docs:".equals(text)) {
+					isMsgIndDocs = "true".equals(value);
+					if (isMsgIndDocs)
+						mntMessages.setBackground(colorActive);
+					else
+						mntMessages.setBackground(colorDeactive);
+				}
+				else if ("Remove MongoDb Id:".equals(text)) {
+					isRemoveMongoId = "true".equals(value);
+					if (isRemoveMongoId)
+						mntMongoId.setBackground(colorActive);
+					else
+						mntMongoId.setBackground(colorDeactive);
+				}
+			}			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
