@@ -22,7 +22,7 @@ import jco.ql.model.command.ICommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.engine.JMH;
-import jco.ql.parser.Environment;
+import jco.ql.parser.JCoQLEnvironment;
 import jco.ql.parser.JCoQLParser;
 import jco.ql.parser.model.Instruction;
 
@@ -100,7 +100,6 @@ public class ParserLauncher implements JCOConstants {
 	public void parse(String script) throws ExecuteProcessException {
 		JCoQLParser parser;
 		List<String> instructions = new ArrayList<String>();
-		JMH.reset();
 
 		try {			
 			parser = new JCoQLParser(script);
@@ -112,7 +111,7 @@ public class ParserLauncher implements JCOConstants {
 			JMH.addParserMessage("Generic JCO Parser Exception:\n" + e.getMessage());
 			throw new ExecuteProcessException(e.getMessage() + "\n" + sw.toString());
 		}
-		Environment env = parser.getEnvironment();
+		JCoQLEnvironment env = parser.getEnvironment();
 		
 		
 		if (parser.getErrorList().isEmpty()) {

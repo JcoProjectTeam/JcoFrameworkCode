@@ -23,7 +23,7 @@ public class ProcessState {
 	private String collectionAlias;
 	private String fileName;
 
-	// variabili per lo stato Create Fuzzy Function (Operator, Aggregator, Generic Operator)
+	// variabili per lo stato Create Fuzzy Function (Operator, Aggregator, Evaluator, Generic Operator)
 	private boolean isCreateFuzzyFunction;
 	
 	// added by Balicco 27/1/23

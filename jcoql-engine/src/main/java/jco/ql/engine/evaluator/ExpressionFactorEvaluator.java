@@ -21,36 +21,37 @@ public class ExpressionFactorEvaluator implements JCOConstants {
 		if (factor.getType() == ExpressionFactor.SUB_CONDITION)
 			jv  = ConditionEvaluator.evaluate(factor.subCondition, pipeline);
 		
-		if (factor.getType() == ExpressionFactor.SUB_EXPRESSION)
+		else if (factor.getType() == ExpressionFactor.SUB_EXPRESSION)
 			jv  = ExpressionPredicateEvaluator.calculate(factor.subExpression, pipeline);
 		
 		//FI modified on 05/11/2022
-		if (factor.getType() == ExpressionFactor.VALUE)
+		else if (factor.getType() == ExpressionFactor.VALUE)
 			jv  = getFactorValue (factor, pipeline);
 
-		if (factor.getType() == ExpressionFactor.ID)
+		else if (factor.getType() == ExpressionFactor.ID)
 			jv  = getIDValue (factor, pipeline);
 
-		if (factor.getType() == ExpressionFactor.FIELDNAME)
+		else if (factor.getType() == ExpressionFactor.FIELDNAME)
 			jv  = getFieldValue (factor, pipeline);
 		
-		if (factor.getType() == ExpressionFactor.FUNCTION)
+		else if (factor.getType() == ExpressionFactor.FUNCTION)
 			jv  = FunctionEvaluator.evaluate ((FunctionFactor)factor, pipeline);
 
-		if (factor.getType() == ExpressionFactor.SPECIAL_FUNCTION)
+		else if (factor.getType() == ExpressionFactor.SPECIAL_FUNCTION)
 			jv  = SpecialFunctionEvaluator.evaluate ((SpecialFunctionFactor)factor, pipeline);
 		
 		//FI modified on 05/11/2022
-		if(factor.getType() == ExpressionFactor.ARRAY_REF)
+		else if(factor.getType() == ExpressionFactor.ARRAY_REF)
 			jv  = ArrayReferenceEvaluator.evaluate(factor.reference, pipeline);
 		
 		//PF added on 08/08/2023
-		if(factor.getType() == ExpressionFactor.ARRAY)
+		else if(factor.getType() == ExpressionFactor.ARRAY)
 			jv  = getArrayValue(factor, pipeline);
 		
 		// PF 07/.2023 - after the factor has been evaluated, check if it has an exponent
-		if (factor.hasExponent())
+		else if (factor.hasExponent())
 			jv = getExponentialValue (jv, factor, pipeline);
+		
 		return jv;	
 	}
 

@@ -2,7 +2,7 @@ package jco.ql.engine.parser;
 
 import jco.ql.model.command.ExpandCommand;
 import jco.ql.model.command.FilterCommand;
-import jco.ql.model.command.FuzzyAggregatorCommand;
+import jco.ql.model.command.FuzzyEvaluatorCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
 import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.command.GenericFuzzyOperatorCommand;
@@ -23,7 +23,7 @@ import jco.ql.model.command.UseDbCommand;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.parser.model.Expand;
 import jco.ql.parser.model.Filter;
-import jco.ql.parser.model.FuzzyAggregator;
+import jco.ql.parser.model.FuzzyEvaluator;
 import jco.ql.parser.model.FuzzyOperator;
 import jco.ql.parser.model.FuzzySetModel;
 import jco.ql.parser.model.GenericFuzzyOperator;
@@ -110,10 +110,10 @@ public class Translator implements JCOConstants {
 			LookupFromWeb gfw = (LookupFromWeb) instr;
 			return new LookupFromWebCommand (gfw);
 		}
-		// added by Federici 27/11/2022
-		else if(instr instanceof FuzzyAggregator) {
-			FuzzyAggregator fa = (FuzzyAggregator) instr;
-			return new FuzzyAggregatorCommand(fa);
+		// added by Federici 27/11/2022 - PF 02.05.2024 ... FuzzyEvaluator can be either Evaluator or Aggregator
+		else if(instr instanceof FuzzyEvaluator) {
+			FuzzyEvaluator fe = (FuzzyEvaluator) instr;
+			return new FuzzyEvaluatorCommand(fe);
 		}
 		// added by Balicco 26/1/2023
 		else if(instr instanceof FuzzySetModel) {

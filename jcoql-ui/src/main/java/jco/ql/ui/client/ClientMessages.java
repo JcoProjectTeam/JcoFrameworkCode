@@ -21,6 +21,7 @@ public class ClientMessages {
 	public static final int SET_BACKTRACK = 4;
 	public static final int SET_MSG_IN_DOCS = 5;
 	public static final int SET_MONGO_ID = 6;
+	public static final int RESET_JMH = 7;
 	
 
 	public ClientMessages() {
@@ -89,8 +90,15 @@ public class ClientMessages {
 			msg += "Msg in Docs:\n" + vl;
 		else if (setMsg == SET_MONGO_ID)
 			msg += "Remove MongoDb Id:\n" + vl;
+		else if (setMsg == RESET_JMH)
+			msg += "Reset JMH:\n";
 
-		// TODO Auto-generated method stub
+		return msg;
+	}
+	public String getMsgResetJMH() {
+		String msg = SETTINGS_BEGIN;
+		msg += "Reset JMH\n ";
+
 		return msg;
 	}
 

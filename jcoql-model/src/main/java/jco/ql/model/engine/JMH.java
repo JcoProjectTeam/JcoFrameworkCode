@@ -46,8 +46,10 @@ public class JMH {
     private List<String> fuzzyChannelDev;
     private List<String> exceptionChannelDev;
     private boolean toScreen;
+    private boolean recordMsg;
 
     public JMH() {
+    	this.recordMsg = true;
         this.toScreen = false;
         
         this.configurationChannel = new ArrayList<>();
@@ -78,6 +80,7 @@ public class JMH {
 
     // restart JMH
     public static void reset () {
+        only.recordMsg = true;
         only.mainChannel = new ArrayList<>();
         only.parserChannel = new ArrayList<>();
         only.jcoChannel = new ArrayList<>();
@@ -107,7 +110,11 @@ public class JMH {
     	only.toScreen = toScreen;
     }
 
+    public static void toggleRecordMsg(boolean recordMsg) {
+    	only.recordMsg = recordMsg;
+    }
 
+    
     public static boolean reportErrors () {
     	return (only.parserChannel.size() > 0);
     }
@@ -270,57 +277,60 @@ public class JMH {
 
 
     private String execAddMessage(int channel, String msg) {
-    	SimpleDateFormat formatter= new SimpleDateFormat("HH:mm:ss.SSS");
-    	Date date = new Date(System.currentTimeMillis());
-    	String tm = formatter.format(date);
-
-		// Nello stacktrace: il 0 è questo metodo, il 1 è in chiamante interno, il 2 è il chimante esterno
-		StackTraceElement ste = new Throwable().getStackTrace()[2];
-		String [] pcn = ste.getClassName().split("\\.");
-		String cn = pcn [pcn.length-1];
-		String x = cn + "." + ste.getMethodName() + "(" + ste.getLineNumber() + ") ";
-
-		String st = tm + " -> " + x + "\n" + msg;
-
-		this.mainChannel.add(msg);
-		this.mainChannelDev.add(st);
-
-		if (channel == CONFIGURATION_CHANNEL) {
-        	this.configurationChannel.add(msg);
-        	this.configurationChannelDev.add(st);
-        }
-		if (channel == PARSER_CHANNEL) {
-        	this.parserChannel.add(msg);
-        	this.parserChannelDev.add(st);
-        }
-        else if (channel == JCO_CHANNEL) {
-        	this.jcoChannel.add(msg);
-        	this.jcoChannelDev.add(st);
-        }
-        else if (channel == IO_CHANNEL) {
-        	this.ioChannel.add(msg);
-        	this.ioChannelDev.add(st);
-        }
-        else if (channel == DS_CHANNEL) {
-        	this.dsChannel.add(msg);
-        	this.dsChannelDev.add(st);
-        }
-        else if (channel == JS_CHANNEL) {
-        	this.jsChannel.add(msg);
-        	this.jsChannelDev.add(st);
+    	if (recordMsg) {
+	    	SimpleDateFormat formatter= new SimpleDateFormat("HH:mm:ss.SSS");
+	    	Date date = new Date(System.currentTimeMillis());
+	    	String tm = formatter.format(date);
+	
+			// Nello stacktrace: il 0 è questo metodo, il 1 è in chiamante interno, il 2 è il chimante esterno
+			StackTraceElement ste = new Throwable().getStackTrace()[2];
+			String [] pcn = ste.getClassName().split("\\.");
+			String cn = pcn [pcn.length-1];
+			String x = cn + "." + ste.getMethodName() + "(" + ste.getLineNumber() + ") ";
+	
+			String st = tm + " -> " + x + "\n" + msg;
+	
+			this.mainChannel.add(msg);
+			this.mainChannelDev.add(st);
+	
+			if (channel == CONFIGURATION_CHANNEL) {
+	        	this.configurationChannel.add(msg);
+	        	this.configurationChannelDev.add(st);
+	        }
+			if (channel == PARSER_CHANNEL) {
+	        	this.parserChannel.add(msg);
+	        	this.parserChannelDev.add(st);
+	        }
+	        else if (channel == JCO_CHANNEL) {
+	        	this.jcoChannel.add(msg);
+	        	this.jcoChannelDev.add(st);
+	        }
+	        else if (channel == IO_CHANNEL) {
+	        	this.ioChannel.add(msg);
+	        	this.ioChannelDev.add(st);
+	        }
+	        else if (channel == DS_CHANNEL) {
+	        	this.dsChannel.add(msg);
+	        	this.dsChannelDev.add(st);
+	        }
+	        else if (channel == JS_CHANNEL) {
+	        	this.jsChannel.add(msg);
+	        	this.jsChannelDev.add(st);
+	    	}
+	        else if (channel == FUZZY_CHANNEL) {
+	        	this.fuzzyChannel.add(msg);
+	        	this.fuzzyChannelDev.add(st);
+			}
+	        else if (channel == EXCEPTION_CHANNEL) {
+	        	this.exceptionChannel.add(msg);
+	        	this.exceptionChannelDev.add(st);
+			}    	
+	
+	        if (toScreen)
+	    		System.out.println(st);
+	        return st;
     	}
-        else if (channel == FUZZY_CHANNEL) {
-        	this.fuzzyChannel.add(msg);
-        	this.fuzzyChannelDev.add(st);
-		}
-        else if (channel == EXCEPTION_CHANNEL) {
-        	this.exceptionChannel.add(msg);
-        	this.exceptionChannelDev.add(st);
-		}    	
-
-        if (toScreen)
-    		System.out.println(st);
-        return st;
+    	return "JMH Disabled";
     }
 
 

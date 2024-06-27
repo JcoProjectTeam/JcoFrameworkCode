@@ -137,6 +137,10 @@ public class ServerRunnable implements Runnable {
 					EngineConfiguration.setBacktrack("true".equals(value));					
 				else if ("Remove MongoDb Id:".equals(setting)) 
 					EngineConfiguration.setRemoveMondgoId("true".equals(value));					
+				else if ("Reset JMH".equals(setting)) {
+					JMH.reset();					
+					System.out.println ("Ho resettato");
+				}
 			}
 			else {				
 				System.out.println(text);

@@ -32,7 +32,7 @@ public class ArrayReferenceEvaluator {
 		}
 		if(index.intValue() <0 || index.intValue() >= array.getValues().size())
 		{
-			JMH.add("Index out of acceptable range for array: \t" + ref.idArray);
+			JMH.add("Index out of range in array: \t" + ref.idArray);
 			return new SimpleValue();
 		}
 		

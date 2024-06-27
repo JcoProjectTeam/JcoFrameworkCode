@@ -5,7 +5,7 @@ import jco.ql.model.DocumentDefinition;
 import jco.ql.model.value.EValueType;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
-import jco.ql.parser.Environment;
+import jco.ql.parser.JCoQLEnvironment;
 import jco.ql.parser.model.predicate.WithPredicate;
 import jco.ql.parser.model.util.Field;
 
@@ -27,7 +27,7 @@ public class WithPredicateEvaluator {
 		return new SimpleValue(true);
 	}
 
-	Environment e;
+	JCoQLEnvironment e;
 	private static boolean checkValueType(JCOValue value, WithPredicate predicate) {
 		if (predicate.getSelectorType() == WithPredicate.UNDEFINED)
 			return true;

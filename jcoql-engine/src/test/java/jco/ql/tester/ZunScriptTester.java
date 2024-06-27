@@ -21,7 +21,7 @@ import jco.ql.model.engine.JMH;
 import jco.ql.parser.JCoQLParser;
 
 public class ZunScriptTester {
-	static String ver = "1.02";
+	static String ver = "1.03";
 	FuzzyOperatorCommand f;
 
 	static String getScript (String fileIn) throws IOException, RecognitionException {

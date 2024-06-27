@@ -113,7 +113,12 @@ public class Client {
 		sendMessage(clientMsg.getMsgAllSettings());				
 	}
 
-	// --------------------- PF 2023.10.13 --- setting messages - END
+// --------------------- PF 2023.10.13 --- setting messages - END
+
+	// --------------------- PF 2024.05.05 --- setting messages
+	public void resetJMHMessages() {
+		sendMessage(clientMsg.getMsgResetJMH());						
+	}
 
 	
 	
@@ -256,6 +261,7 @@ public class Client {
 		}
 		c.close();
 	}
+
 
 
 }

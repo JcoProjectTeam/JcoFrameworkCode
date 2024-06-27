@@ -62,7 +62,7 @@ public class Pipeline implements  JCOConstants {
 
 	// JavaScript/Java Function List
 	private Hashtable<String, FunctionCommand> userFunctions;
-	// Fuzzy Functions (Operator, Generic, Aggregator) List
+	// Fuzzy Functions (Operator, Generic, Aggregator, Evaluator) List
 	private Hashtable<String, FuzzyFunctionCommand> fuzzyFunctions;
 	// added by Balicco on 27.1.2023
 	private Hashtable<String, FuzzySetModelCommand> fuzzySetModels;

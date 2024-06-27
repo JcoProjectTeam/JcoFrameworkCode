@@ -6,7 +6,7 @@ import java.util.List;
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
-import jco.ql.model.command.FuzzyAggregatorCommand;
+import jco.ql.model.command.FuzzyEvaluatorCommand;
 import jco.ql.model.command.FuzzyFunctionCommand;
 import jco.ql.model.command.FuzzyOperatorCommand;
 import jco.ql.model.command.FuzzySetModelCommand;
@@ -69,9 +69,9 @@ public class UsingPredicateEvaluator implements JCOConstants {
 			FuzzyOperatorCommand foc = (FuzzyOperatorCommand) ffc;
 			outValue = FuzzyOperatorEvaluator.evaluate(foc, usingPredicate, pipeline);			
 		}
-		else if (ffc.getType() == FuzzyFunctionCommand.AGGREGATOR) {
-			FuzzyAggregatorCommand fac = (FuzzyAggregatorCommand) ffc;
-			outValue = FuzzyAggregatorEvaluator.evaluate(fac, usingPredicate, pipeline);			
+		else if (ffc.getType() == FuzzyFunctionCommand.EVALUATOR || ffc.getType() == FuzzyFunctionCommand.AGGREGATOR) {
+			FuzzyEvaluatorCommand fec = (FuzzyEvaluatorCommand) ffc;
+			outValue = FuzzyEvaluatorEvaluator.evaluate(fec, usingPredicate, pipeline);			
 		}
 		
 		return outValue;
@@ -122,6 +122,8 @@ public class UsingPredicateEvaluator implements JCOConstants {
 			JMH.add("Fuzzy Operator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
 		else if (ffc.getType() == FuzzyFunctionCommand.AGGREGATOR)
 			JMH.add("Fuzzy Aggregator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
+		else if (ffc.getType() == FuzzyFunctionCommand.EVALUATOR)
+			JMH.add("Fuzzy Evaluator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
 
 		return value;		
 	}

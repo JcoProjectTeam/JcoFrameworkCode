@@ -11,12 +11,14 @@ import jco.ql.model.value.EValueType;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.predicate.ArrayFunctionFactor;
+import jco.ql.parser.model.predicate.CumulateArray;
 import jco.ql.parser.model.predicate.ExtentFunction;
 import jco.ql.parser.model.predicate.ExtractArray;
 import jco.ql.parser.model.predicate.IfErrorFunction;
 import jco.ql.parser.model.predicate.MembershipArray;
 import jco.ql.parser.model.predicate.SpecialFunctionFactor;
 import jco.ql.parser.model.predicate.TranslateFunction;
+import jco.ql.parser.model.util.Value;
 
 public class SpecialFunctionEvaluator implements JCOConstants {
 
@@ -49,12 +51,40 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.ARRAY_FUNCTION)
 			return ArrayFunctionEvaluator.evaluate ((ArrayFunctionFactor)function, pipeline);
 
+		if (function.getSpecialFuntionType() == SpecialFunctionFactor.ARRAY_CUMULATE)
+			return getCumulateArray ((CumulateArray)function, pipeline);
+
 		return new SimpleValue (); // null value
 	}
 
 
 // ***********************************************
 	
+	private static JCOValue getCumulateArray(CumulateArray function, Pipeline pipeline) {
+		JCOValue fv = new SimpleValue ();		// null value
+		DocumentDefinition doc = pipeline.getCurrentDoc();
+		if (doc == null)
+			return fv;							// null value
+		fv = doc.getValue(function.arrayName);
+		if (!JCOValue.isArrayValue(fv))
+			JMH.addFuzzyMessage(function.arrayName + " in " + function.toString() + " is not an array");
+		ArrayValue source = (ArrayValue) fv;
+		ArrayValue av = new ArrayValue();
+		double c=0;
+		for (int i=0; i<source.getValues().size(); i++) {
+			JCOValue jv = source.getValues().get(i);
+			if (!JCOValue.isNumericValue(jv)) {
+				JMH.addFuzzyMessage(function.arrayName + " in " + function.toString() + " is not a numeric array");
+				return fv;
+			}
+			c += JCOValue.getDoubleValue(jv);
+			av.add(new SimpleValue(c));
+		}
+
+		return av;
+	}
+
+
 	private static JCOValue getMembershipToValue(ExtentFunction function, Pipeline pipeline) {
 		JCOValue fv = new SimpleValue ();		// null value
 		DocumentDefinition doc = pipeline.getCurrentDoc();
@@ -117,15 +147,24 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 
 	
 	private static JCOValue getIfErrorValue(IfErrorFunction factor, Pipeline pipeline) {
-		JCOValue defaultValue = ExpressionFactorEvaluator.getFactorValue(factor, pipeline);
+		JMH.toggleRecordMsg(false);
+		Value df = factor.getDefaultValue();
+		JCOValue defaultValue = null;
+		if (df.isFloat() || df.isInt())
+			defaultValue = new SimpleValue (Double.parseDouble(df.value));
+		else
+			defaultValue = new SimpleValue (df.value);
+		new SimpleValue(factor.defalutValue.value);
 		JCOValue outValue = null;
 		try {
 			outValue = ExpressionPredicateEvaluator.calculate (factor.expression2check, pipeline);
 			if ((outValue != null) && (outValue.getType() != EValueType.NULL))
 					defaultValue = outValue;
 		} catch (RuntimeException re) {
+			JMH.toggleRecordMsg(true);
 			JMH.add("Expression evaluation failed:\t" + factor.expression2check);
 		}
+		JMH.toggleRecordMsg(true);
 		return defaultValue;
 	}
 

@@ -159,18 +159,18 @@ public class MainFrame extends JFrame {
 		// Inspect state button
 		JButton btnInspectProcessState = new JButton();
 		btnInspectProcessState.setLayout(new BorderLayout());
-		   JLabel l1 = new JLabel("Inspect");
-		   l1.setHorizontalAlignment(SwingConstants.CENTER);
-		   l1.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
-		   JLabel l2 = new JLabel("state");
-		   l2.setHorizontalAlignment(SwingConstants.CENTER);
-		   l2.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
-		   btnInspectProcessState.add(BorderLayout.NORTH,l1);
-		   btnInspectProcessState.add(BorderLayout.SOUTH,l2);
-			btnInspectProcessState.addActionListener(new ActionListener() {
+		JLabel l1 = new JLabel("Inspect");
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
+		JLabel l2 = new JLabel("state");
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
+		btnInspectProcessState.add(BorderLayout.NORTH,l1);
+		btnInspectProcessState.add(BorderLayout.SOUTH,l2);
+		btnInspectProcessState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 //				if (processFrame == null)
-					processFrame = new ProcessStateFrame(client);
+				processFrame = new ProcessStateFrame(client);
 				client.getIRList();
 			}
 		});
@@ -270,6 +270,16 @@ public class MainFrame extends JFrame {
 		mnSettings.setFont(font1);
 		menuBar.add(mnSettings);
 		mnSettings.setHorizontalAlignment(SwingConstants.LEFT);
+
+		JButton btnResetMessages = new JButton("ResetMessages");
+		btnResetMessages.setFont(font1);
+		btnResetMessages.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				client.resetJMHMessages();
+			}
+		});
+		menuBar.add(btnResetMessages);
+		btnResetMessages.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		JPanel mntPanel = new JPanel();
 		mnSettings.add(mntPanel);
