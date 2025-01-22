@@ -18,6 +18,7 @@ public class FuzzyEvaluatorExecutor implements IExecutor<FuzzyEvaluatorCommand>{
     	// PF. 2022.03.24 - New Policy... in case of already existing Fuzzy Operator, a message is emitted and the newer version replace the old one
     	if (pipeline.getFuzzyFunctions().containsKey(feCommand.getFuzzyFunctionName()))
     		JMH.addFuzzyMessage("[" + feCommand.getInstruction().getInstructionName() + "]: definition of " + feCommand.getFuzzyFunctionName() + " has been replaced.");
+
     	pipeline.addFuzzyFunction(feCommand);
 		JMH.addJCOMessage("[" + feCommand.getInstruction().getInstructionName() + "] executed:\t" + feCommand.getFuzzyFunctionName() + " registered");
     }

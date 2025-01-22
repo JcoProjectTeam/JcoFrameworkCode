@@ -154,7 +154,7 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 			defaultValue = new SimpleValue (Double.parseDouble(df.value));
 		else
 			defaultValue = new SimpleValue (df.value);
-		new SimpleValue(factor.defalutValue.value);
+		new SimpleValue(factor.defaultValue.value);
 		JCOValue outValue = null;
 		try {
 			outValue = ExpressionPredicateEvaluator.calculate (factor.expression2check, pipeline);

@@ -30,7 +30,7 @@ public class SetFuzzySetsEvaluator implements JCOConstants {
         if (policy == SetFuzzySetsCommand.POLICY_DEFAULT)
         	policy = SetFuzzySetsCommand.POLICY_AND;
 
-    	DocumentDefinition outDoc =  new DocumentDefinition(FUZZYSETS_FIELD_NAME);
+    	DocumentDefinition outDoc =  new DocumentDefinition();
 
     	if (sfsc.setType == SetFuzzySetsCommand.KEEP_ALL) {
     		if (fuzzyLeftDoc != null)

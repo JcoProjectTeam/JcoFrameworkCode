@@ -52,7 +52,7 @@ public class JoinExecutor implements IExecutor<JoinCommand>, JCOConstants {
 				throw new ExecuteProcessException("[JOIN]: Invalid database " + dbNameLeft);
 			}
 			leftCollection = database.getCollection(command.getLeftCollection().getCollectionName());
-			pipeline.add(leftCollection, command.getLeftCollection().getCollectionName());
+			pipeline.add(leftCollection, command.getLeftCollection().getCollectionName());				// ZUN*** Da eliminare?
 		}
 		else{
 			leftCollection = pipeline.getCollection(command.getLeftCollection().getCollectionName());
@@ -65,7 +65,7 @@ public class JoinExecutor implements IExecutor<JoinCommand>, JCOConstants {
 				throw new ExecuteProcessException("[JOIN]: Invalid database " + dbNameRight);
 			}
 			rightCollection = database.getCollection(command.getRightCollection().getCollectionName());
-			pipeline.add(rightCollection, command.getRightCollection().getCollectionName());
+			pipeline.add(rightCollection, command.getRightCollection().getCollectionName());			// ZUN*** Da eliminare?
 		}
 		else{
 			rightCollection = pipeline.getCollection(command.getRightCollection().getCollectionName());

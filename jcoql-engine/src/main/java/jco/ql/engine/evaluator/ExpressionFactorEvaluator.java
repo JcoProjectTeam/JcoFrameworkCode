@@ -49,7 +49,7 @@ public class ExpressionFactorEvaluator implements JCOConstants {
 			jv  = getArrayValue(factor, pipeline);
 		
 		// PF 07/.2023 - after the factor has been evaluated, check if it has an exponent
-		else if (factor.hasExponent())
+		if (factor.hasExponent())
 			jv = getExponentialValue (jv, factor, pipeline);
 		
 		return jv;	

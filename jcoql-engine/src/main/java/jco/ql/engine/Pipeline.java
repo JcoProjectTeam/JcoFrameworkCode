@@ -152,11 +152,13 @@ public class Pipeline implements  JCOConstants {
 		return currentDoc;
 	}
 	
+	// ZUN da elimnare?
 	public void add(Object object, String alias) {
 		getObjects().put(alias, object);
 		this.currentCollectionName = alias;
 	}
 
+	// ZUN da elimnare?
 	public Object get(String alias) {
 		return getObjects().get(alias);
 	}

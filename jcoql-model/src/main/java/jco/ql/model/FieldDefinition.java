@@ -3,7 +3,7 @@ package jco.ql.model;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.value.JCOValue;
 
-// ZUN CHECK* .... sta classe potrebbe essere fatta fuori
+// ZUN CHECK* .... questa classe forse potrebbe essere eliminata
 public class FieldDefinition implements JCOConstants {
 
 	private String name;

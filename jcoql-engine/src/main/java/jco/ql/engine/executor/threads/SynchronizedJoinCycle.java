@@ -61,7 +61,6 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 
     	DocumentDefinition rd;    	
     	while (i < rightDocs.size()) {
-    		ZunTicker.tick();
     		rd = rightDocs.get(i);
 			DocumentDefinition doc = performJoin (ld, rd, command); 
 			if(doc != null) {
@@ -72,7 +71,8 @@ public class SynchronizedJoinCycle extends Thread implements JCOConstants {
 	            	throw new ExecuteProcessException("[SynchronizedJoinCycle]: terminated");
 				}
 			}
-//			ZunTicker.tick();
+
+    		ZunTicker.tick();
     		// fundamental
     		i += nThreads;  
     	}

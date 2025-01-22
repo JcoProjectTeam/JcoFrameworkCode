@@ -1235,7 +1235,8 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 	/**
 	 * Check if the collections inside the database matches the collections described into database.metadata file
 	 */
-	private void checkMetadata(String name) {
+	private boolean checkMetadata(String name) {
+		boolean b = true;		// PF - to check
 		File databaseDir = getDatabaseDirectory(name, true);
 		File metadata = getDatabaseMetadataFile(databaseDir); 
 
@@ -1257,8 +1258,9 @@ public class DataSourceServiceImpl implements DataSourceService, DSConstants {
 					descriptor.addCollection(newCollection);
 				}
 			}
-			boolean b = WriteMetadata(name,descriptor);
+			b = WriteMetadata(name,descriptor);
 		}
+		return b;
 	}
 
 	

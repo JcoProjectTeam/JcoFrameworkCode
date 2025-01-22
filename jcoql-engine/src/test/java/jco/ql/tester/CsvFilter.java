@@ -20,7 +20,7 @@ public class CsvFilter {
 		BufferedReader reader;
 		StringBuffer buf = new StringBuffer();
 		int i,j,c,m;
-		String idSensore,data,valore,stato,idOp, record;
+		String idSensore,data, record;
 		dtFormat=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); 
 		d0=dtFormat.parse("01/05/2023 00:00:00");
 		d1=dtFormat.parse("31/05/2023 23:59:59");

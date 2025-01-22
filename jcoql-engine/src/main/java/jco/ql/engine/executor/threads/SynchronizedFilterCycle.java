@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.script.ScriptException;
 
+import jco.ql.byZun.ZunTicker;
 import jco.ql.engine.Pipeline;
 import jco.ql.engine.evaluator.CaseEvaluator;
 import jco.ql.engine.evaluator.GenerateEvaluator;
@@ -75,7 +76,7 @@ public class SynchronizedFilterCycle extends Thread implements JCOConstants {
             	throw new ExecuteProcessException("[SynchronizedFilterCycle]: terminated");
 			}
 
-//			ZunTicker.tick();    		
+			ZunTicker.tick();    		
     		// fundamental
     		i += nThreads;  
     	}

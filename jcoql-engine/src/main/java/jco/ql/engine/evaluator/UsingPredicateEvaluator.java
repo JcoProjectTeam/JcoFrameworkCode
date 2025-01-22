@@ -55,7 +55,7 @@ public class UsingPredicateEvaluator implements JCOConstants {
 			return new SimpleValue ();		// null value			
 		return outValue;
 	}
-	
+
 	private static SimpleValue evaluateFuzzyFunction(UsingPredicate usingPredicate, Pipeline pipeline) {
 		SimpleValue outValue = new SimpleValue();
 		String operator = usingPredicate.fuzzyFunction;
@@ -113,7 +113,7 @@ public class UsingPredicateEvaluator implements JCOConstants {
 		FuzzyFunctionCommand ffc = pipeline.getFuzzyFunctions().get(operator);
 
 		if (ffc == null)
-			JMH.add("Generic Fuzzy Operator " + operator + " not defined");
+			JMH.add("Generic Fuzzy Operator OR Evaluator " + operator + " not defined");
 		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_OPERATOR) {
 			GenericFuzzyOperatorCommand gfoc = (GenericFuzzyOperatorCommand)ffc;
 			value = FuzzyOperatorEvaluator.evaluateGeneric(gfoc, usingPredicate, pipeline, fuzzysetModel);			

@@ -17,7 +17,7 @@ public class CheckForFuzzySetEvaluator implements JCOConstants{
 	// modified by Balicco
 	public static DocumentDefinition evaluate(FuzzySetDefinition checkForFuzzySet, Pipeline checkForPipeline) {
 		DocumentDefinition curDoc;
-		
+
 		if(checkForFuzzySet.type == null)
 			curDoc = evaluateClassical(checkForFuzzySet, checkForPipeline); 	//old classical fuzzy set
 		else

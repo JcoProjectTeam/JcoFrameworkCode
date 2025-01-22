@@ -9,9 +9,8 @@ import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.condition.Condition;
 import jco.ql.parser.model.fuzzy.FuzzyPoint;
 import jco.ql.parser.model.predicate.Expression;
-import jco.ql.parser.model.util.ForAllDeriveElement;
+import jco.ql.parser.model.util.FEInternalClause;
 import jco.ql.parser.model.util.Parameter;
-import jco.ql.parser.model.util.SortFuzzyEvaluatorArray;
 
 public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 	private Instruction instruction = null;
@@ -19,8 +18,7 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 	private String fuzzyEvaluatorName;
 	private List<Parameter> parameters;
 	private Condition preCondition;
-	public List<SortFuzzyEvaluatorArray> sortList;
-	public List<ForAllDeriveElement> forAllDeriveList;
+	public List<FEInternalClause> feInternalClauseList;
 	private Expression evaluate;
 	private List<PointDefinition> polyline;
 	private int type;
@@ -34,8 +32,7 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 			type = AGGREGATOR;
 		parameters = fe.parameters;
 		preCondition = fe.preCondition;
-		sortList = fe.sortList;
-		forAllDeriveList = fe.forAllDeriveList;
+		feInternalClauseList = fe.feInternalClauseList;
 		polyline = new ArrayList<>();		
 		for(FuzzyPoint p : fe.polyline)
 			polyline.add(new PointDefinition(Float.parseFloat(p.x), Float.parseFloat(p.y)));
@@ -66,8 +63,8 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 		return preCondition;
 	}
 
-	public List<ForAllDeriveElement> getForAllDeriveList() {
-		return forAllDeriveList;
+	public List<FEInternalClause> getFeInternalClauseList() {
+		return feInternalClauseList;
 	}
 
 	public Expression getEvaluate() {

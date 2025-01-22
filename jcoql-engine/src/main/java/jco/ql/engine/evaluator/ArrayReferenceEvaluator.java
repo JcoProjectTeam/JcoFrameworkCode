@@ -26,12 +26,11 @@ public class ArrayReferenceEvaluator {
 		//controllo che l'indice sia accettabile
 		BigDecimal index =  ((SimpleValue)ExpressionPredicateEvaluator.calculate(ref.index, pipeline)).getNumericValue().subtract(new BigDecimal(1));
 
-		if(index == null){
+		if(index == null) {
 			JMH.add("Wrong expression in index: \t" + ref.index.toString());
 			return new SimpleValue();
 		}
-		if(index.intValue() <0 || index.intValue() >= array.getValues().size())
-		{
+		if(index.intValue() <0 || index.intValue() >= array.getValues().size()) {
 			JMH.add("Index out of range in array: \t" + ref.idArray);
 			return new SimpleValue();
 		}

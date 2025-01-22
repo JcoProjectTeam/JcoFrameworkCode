@@ -16,13 +16,13 @@ import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.predicate.Expression;
 import jco.ql.parser.model.predicate.UsingPredicate;
 import jco.ql.parser.model.util.AggregateClause;
-import jco.ql.parser.model.util.DeriveClause;
-import jco.ql.parser.model.util.ForAllClause;
-import jco.ql.parser.model.util.ForAllDeriveElement;
+import jco.ql.parser.model.util.FESortArrayClause;
+import jco.ql.parser.model.util.FEDeriveClause;
+import jco.ql.parser.model.util.FEForAllClause;
+import jco.ql.parser.model.util.FEInternalClause;
 import jco.ql.parser.model.util.LocallyClause;
 import jco.ql.parser.model.util.Parameter;
 import jco.ql.parser.model.util.SortField;
-import jco.ql.parser.model.util.SortFuzzyEvaluatorArray;
 
 
 public class FuzzyEvaluatorEvaluator implements JCOConstants {
@@ -49,24 +49,24 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 
     	Pipeline fePipeline = new Pipeline(pipeline);
     	fePipeline.setCurrentDoc(feDoc);
-    	
     	if (fec.getPreCondition() != null)
     		if (!ConditionEvaluator.matchCondition(fec.getPreCondition(), fePipeline)) {
 	    		JMH.addFuzzyMessage("Precondition not matched for " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
 	    		return new SimpleValue (); // null    		
 	    	}
 
-    	for (SortFuzzyEvaluatorArray sfea: fec.sortList) {
-    		int res = performSorting (sfea, feDoc);				// feDoc is likely to be modified
-    		if (res == NOK_ARRAY) 
-    			JMH.addFuzzyMessage("Impossible to sort non-array field in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
-    		else if (res == NOK_DIM) 
-    			JMH.addFuzzyMessage("Impossible to sort togheter array fields of different dimension in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
-    	}
-    	    	
-    	for (ForAllDeriveElement fade: fec.forAllDeriveList) 
-    		if (fade.isDeriveClause()) { 
-    			DeriveClause dc = (DeriveClause) fade;
+    	for (FEInternalClause fic: fec.feInternalClauseList) 
+    		if (fic.isSortClause()) { 
+    			FESortArrayClause sac = (FESortArrayClause)fic;
+        		int res = performSorting (sac, feDoc);				// feDoc is likely to be modified
+        		if (res == NOK_ARRAY) 
+        			JMH.addFuzzyMessage("Impossible to sort non-array field in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        		else if (res == NOK_DIM) 
+        			JMH.addFuzzyMessage("Impossible to sort togheter array fields of different dimension in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+    			
+    		}
+    		else if (fic.isDeriveClause()) { 
+    			FEDeriveClause dc = (FEDeriveClause) fic;
     			JCOValue jv = ExpressionPredicateEvaluator.calculate(dc.expression, fePipeline);
     			if (dc.isDeriveScalar() && !JCOValue.isNumericValue(jv))
         			JMH.addFuzzyMessage("Non numerical result in DERIVE clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
@@ -74,7 +74,7 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
     			feDoc.addField(fd);
     		}
     		else {
-    			ForAllClause fac = (ForAllClause) fade;
+    			FEForAllClause fac = (FEForAllClause) fic;
     			int res = evaluateForAll(fac, fePipeline);			
     			if (res == NOK_NUM)
         			JMH.addFuzzyMessage("Non numerical range in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
@@ -132,17 +132,17 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 
 
 	// PF 2023.08.09
-	private static int performSorting(SortFuzzyEvaluatorArray sfea, DocumentDefinition feDoc) {
+	private static int performSorting(FESortArrayClause sac, DocumentDefinition feDoc) {
 		// check that arrays to order are real array - by construction this should be useless
-		for (String arrayName: sfea.sourceArrayList) {
+		for (String arrayName: sac.sourceArrayList) {
 			JCOValue jv = feDoc.getValue(arrayName);
 			if (!JCOValue.isArrayValue(jv)) 
 				return NOK_ARRAY;
 		}
 		
-		int aSize = ((ArrayValue) feDoc.getValue(sfea.sourceArrayList.get(0))).getValues().size();
+		int aSize = ((ArrayValue) feDoc.getValue(sac.sourceArrayList.get(0))).getValues().size();
 		// in case of more arrays to order, check if they have the same size
-		for (String arrayName: sfea.sourceArrayList) {
+		for (String arrayName: sac.sourceArrayList) {
 			ArrayValue av = (ArrayValue) feDoc.getValue(arrayName);
 			int as = av.getValues().size();
 			if (aSize != as)
@@ -150,7 +150,7 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 		}
 
 		// creating new sorted (empty-now) array fields
-		for (String newArrayName: sfea.targetArrayList) {
+		for (String newArrayName: sac.targetArrayList) {
 			ArrayValue av = new ArrayValue();
 			FieldDefinition fd = new FieldDefinition(newArrayName, av);
 			feDoc.addField(fd);
@@ -159,11 +159,11 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 		// insert source values one-by-one into target arrays in the right position
 		for (int i=0; i<aSize; i++) {
 			// retrieve the position to insert the value
-    		int j = getInsertIndex(i, feDoc, sfea);
+    		int j = getInsertIndex(i, feDoc, sac);
     		// insert the values in all target arrays involved
-    		for (int k=0; k<sfea.sourceArrayList.size(); k++) {
-    			ArrayValue sourceArray = (ArrayValue) feDoc.getValue(sfea.sourceArrayList.get(k));
-    			ArrayValue targetArray = (ArrayValue) feDoc.getValue(sfea.targetArrayList.get(k));
+    		for (int k=0; k<sac.sourceArrayList.size(); k++) {
+    			ArrayValue sourceArray = (ArrayValue) feDoc.getValue(sac.sourceArrayList.get(k));
+    			ArrayValue targetArray = (ArrayValue) feDoc.getValue(sac.targetArrayList.get(k));
     			JCOValue jv = sourceArray.getValues().get(i);
     			targetArray.getValues().add(j, jv);
     		}   		
@@ -172,13 +172,13 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 		return EVAL_OK; // all ok;
 	}
 
-	private static int getInsertIndex (int ndx, DocumentDefinition feDoc, SortFuzzyEvaluatorArray sfea) {
+	private static int getInsertIndex (int ndx, DocumentDefinition feDoc, FESortArrayClause sac) {
 		
 		for (int j=0; j<ndx; j++) {
 			boolean next = true;
 			int k=0;
-			while (next && k<sfea.sortingFieldList.size()) {
-				SortField sf = sfea.sortingFieldList.get(k);
+			while (next && k<sac.sortingFieldList.size()) {
+				SortField sf = sac.sortingFieldList.get(k);
 
 				String source = sf.sourceArray;
 				ArrayValue sav = (ArrayValue)feDoc.getValue(source); 
@@ -226,7 +226,7 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 
 
 	// PF added on 2023.08.09
-	private static int evaluateForAll(ForAllClause fac, Pipeline fePipeline) {
+	private static int evaluateForAll(FEForAllClause fac, Pipeline fePipeline) {
 		DocumentDefinition feDoc = fePipeline.getCurrentDoc();
 		ArrayValue sourceArray = (ArrayValue) feDoc.getValue(fac.idArray);		
 		int size = sourceArray.getValues().size();
