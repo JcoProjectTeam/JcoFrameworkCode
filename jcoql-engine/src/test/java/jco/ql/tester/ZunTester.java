@@ -40,7 +40,13 @@ public class ZunTester {
 		d2.addField(new FieldDefinition("sca2", new SimpleValue ("paol")));
 		d.addField(new FieldDefinition("prova", new DocumentValue(d2)));
 	
+		System.out.println("\n-------------------------\n");
 		System.out.println(d);
+
+		d.removeValue("prova.asca");		
+		System.out.println("\n-------------------------\n");
+		System.out.println(d);
+		
 	}
 
 	public static void main(String[] args) {

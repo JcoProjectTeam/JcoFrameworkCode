@@ -9,7 +9,6 @@ import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.SetFuzzySetsCommand;
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.value.DocumentValue;
-import jco.ql.model.value.EValueType;
 import jco.ql.model.value.GeometryValue;
 import jco.ql.model.value.JCOValue;
 import jco.ql.model.value.SimpleValue;
@@ -33,7 +32,7 @@ public class SetFuzzySetsEvaluator implements JCOConstants {
     	DocumentDefinition outDoc =  new DocumentDefinition();
 
     	if (sfsc.setType == SetFuzzySetsCommand.KEEP_ALL) {
-    		if (fuzzyLeftDoc != null)
+    		if (fuzzyLeftDoc != null) 
     			for (int i=0; i<fuzzyLeftDoc.getFields().size(); i++)
     				insertField (outDoc, fuzzyLeftDoc.getFields().get(i), fuzzyLeftDoc.getFields().get(i).getName(), sfsc.policyType);    		
     		if (fuzzyRightDoc != null)
@@ -129,8 +128,7 @@ public class SetFuzzySetsEvaluator implements JCOConstants {
 
 
 	private static void insertField (DocumentDefinition doc, FieldDefinition f, String newName, int policy) {
-		if (f != null && f.getValue() != null &&
-				(f.getValue().getType() == EValueType.DECIMAL || f.getValue().getType() == EValueType.INTEGER)) {
+		if (f != null && f.getValue() != null) {
 
 			// fuzzyset non-present and insert insert FIRST value
 			if (!doc.hasField(newName))
@@ -140,14 +138,16 @@ public class SetFuzzySetsEvaluator implements JCOConstants {
 				// insert LAST value
 				if (policy == SetFuzzySetsCommand.POLICY_LAST)
 					doc.addField(new FieldDefinition(newName, f.getValue()));
-				// insert MIN value
+				// insert MIN value		
+				// ZUN: 2025.03.06 - Check the cases for complex fuzzy set models and also different models
 				else if (policy == SetFuzzySetsCommand.POLICY_AND) {					
 					SimpleValue newValue = (SimpleValue)f.getValue();
 					SimpleValue oldValue = (SimpleValue) doc.getValue(newName);		
 					if (newValue.compareTo(oldValue) < EQUAL) 
 						doc.addField(new FieldDefinition(newName, f.getValue()));
 				}
-				// insert MAX value
+				// insert MAX value		
+				// ZUN: 2025.03.06 - Check the cases for complex fuzzy set models and also different models
 				else if (policy == SetFuzzySetsCommand.POLICY_OR) {
 					SimpleValue newValue = (SimpleValue)f.getValue();
 					SimpleValue oldValue = (SimpleValue) doc.getValue(newName);		

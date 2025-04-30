@@ -15,6 +15,7 @@ import jco.ql.parser.model.predicate.CumulateArray;
 import jco.ql.parser.model.predicate.ExtentFunction;
 import jco.ql.parser.model.predicate.ExtractArray;
 import jco.ql.parser.model.predicate.IfErrorFunction;
+import jco.ql.parser.model.predicate.IfFunction;
 import jco.ql.parser.model.predicate.MembershipArray;
 import jco.ql.parser.model.predicate.SpecialFunctionFactor;
 import jco.ql.parser.model.predicate.TranslateFunction;
@@ -41,6 +42,10 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.TRANSLATE_FUNCTION)
 			return getTranslationValue ((TranslateFunction)function, pipeline);
 
+		// added 27.02.2025
+		if (function.getSpecialFuntionType() == SpecialFunctionFactor.IF_FUNCTION)
+			return getIfFunctionValue ((IfFunction)function, pipeline);
+
 		if (function.getSpecialFuntionType() == SpecialFunctionFactor.IF_ERROR_FUNCTION)
 			return getIfErrorValue ((IfErrorFunction)function, pipeline);
 
@@ -59,7 +64,7 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 
 
 // ***********************************************
-	
+
 	private static JCOValue getCumulateArray(CumulateArray function, Pipeline pipeline) {
 		JCOValue fv = new SimpleValue ();		// null value
 		DocumentDefinition doc = pipeline.getCurrentDoc();
@@ -146,6 +151,19 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 	}
 
 	
+	
+	// added on 2025.02.27
+	private static JCOValue getIfFunctionValue(IfFunction function, Pipeline pipeline) {	
+		JCOValue jv = null; 
+		if (ConditionEvaluator.matchCondition(function.getCondition(), pipeline)) 
+			jv = ExpressionPredicateEvaluator.calculate(function.trueCaseExp, pipeline);
+		else
+			jv = ExpressionPredicateEvaluator.calculate(function.falseCaseExp, pipeline);
+		
+		return jv;
+	}
+
+
 	private static JCOValue getIfErrorValue(IfErrorFunction factor, Pipeline pipeline) {
 		JMH.toggleRecordMsg(false);
 		Value df = factor.getDefaultValue();

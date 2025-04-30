@@ -34,7 +34,10 @@ public class ZunParserTester {
 		fileIn = ZunProperties.getScriptPath() + "\\scriptFA.txt";
 		fileIn = ZunProperties.getScriptPath() + ".\\12.TESTWebist Book 2024\\prolog.txt";
 		fileIn = ZunProperties.getScriptPath() + ".\\14.TEST Webist 2024\\script.txt";
-
+		fileIn = ZunProperties.getScriptPath() + ".\\8.TEST Neurocomputing 2023\\testFuzzyType2.txt";
+		fileIn = ZunProperties.getScriptPath() + ".\\15.TEST Ghent\\L-GradeTest2.txt";
+		fileIn = ZunProperties.getScriptPath() + ".\\16.TEST WebistBook 2025\\script.txt";
+				
   	try {
   		// Inizializzazione del parser (antlr docet):
   		//		1. Si inizializza il lexer

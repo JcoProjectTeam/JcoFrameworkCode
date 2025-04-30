@@ -1,13 +1,11 @@
 package jco.ql.model.command;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import jco.ql.model.PointDefinition;
 import jco.ql.parser.model.FuzzyEvaluator;
 import jco.ql.parser.model.Instruction;
 import jco.ql.parser.model.condition.Condition;
-import jco.ql.parser.model.fuzzy.FuzzyPoint;
+import jco.ql.parser.model.fuzzy.FuzzyPolyline;
 import jco.ql.parser.model.predicate.Expression;
 import jco.ql.parser.model.util.FEInternalClause;
 import jco.ql.parser.model.util.Parameter;
@@ -20,9 +18,14 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 	private Condition preCondition;
 	public List<FEInternalClause> feInternalClauseList;
 	private Expression evaluate;
-	private List<PointDefinition> polyline;
+	private FuzzyPolyline polyline;
 	private int type;
 
+	// GB
+	private String fuzzyEvaluatorType;
+	private List<Expression> genericEvaluate;
+	private List<FuzzyPolyline> genericPolylines;
+	private List<Parameter> genericDegrees;
 
 	public FuzzyEvaluatorCommand(FuzzyEvaluator fe) {
 		instruction = fe;
@@ -30,13 +33,19 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 		type = EVALUATOR;
 		if (fe.isFuzzyAggregator)
 			type = AGGREGATOR;
+		if (fe.fuzzyEvaluatorType != null)
+			type = GENERIC_EVALUATOR;
 		parameters = fe.parameters;
 		preCondition = fe.preCondition;
 		feInternalClauseList = fe.feInternalClauseList;
-		polyline = new ArrayList<>();		
-		for(FuzzyPoint p : fe.polyline)
-			polyline.add(new PointDefinition(Float.parseFloat(p.x), Float.parseFloat(p.y)));
 		evaluate = fe.evaluate;
+		polyline = fe.polyline;
+				
+		// GB
+		fuzzyEvaluatorType = fe.fuzzyEvaluatorType;
+		genericEvaluate = fe.genericEvaluate;
+		genericPolylines = fe.genericPolylines;
+		genericDegrees = fe.genericDegrees;
 	}
 
 	@Override
@@ -71,10 +80,31 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 		return evaluate;
 	}
 
-	public List<PointDefinition> getPolyline() {
+	public FuzzyPolyline getPolyline() {
 		return polyline;
 	}
 
+	// GB metodi di get generici mancanti 
+	public String getFuzzySetModelName() {
+		return fuzzyEvaluatorType;
+	}
+	
+	public List<Expression> getEvaluates() {
+		return genericEvaluate;
+	}
+	
+	public List<FuzzyPolyline> getPolylines() {
+		return genericPolylines;
+	}
+	
+	public List<Parameter> getDegrees() {
+		return genericDegrees;
+	}
+	
+	public boolean isGenericEvaluator() {
+		return type == GENERIC_EVALUATOR;
+	}
+	
 	@Override
 	public Instruction getInstruction() {
 		return instruction;

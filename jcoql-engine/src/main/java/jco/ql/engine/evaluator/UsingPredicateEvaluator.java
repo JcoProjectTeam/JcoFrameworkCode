@@ -65,6 +65,8 @@ public class UsingPredicateEvaluator implements JCOConstants {
 			JMH.add("Generic Fuzzy Operator " + operator + " not defined");
 		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_OPERATOR) 
 			JMH.add("Fuzzy Operator " + operator + " it is not supported for classical fuzzy set ");
+		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_EVALUATOR) 								// GB
+			JMH.add("Fuzzy Evaluator" + operator + " it is not supported for classical fuzzy set");
 		else if (ffc.getType() == FuzzyFunctionCommand.OPERATOR) {
 			FuzzyOperatorCommand foc = (FuzzyOperatorCommand) ffc;
 			outValue = FuzzyOperatorEvaluator.evaluate(foc, usingPredicate, pipeline);			
@@ -92,6 +94,7 @@ public class UsingPredicateEvaluator implements JCOConstants {
 
 	/* ********************* Generic Fuzzy Set ***********************************************************/
 	// added by Balicco
+	// GB per i valutatori generici ok, non modificato
 	public static List<FieldDefinition> genericFuzzyEvaluate(UsingPredicate usingPredicate, Pipeline pipeline, String fuzzysetModel) {
 		List <FieldDefinition> value = new ArrayList<>();	// null type
 
@@ -107,6 +110,7 @@ public class UsingPredicateEvaluator implements JCOConstants {
 		return value;
 	}
 	// PF
+	// GB aggiunta riga oer valutatori generici
 	private static List<FieldDefinition> evaluateGenericFunction (UsingPredicate usingPredicate, Pipeline pipeline, String fuzzysetModel) {
 		List <FieldDefinition> value = new ArrayList<>();	// null type
 		String operator = usingPredicate.fuzzyFunction;
@@ -117,6 +121,10 @@ public class UsingPredicateEvaluator implements JCOConstants {
 		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_OPERATOR) {
 			GenericFuzzyOperatorCommand gfoc = (GenericFuzzyOperatorCommand)ffc;
 			value = FuzzyOperatorEvaluator.evaluateGeneric(gfoc, usingPredicate, pipeline, fuzzysetModel);			
+		}
+		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_EVALUATOR) { 			// GB
+			FuzzyEvaluatorCommand gfe = (FuzzyEvaluatorCommand)ffc;
+			value = FuzzyEvaluatorEvaluator.evaluateGeneric(gfe, usingPredicate, pipeline, fuzzysetModel);
 		}
 		else if (ffc.getType() == FuzzyFunctionCommand.OPERATOR)
 			JMH.add("Fuzzy Operator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
@@ -171,13 +179,15 @@ public class UsingPredicateEvaluator implements JCOConstants {
 		}
 		
 		//Derived degree
+		// GB posso non differenziare con l'utilizzo dei valutatori perché semplicemente usa l'operatore per il controllo
+		// dei gradi derivati, il procedimento è lo stesso sia per gli operatori sia per i valutatori
 		List<FieldDefinition> derivedDegrees = FuzzyOperatorEvaluator.derivedDegreesEvaluate(outValue, ft.getDerivedDegrees(), ft.getDerivedExpr(), pipeline);
     	if (!FuzzyOperatorEvaluator.checkConstraint(outValue, derivedDegrees, pipeline, ft.getConstraint())) {
 			JMH.add("Constraint is not respected for fuzzy set: [" + usingPredicate.fuzzySet + "]");
 			return null;
 		}
     	outValue.addAll(derivedDegrees);
-		
+
 		return outValue;	
 	}
 

@@ -16,7 +16,6 @@ import jco.ql.parser.model.util.Parameter;
 *
 */
 
-
 @Executor(GenericFuzzyOperatorCommand.class)
 public class GenericFuzzyOperatorExecutor implements IExecutor<GenericFuzzyOperatorCommand> {
 
@@ -24,7 +23,7 @@ public class GenericFuzzyOperatorExecutor implements IExecutor<GenericFuzzyOpera
     public void execute(Pipeline pipeline, GenericFuzzyOperatorCommand fgoCommand) throws ExecuteProcessException {
     	String fuzzysetModel = fgoCommand.getFuzzysetModelName();
     	String operator = fgoCommand.getGenericFuzzyOperatorName();
-    	FuzzySetModelCommand fsmc = pipeline.getFuzzySetModels().get(operator);
+    	FuzzySetModelCommand fsmc = pipeline.getFuzzySetModels().get(fuzzysetModel);
 
     	if(fsmc == null) 
     		JMH.addFuzzyMessage("[" + fgoCommand.getInstruction().getInstructionName() + "]: missing Fuzzyset Model " + fuzzysetModel + 

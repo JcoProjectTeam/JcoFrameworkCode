@@ -31,11 +31,12 @@ public class GenerateEvaluator {
 
 		if (outDoc != null) {
 			// BUILD
-			if (gs.hasBuildAction()) {
-				Pipeline buildPipeline = new Pipeline(pipeline);
-				buildPipeline.setCurrentDoc(outDoc);
-				BuildAction buildAction =  gs.buildAction;
-				outDoc = GenerateCommandEvaluator.evaluateGenerate(buildPipeline, buildAction);							
+			if (gs.hasBuildAction()) 
+				for (int i=0; i<gs.buildActions.size(); i++) {
+					Pipeline buildPipeline = new Pipeline(pipeline);
+					buildPipeline.setCurrentDoc(outDoc);
+					BuildAction buildAction =  gs.buildActions.get(i);
+					outDoc = GenerateCommandEvaluator.evaluateBuildAction(buildPipeline, buildAction);							
 			}
 
 			/* FUZZY OPTION - DROPPING/KEEPING (ALL) FUZZY SETS (fuzzy sets, ...) */

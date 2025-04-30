@@ -18,7 +18,7 @@ import jco.ql.parser.model.util.OutputFieldSpec;
 
 public class GenerateCommandEvaluator implements JCOConstants {
 
-	public static DocumentDefinition evaluateGenerate(Pipeline pipeline, BuildAction buildAction) {
+	public static DocumentDefinition evaluateBuildAction(Pipeline pipeline, BuildAction buildAction) {
 		DocumentDefinition curDoc = pipeline.getCurrentDoc();
 		List<FieldDefinition> startingFields = curDoc.getFields();
 		List<FieldDefinition> fields = new ArrayList<FieldDefinition> ();
@@ -28,8 +28,13 @@ public class GenerateCommandEvaluator implements JCOConstants {
 			if(GEOMETRY_FIELD_NAME.equals(startingFields.get(i).getName()) || FUZZYSETS_FIELD_NAME.equals(startingFields.get(i).getName()))
 				fields.add(startingFields.get(i));
 
-		fields.addAll(evaluateObjectStructure (pipeline, buildAction.objectStructure));	
-		
+		if (buildAction.getType() == BuildAction.BUILD_ACTION)
+			fields.addAll(evaluateObjectStructure (pipeline, buildAction.objectStructure));	
+		if (buildAction.getType() == BuildAction.ADD_ACTION)
+			;
+		if (buildAction.getType() == BuildAction.REMOVE_ACTION)
+			;
+
 		return new DocumentDefinition(fields);
 	}
 		
