@@ -43,7 +43,7 @@ public class ZunTester {
 		System.out.println("\n-------------------------\n");
 		System.out.println(d);
 
-		d.removeValue("prova.asca");		
+		d.removeValue(".prova.sca2");		
 		System.out.println("\n-------------------------\n");
 		System.out.println(d);
 		

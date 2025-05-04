@@ -22,30 +22,43 @@ public class GenerateCommandEvaluator implements JCOConstants {
 		DocumentDefinition curDoc = pipeline.getCurrentDoc();
 		List<FieldDefinition> startingFields = curDoc.getFields();
 		List<FieldDefinition> fields = new ArrayList<FieldDefinition> ();
+		DocumentDefinition outDoc = curDoc;
 
 		// adding ~geometry and ~fuzzysets by default on the beginning
 		for (int i = 0; i < startingFields.size(); i++) 
 			if(GEOMETRY_FIELD_NAME.equals(startingFields.get(i).getName()) || FUZZYSETS_FIELD_NAME.equals(startingFields.get(i).getName()))
 				fields.add(startingFields.get(i));
 
-		if (buildAction.getType() == BuildAction.BUILD_ACTION)
-			fields.addAll(evaluateObjectStructure (pipeline, buildAction.objectStructure));	
-		if (buildAction.getType() == BuildAction.ADD_ACTION)
-			;
+		if (buildAction.getType() == BuildAction.BUILD_ACTION) {
+			fields.addAll(evaluateBuildOS (pipeline, buildAction.objectStructure));	
+			outDoc = new DocumentDefinition (fields);
+		}
+		if (buildAction.getType() == BuildAction.ADD_ACTION) {
+			fields.addAll(evaluateAddOS (pipeline, buildAction.objectStructure));	
+			outDoc = new DocumentDefinition (fields);			
+		}
 		if (buildAction.getType() == BuildAction.REMOVE_ACTION)
-			;
+			outDoc = evaluateRemoveOS (curDoc, buildAction.fieldsToRemove);
 
-		return new DocumentDefinition(fields);
+		return outDoc;
 	}
 		
 	
 	
-	private static List<FieldDefinition> evaluateObjectStructure(Pipeline pipeline, ObjectStructure objectStructure) {
+	private static DocumentDefinition evaluateRemoveOS(DocumentDefinition doc, List<Field> fieldsToRemove) {
+		for (int i=0; i<fieldsToRemove.size(); i++)
+			doc.removeValue(fieldsToRemove.get(i).toString());
+		return doc;
+	}
+
+
+
+	private static List<FieldDefinition> evaluateBuildOS(Pipeline pipeline, ObjectStructure objectStructure) {
 		JCOValue value = new SimpleValue();
 		List<FieldDefinition> outputList = new ArrayList<FieldDefinition> ();
 		for (OutputFieldSpec ofs : objectStructure.outputList) {
 			if (ofs.type == OutputFieldSpec.OBJECT_STRUCTURE) {
-				List<FieldDefinition> tempList = evaluateObjectStructure (pipeline, ofs.valueObjectStructure);
+				List<FieldDefinition> tempList = evaluateBuildOS (pipeline, ofs.valueObjectStructure);
 				DocumentDefinition tempDoc = new DocumentDefinition (tempList);
 				value = new DocumentValue(tempDoc);
 			}
@@ -61,6 +74,26 @@ public class GenerateCommandEvaluator implements JCOConstants {
 
 
 
+	private static List<FieldDefinition> evaluateAddOS(Pipeline pipeline, ObjectStructure objectStructure) {
+		JCOValue value = new SimpleValue();
+		List<FieldDefinition> outputList = pipeline.getCurrentDoc().getFields();
+		for (OutputFieldSpec ofs : objectStructure.outputList) {
+			if (ofs.type == OutputFieldSpec.OBJECT_STRUCTURE) {
+				List<FieldDefinition> tempList = evaluateBuildOS (pipeline, ofs.valueObjectStructure);
+				DocumentDefinition tempDoc = new DocumentDefinition (tempList);
+				value = new DocumentValue(tempDoc);
+			}
+			else
+				value = ExpressionFactorEvaluator.evaluate(ofs.factor, pipeline);				
+
+			if (!JCOValue.isNull(value))
+				insertFieldValue (outputList, ofs.fieldRef, value);
+		}
+		
+		return outputList;
+	}
+
+	
 	private static void insertFieldValue(List<FieldDefinition> outputList, Field fieldRef, JCOValue value) {
 		final int NOT_FOUND = -1;
 		int found = NOT_FOUND;

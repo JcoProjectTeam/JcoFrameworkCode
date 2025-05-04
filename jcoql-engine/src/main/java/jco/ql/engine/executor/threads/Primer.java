@@ -1,8 +1,9 @@
 package jco.ql.engine.executor.threads;
+
 /*
- * Restituisce il successivo numero simil-primo* all'argomento. 
- * Per simil-primo si intende un numero non divisibile per la lista dei numeri primi fino a 101
- * Ci sono 4 implementazioni: 2 ricorsive e 2 iterative
+ * Return the next prime-like number that follows the parameter. 
+ * Prime-like number is intended to be the first odd number that cannot divided by prime numbers up to 101
+ * There are 4 implementations: 2 are recursive and 2 are iterative
  */
 public class Primer {
 
