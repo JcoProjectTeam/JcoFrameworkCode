@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jco.ql.model.engine.JCOConstants;
 import jco.ql.model.value.ArrayValue;
@@ -335,4 +337,16 @@ public class DocumentDefinition implements JCOConstants {
 		}
 		return false;
 	}
+	
+	// added by Cazzaniga 2024
+	public String toJson() {
+	    try {
+	        ObjectMapper mapper = new ObjectMapper();
+	        return mapper.writeValueAsString(this.fields); 
+	    } catch (JsonProcessingException e) {
+	        e.printStackTrace();
+	        return "{}"; 
+	    }
+	}
+	
 }

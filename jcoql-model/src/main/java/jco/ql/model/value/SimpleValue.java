@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import jco.ql.model.engine.JCOConstants;
+import jco.ql.model.engine.JMH;
 
 
 public class SimpleValue implements JCOConstants, JCOValue, Comparable<SimpleValue>{
@@ -61,6 +62,72 @@ public class SimpleValue implements JCOConstants, JCOValue, Comparable<SimpleVal
 		dateValue = value;
 	}
 
+	// Added by Cazzaniga 2024 - handling data from Postgres?
+	public SimpleValue(Object value, EValueType type) {
+	    this.valueType = type;
+
+	    switch (type) {
+	        case STRING:
+	            this.stringValue = value.toString();
+	            break;
+	        case INTEGER:
+	            if (value instanceof Integer) {
+	                this.decimalValue = BigDecimal.valueOf((Integer) value);
+	            } else if (value instanceof Long) {
+	                this.decimalValue = BigDecimal.valueOf((Long) value);
+	            } else {
+	                //throw new IllegalArgumentException("Tipo non supportato per INTEGER: " + value.getClass().getSimpleName());
+	            	// ZUN modify 2025
+	        		valueType = EValueType.NULL;
+	        		JMH.addExceptionMessage("Postgres INTEGER Data not supported: " + value.getClass().getSimpleName());
+	            }
+	            break;
+	        case DECIMAL:
+	            if (value instanceof Double) {
+	                this.decimalValue = BigDecimal.valueOf((Double) value);
+	            } else if (value instanceof BigDecimal) {
+	                this.decimalValue = (BigDecimal) value;
+	            } else {
+//	                throw new IllegalArgumentException("Tipo non supportato per DECIMAL: " + value.getClass().getSimpleName());
+	            	// ZUN modify 2025
+	        		valueType = EValueType.NULL;
+	        		JMH.addExceptionMessage("Postgres DECIMAL Data not supported: " + value.getClass().getSimpleName());
+	            }
+	            break;
+	        case BOOLEAN:
+	            if (value instanceof Boolean) {
+	                this.booleanValue = (Boolean) value;
+	            } else {
+//	                throw new IllegalArgumentException("Tipo non supportato per BOOLEAN: " + value.getClass().getSimpleName());
+	            	// ZUN modify 2025
+	        		valueType = EValueType.NULL;
+	        		JMH.addExceptionMessage("Postgres BOOLEAN Data not supported: " + value.getClass().getSimpleName());
+	            }
+	            break;
+	        case DATE:
+	            if (value instanceof Date) {
+	                this.dateValue = (Date) value;
+	            } else {
+//	                throw new IllegalArgumentException("Tipo non supportato per DATE: " + value.getClass().getSimpleName());
+	            	// ZUN modify 2025
+	        		valueType = EValueType.NULL;
+	        		JMH.addExceptionMessage("Postgres DATE Data not supported: " + value.getClass().getSimpleName());
+	            }
+	            break;
+	        case NULL:
+            	// ZUN modify 2025
+        		valueType = EValueType.NULL;
+        		JMH.addExceptionMessage("Postgres Data not supported: " + value.getClass().getSimpleName());
+	            break;
+	        default:
+//	            throw new IllegalArgumentException("Tipo non supportato: " + type);
+            	// ZUN modify 2025
+        		valueType = EValueType.NULL;
+        		JMH.addExceptionMessage("Postgres Data not supported: " + value.getClass().getSimpleName());
+	    }
+	}
+
+	
 	@Override
 	public EValueType getType() {
 		return valueType;
