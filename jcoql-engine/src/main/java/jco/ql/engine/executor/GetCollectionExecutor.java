@@ -47,11 +47,12 @@ public class GetCollectionExecutor implements IExecutor<GetCollectionCommand>, J
 		if (command.getType() == GetCollection.DB_TYPE) {
 			if (command.getDbName() != null) {
 				IDatabase database = databaseRegistry.getDatabase(command.getDbName());
-				if (database == null) {
-					JMH.addExceptionMessage("[GET COLLECTION]: Invalid database " + command.getDbName());
-					throw new ExecuteProcessException("[GET COLLECTION]: Invalid database");
-				}
-				outCollection = database.getCollection(command.getCollectionName());
+		        if (database != null) {
+			        JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "]:\t connection to database: " + command.getDbName());
+		            outCollection = database.getCollection(command.getCollectionName());
+		        }
+		        else 
+					JMH.addExceptionMessage("[GET COLLECTION]: Invalid database " + command.getDbName());				
 			} 
 			// temporary collection
 			else

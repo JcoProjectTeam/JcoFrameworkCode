@@ -92,9 +92,8 @@ public class UseDbExecutor implements IExecutor<UseDbCommand> {
 					dbnames.add(dbname);
 					// registry.registerDatabase(dbname, db);
 				} catch (MalformedURLException e) {
-					JMH.addIOMessage("Error: the URL is incorrect");
-					System.out.println("Error: the URL is incorrect");
-					System.exit(1);
+					JMH.addIOMessage("USE DB - Error: the URL is incorrect:" + command.getInstruction() );
+					System.out.println("Error: the URL is incorrect: " + command.getInstruction() );
 				}
 		}
 
@@ -103,20 +102,11 @@ public class UseDbExecutor implements IExecutor<UseDbCommand> {
 			JMH.addIOMessage("[" + command.getInstruction().getInstructionName() + "]: reference to database " + dbname + " has been replaced.");
 		registry.registerDatabase(dbname, db);
 		JMH.addJCOMessage("[" + command.getInstruction().getInstructionName() + "] executed:\t" + dbname);
-		// PF - what's for? // ZUN CHECK* TODO
+		// PF - what's for? // ZUN CHECK* TODO  ---> probably useless... 
 		pipeline.addCollection(dbnames);
 
 	}
-/*
-	private void addDatabase(IDatabase db, String dbname) {
-		// Verifico se il database esiste o meno
-		if (registry.getDatabase(dbname) == null) {
-			registry.registerDatabase(dbname, db);
-		} else {
-			throw new ExecuteProcessException("[USE DB]: Error: database " + dbname + " already exists");
-		}
-	}
-*/
+
 	private IDatabase createDB(String type, String host, int port, String dbname) {
 		IDatabase result = null;
 		if (type.toLowerCase().equals("mongodb")) {
