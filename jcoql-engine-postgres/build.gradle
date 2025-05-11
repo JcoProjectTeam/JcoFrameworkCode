@@ -1,0 +1,71 @@
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+apply plugin: 'eclipse'
+apply plugin: 'project-report'
+version='1.0.0'
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs/compile', 'libs/compile/downloaded',
+                'libs/testCompile', 'libs/testCompileDownloaded'
+    }
+}
+
+configurations {
+    download
+    testDownload
+}
+
+tasks.withType(Jar) {
+     destinationDir = file("$rootDir/../jcoJars/jcoql-engine/deps/repository/jcoql-parent/jcoql-engine-postgres/1.0.0")
+}
+
+dependencies {
+    implementation 'org.postgresql:postgresql:42.6.0'
+    
+    implementation 'org.json:json:20210307'
+
+    implementation 'org.locationtech.jts:jts-core:1.18.2'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
+
+    implementation project(':jcoql-model')
+
+    testImplementation 'junit:junit:4.12'
+}
+
+task cleanDownloadedDependencies(type: Delete) {
+    delete fileTree('libs/compile/downloaded')
+}
+
+task cleanDownloadedTestDependencies(type: Delete) {
+    delete fileTree('libs/testCompile/downloaded')
+}
+
+task downloadDependencies(type: Copy) {
+    from configurations.download
+    into 'libs/compile/downloaded/'
+}
+
+task downloadTestDependencies(type: Copy) {
+    from configurations.testDownload
+    into 'libs/testCompile/downloaded/'
+}
+
+task updateDependencies {
+    dependsOn cleanDownloadedDependencies, cleanDownloadedTestDependencies, downloadDependencies, downloadTestDependencies
+}
+
+fileTree(dir: 'libs/compile', include: '**/*.aar')
+        .each { File file ->
+    dependencies.add("compile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+}
+
+fileTree(dir: 'libs/testCompile', include: '**/*.aar')
+        .each { File file ->
+    dependencies.add("testCompile",
+            [name: file.name.lastIndexOf('.').with { it != -1 ? file.name[0..<it] : file.name }, ext: 'aar'])
+}

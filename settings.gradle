@@ -1,5 +1,6 @@
 include 'jcoql-model'
 include 'jcoql-engine-mongodb'
+include 'jcoql-engine-postgres'
 include 'jcoql-engine-elasticsearch'
 include 'jcoql-engine'
 include 'jcoql-ui'
