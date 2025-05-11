@@ -11,7 +11,7 @@ import jco.ql.model.engine.SimpleDocumentCollection;
 
 public class ProcessState {
 	private IDocumentCollection currentCollection;
-	private String istruction;
+	private String instruction;
 	private boolean emptyState;
 
 	//variabili per lo stato "USEDB"
@@ -35,7 +35,7 @@ public class ProcessState {
 
 	public ProcessState() {
 		currentCollection = new SimpleDocumentCollection();
-		istruction = "";
+		instruction = "";
 		emptyState = true;
 		useDb = false;
 		setIntermediateAs = false;
@@ -109,12 +109,12 @@ public class ProcessState {
 		return isCreateUserFunction;
 	}
 
-	public void setIstruction(String istr) {
-		this.istruction = istr;
+	public void setInstruction(String istr) {
+		this.instruction = istr;
 	}
 
-	public String getIstruction() {
-		return istruction;
+	public String getInstruction() {
+		return instruction;
 	}
 
 	public boolean isEmptyState() {

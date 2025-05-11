@@ -67,10 +67,10 @@ public class ServerRunnable implements Runnable {
 
 // PF - parser launching
 				pl.parse(istr);
-// se arrivo qui non ci sono stati errori nell'esecuzione
+// in case og no exception we come here
   				if (JMH.reportNoErrors()) {
   					sendMessage(msg.getMsgSuccessExecuteJCO());
-	  				sendMessage(msg.getMsgProcess(pl.getProcess()));
+	  				sendMessage(msg.getMsgProcess(pl.getInstructions()));
 	  				if (JMH.getChannel(JMH.MAIN_CHANNEL).size() > 0)
   						sendMessage(msg.getWarningMsg(JMH.getChannel(JMH.MAIN_CHANNEL)));
 	  				if (JMH.getChannel(JMH.IO_CHANNEL).size() > 0)

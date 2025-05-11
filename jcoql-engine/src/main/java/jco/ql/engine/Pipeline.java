@@ -57,7 +57,7 @@ public class Pipeline implements  JCOConstants {
 	// Contains the instruction sent by the interface.
 	// It is needed for the "##GET-PROCESS##" messsages
 	// ZUN CHECK* sostituire String con Instruction
-	private LinkedList<String> istructions;
+	private LinkedList<String> instructions;
 
 
 	// JavaScript/Java Function List
@@ -80,7 +80,7 @@ public class Pipeline implements  JCOConstants {
 		currentCollection = new SimpleDocumentCollection("empty");
 		setIntermediateFiles = new TreeMap<String, String>();
 		collections = new LinkedList<>();
-		istructions = new LinkedList<>();
+		instructions = new LinkedList<>();
 		jsonHandler = new JSONHandler();
 
 		state = new LinkedList<>();
@@ -111,7 +111,7 @@ public class Pipeline implements  JCOConstants {
 		currentCollection = new SimpleDocumentCollection("empty");
 		setIntermediateFiles = new TreeMap<String, String>();
 		collections = new LinkedList<>();
-		istructions = new LinkedList<>();
+		instructions = new LinkedList<>();
 		jsonHandler = new JSONHandler();
 		currentDoc = null;
 		this.currentThread = currentThread;
@@ -188,7 +188,7 @@ public class Pipeline implements  JCOConstants {
 		currentCollection = collection;
 		ProcessState s = new ProcessState(collection);
 		//commenta!
-		s.setIstruction(istructions.removeFirst());
+		s.setInstruction(instructions.removeFirst());
 		state.add(s);
 	}
 
@@ -197,7 +197,7 @@ public class Pipeline implements  JCOConstants {
 	public void addCollection(List<String> dbnames) {
 		ProcessState s = new ProcessState();
 		s.setUsedb(dbnames);
-		s.setIstruction(istructions.removeFirst());
+		s.setInstruction(instructions.removeFirst());
 		state.add(s);
 	}
 
@@ -206,7 +206,7 @@ public class Pipeline implements  JCOConstants {
 	public void addCollection(String collectionAlias, String fileName) {
 		ProcessState s = new ProcessState();
 		s.setSetIntermediateAs(collectionAlias, fileName);
-		s.setIstruction(istructions.removeFirst());
+		s.setInstruction(instructions.removeFirst());
 		state.add(s);
 	}
 
@@ -214,7 +214,7 @@ public class Pipeline implements  JCOConstants {
 	// salva la nuova USER FUNCTION (Java or Javascript)
 	public void addUserFunction(FunctionCommand userFun) {
 		ProcessState s = new ProcessState(userFun, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
+		s.setInstruction(instructions.removeFirst());
 		state.add(s);
 		userFunctions.put(userFun.getFunctionName(), userFun);
 	}
@@ -223,7 +223,7 @@ public class Pipeline implements  JCOConstants {
 	// salva il nuovo FUZZY FUNCTION (OPERATOR, GENERIC OPERATOR, AGGREGATOR)
 	public void addFuzzyFunction(FuzzyFunctionCommand fuzzyFunction) {
 		ProcessState s = new ProcessState(fuzzyFunction, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
+		s.setInstruction(instructions.removeFirst());
 		state.add(s);
 		fuzzyFunctions.put(fuzzyFunction.getFuzzyFunctionName(), fuzzyFunction);
 	}
@@ -232,7 +232,7 @@ public class Pipeline implements  JCOConstants {
 	// added by Balicco on 27.1.2023 salva il nuovo FUZZY SET MODEL
 	public void addFuzzySetModel(FuzzySetModelCommand fuzzyModel) {
 		ProcessState s = new ProcessState(fuzzyModel, state.getLast().getCollection());
-		s.setIstruction(istructions.removeFirst());
+		s.setInstruction(instructions.removeFirst());
 		state.add(s);
 		fuzzySetModels.put(fuzzyModel.getFuzzySetModelName(), fuzzyModel);
 	}
@@ -322,18 +322,18 @@ public class Pipeline implements  JCOConstants {
 		return collections;
 	}
 
-	public void setIstructions(List<String> istr) {
-		istructions = new LinkedList<>();
-		istructions.addAll(istr);
+	public void setInstructions(List<String> istr) {
+		instructions = new LinkedList<>();
+		instructions.addAll(istr);
 	}
 
-	public LinkedList<String> getIstructions() {
+	public LinkedList<String> getProcess() {
 		LinkedList<String> istr = new LinkedList<>();
 		for(ProcessState s: state) {
 			if(!(s.isEmptyState()))
-				istr.add(s.getIstruction());
+				istr.add(s.getInstruction());
 		}
-		return istr;
+		return instructions;
 	}
 
 	public Collection<String> getIRList() {

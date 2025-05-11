@@ -25,7 +25,7 @@ import jco.ql.model.engine.IDocumentCollection;
 @ComponentScan(basePackages = "jco.ql.engine")
 	public class ServerWeb extends WebSocketServer{
 
-	    private Hashtable<WebSocket,ParserLauncher> dictWS;
+	    private Hashtable<WebSocket, ParserLauncher> dictWS;
 	    protected ServerMessagesWeb msg;
 	    
 	      public ServerWeb(int port) throws IOException {
@@ -128,7 +128,7 @@ import jco.ql.model.engine.IDocumentCollection;
 	  // PF - parser launching
 	  				dictWS.get(conn).parse(istr);
 	  				conn.send(msg.getMsgSuccessExecuteJCO());
-	  				conn.send(msg.getMsgProcess(dictWS.get(conn).getProcess()));
+	  				conn.send(msg.getMsgProcess(dictWS.get(conn).getInstructions()));
 
 	  			} else if (text.equals("##BACKTRACK##")) {
 	  				dictWS.get(conn).backtrack();

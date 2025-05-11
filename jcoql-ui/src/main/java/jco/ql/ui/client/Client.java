@@ -24,6 +24,52 @@ public class Client {
 	private static String serverConf;
 
 	
+	public static void main(String[] args) {
+		UIManager.put("OptionPane.messageFont", new Font("Arial", Font.BOLD, 17));
+		UIManager.put("OptionPane.buttonFont", new Font("Arial", Font.PLAIN, 14));
+		Client c = new Client();
+
+		Login login = new Login(c);
+
+		while(!c.clientSocket.isConnected()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// PF - added just to use login variable.
+				System.out.println ("InterruptedException. Login serial:\t" + login.getSerial());
+				e.printStackTrace();
+			}
+		}
+
+		gui = new MainFrame(c);
+		c.retrieveSettings();
+//		gui.getSettings ();
+		while (c.clientSocket.isConnected()) {
+			try {
+				if (din.available() > 0) {
+					int length = din.readInt();
+					byte[] data = new byte[length];
+					din.readFully(data);
+					String s = new String(data,"UTF-8");
+
+					gui.printMessage(decoder(s));
+					//gui.printMessage(decoder(din.readUTF()));
+				} else {
+					Thread.sleep(200);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		c.close();
+	}
+
+
+
+	
+	
 	public Client() {
 		clientMsg = new ClientMessages();
 		clientSocket = new Socket();
@@ -171,7 +217,7 @@ public class Client {
 					result = s.substring(firstindex+1, lastindex-1);
 				else
 					result = "";
-				gui.printIstruction(result);
+				gui.printInstruction(result);
 			} 
 			else if (text.equals("##BEGIN-IR-LIST##")) {
 				int firstindex = text.length();
@@ -218,50 +264,5 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
-
-	
-	public static void main(String[] args) {
-		UIManager.put("OptionPane.messageFont", new Font("Arial", Font.BOLD, 17));
-		UIManager.put("OptionPane.buttonFont", new Font("Arial", Font.PLAIN, 14));
-		Client c = new Client();
-
-		Login login = new Login(c);
-
-		while(!c.clientSocket.isConnected()) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// PF - added just to use login variable.
-				System.out.println ("InterruptedException. Login serial:\t" + login.getSerial());
-				e.printStackTrace();
-			}
-		}
-
-		gui = new MainFrame(c);
-		c.retrieveSettings();
-//		gui.getSettings ();
-		while (c.clientSocket.isConnected()) {
-			try {
-				if (din.available() > 0) {
-					int length = din.readInt();
-					byte[] data = new byte[length];
-					din.readFully(data);
-					String s = new String(data,"UTF-8");
-
-					gui.printMessage(decoder(s));
-					//gui.printMessage(decoder(din.readUTF()));
-				} else {
-					Thread.sleep(200);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		c.close();
-	}
-
-
 
 }

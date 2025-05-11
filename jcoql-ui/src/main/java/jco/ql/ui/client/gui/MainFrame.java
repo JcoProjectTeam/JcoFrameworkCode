@@ -432,12 +432,11 @@ public class MainFrame extends JFrame {
 		console.addText(msg);
 	}
 
-	public void printIstruction(String istr) {
-		/*if(!instructionArea.getText().equals(""))
+	public void printInstruction(String istr) {
+		if(!instructionArea.getText().equals(""))
 			instructionArea.setText(instructionArea.getText() + "\n" + istr);
 		else
-			instructionArea.setText(instructionArea.getText() + istr);*/
-		instructionArea.setText(istr);
+			instructionArea.setText(instructionArea.getText() + istr);
 	}
 
 	public ProcessStateFrame getProcessStateFrame() {

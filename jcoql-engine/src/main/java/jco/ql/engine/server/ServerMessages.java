@@ -71,13 +71,13 @@ public class ServerMessages {
 		return prefix + documents + suffix;
 	}
 		
-	public String getMsgProcess(List<String> istructions) {
+	public String getMsgProcess(List<String> instructions) {
 		String prefix = "##BEGIN-PROCESS##\n";
 		String suffix = "##END-PROCESS##";
 		
 		String result = "";
-		for(String s: istructions) {
-			result = result + s + "##END INSTRUCTION###\n";
+		for(String s: instructions) {
+			result = result + s + "//##END INSTRUCTION###\n\n";
 		}
 		return prefix + result + suffix;
 	}

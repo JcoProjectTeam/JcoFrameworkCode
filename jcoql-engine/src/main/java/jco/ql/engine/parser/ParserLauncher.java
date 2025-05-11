@@ -39,6 +39,7 @@ public class ParserLauncher implements JCOConstants {
 	private final DatabaseRegistry registry;
 	private final Servers s;
 	private final List<ServerConfiguration> configurations;
+	private List<String> instructions;
 
 	
 	public ParserLauncher() throws IOException  {
@@ -99,7 +100,7 @@ public class ParserLauncher implements JCOConstants {
 	 */
 	public void parse(String script) throws ExecuteProcessException {
 		JCoQLParser parser;
-		List<String> instructions = new ArrayList<String>();
+		instructions = new ArrayList<String>();
 
 		try {			
 			parser = new JCoQLParser(script);
@@ -117,7 +118,7 @@ public class ParserLauncher implements JCOConstants {
 		if (parser.getErrorList().isEmpty()) {
 			for (Instruction ins : env.getInstructionList())
 				instructions.add(ins.toMultilineString());
-			engine.getPipeline().setIstructions(instructions);
+			engine.getPipeline().setInstructions(instructions);
 		
 			for (int i=0; i<env.getInstructionList().size(); i++) {
 				try {			
@@ -162,8 +163,14 @@ public class ParserLauncher implements JCOConstants {
 		return engine.getPipeline().getCurrentCollection();
 	}
 
+	// ZUN 2025-05 ... follow and check... 
 	public List<String> getProcess() {
-		return engine.getPipeline().getIstructions();
+		return engine.getPipeline().getProcess();
+	}
+
+	// ZUN 2025-05 ... follow and check... 
+	public List<String> getInstructions() {
+		return instructions;
 	}
 
 	public Collection<String> getIRList() {
