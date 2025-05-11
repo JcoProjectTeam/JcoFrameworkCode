@@ -21,6 +21,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.IDatabase;
 import jco.ql.model.engine.IDocumentCollection;
+import jco.ql.model.engine.JMH;
 import jco.ql.model.engine.SimpleDocumentCollection;
 
 public class ElasticDatabase implements IDatabase {
@@ -101,7 +102,7 @@ public class ElasticDatabase implements IDatabase {
 
 			List<DocumentDefinition> docs = collection.getDocumentList();
 			if (docs == null || docs.isEmpty())
-				System.out.println("Error: Out collection is empty");
+				JMH.addIOMessage("Saving to ElasticSearch database " + dbname + " an empty collection: " + collection.getName());
 			else {
 				// BulkRequest serve per l'inserimento di documenti multipli
 				BulkRequest request = new BulkRequest();

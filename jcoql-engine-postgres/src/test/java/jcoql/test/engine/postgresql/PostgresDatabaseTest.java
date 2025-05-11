@@ -1,6 +1,5 @@
 package jcoql.test.engine.postgresql;
 
-import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.IDocumentCollection;
 import jcoql.engine.postgresql.PostgresDatabase;
 import jcoql.engine.postgresql.PostgresCollection;

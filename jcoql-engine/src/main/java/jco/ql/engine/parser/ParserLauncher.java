@@ -135,6 +135,7 @@ public class ParserLauncher implements JCOConstants {
 					PrintWriter pw = new PrintWriter(sw);
 					e.printStackTrace(pw);
 					System.out.println("Exception:" + instr + "\n" + sw.toString());
+					JMH.addParserMessage("Exception:" + instr + "\n" + sw.toString());
 	// *** PF end
 					throw new ExecuteProcessException(e.getMessage() + "\nOn line:\n" + instr + "\n\n" + sw.toString());
 	

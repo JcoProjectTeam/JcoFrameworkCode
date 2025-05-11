@@ -16,9 +16,9 @@ public class MongoDbTest{
 	public static void main(String[] args) {
 	    
 	    //test getCollection con collezione esistente
-	    MongoDbDatabase database = new MongoDbDatabase("localhost", 27017,"testDb");
+	    MongoDbDatabase database = new MongoDbDatabase("localhost", 27018,"PW25");
 	    // Verifica se la collezione esiste
-	    IDocumentCollection coll = database.getCollection("A0");
+	    IDocumentCollection coll = database.getCollection("Sensors");
 	    if (coll != null) {
 	        System.out.println("Collezione trovata: " + coll.getName());
 	        System.out.println(coll);

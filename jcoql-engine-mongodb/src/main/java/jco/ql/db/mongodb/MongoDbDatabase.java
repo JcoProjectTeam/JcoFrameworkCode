@@ -1,13 +1,15 @@
 package jco.ql.db.mongodb;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.bson.Document;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -15,6 +17,9 @@ import jco.ql.db.mongodb.utils.DocumentUtils;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.engine.IDatabase;
 import jco.ql.model.engine.IDocumentCollection;
+import jco.ql.model.engine.JMH;
+
+import java.util.Arrays;
 
 public class MongoDbDatabase implements IDatabase {
 
@@ -40,7 +45,10 @@ public class MongoDbDatabase implements IDatabase {
 
 	@Override
 	public IDocumentCollection getCollection(String name) {
-		MongoClient client = new MongoClient(host, port);
+		MongoClientSettings settings = MongoClientSettings.builder()
+				.applyToClusterSettings(builder -> builder.hosts(Arrays.asList(new ServerAddress(host, port))))
+				.build();
+		MongoClient client = MongoClients.create(settings);
 		MongoDatabase mongoDatabase = client.getDatabase(dbname);
 		MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(name);
 		MongoDbCollection result = new MongoDbCollection(name, mongoCollection);
@@ -61,27 +69,34 @@ public class MongoDbDatabase implements IDatabase {
 
 	public void addCollection(IDocumentCollection collection, String collectionName) {
 
-		MongoClient client = new MongoClient(new ServerAddress(host , port),MongoClientOptions.builder()
-                .socketTimeout(30000000)
-                .minHeartbeatFrequency(25)
-                .heartbeatSocketTimeout(3000000)
-                .socketKeepAlive(true)
-                .build() );
+		MongoClientSettings settings = MongoClientSettings.builder()
+				.applyToClusterSettings(builder -> builder.hosts(Arrays.asList(new ServerAddress(host, port))))
+				.applyToSocketSettings(builder -> builder
+						.connectTimeout(30000000, TimeUnit.MILLISECONDS)
+						.readTimeout(30000000, TimeUnit.MILLISECONDS) 
+				)
+				.applyToServerSettings(builder -> builder
+						.minHeartbeatFrequency(25, TimeUnit.MILLISECONDS)
+						.heartbeatFrequency(3000000, TimeUnit.MILLISECONDS) 
+				)
+				.build();
+		MongoClient client = MongoClients.create(settings);
 		MongoDatabase mongoDatabase =  client.getDatabase(dbname);
 
-
 		MongoCollection<Document> coll = mongoDatabase.getCollection(collectionName);
+
+		// ZUN - CHECK 2025-05-11 - in case database doesn't exist an exception is raised and handled internally automatically... 
+		// to handle
 		if (coll != null) {
 			coll.drop();
 		}
-
+		
 		mongoDatabase.createCollection(collectionName);
 
 		List<DocumentDefinition> docs = collection.getDocumentList();
 
 		if (docs == null || docs.isEmpty())
-			System.out.println("Error: Out collection is empty");
-
+			JMH.addIOMessage("Saving to MongoDB dabase " + dbname + " an empty collection: " + collectionName);
 		else {
 
 			int size = docs.size();
@@ -91,7 +106,7 @@ public class MongoDbDatabase implements IDatabase {
 
 			/*
 			 * Algoritmo per l'inserimento dei json nel database L'inserimento
-			 * viene fatto a lotti perche' e' piu' ¹ efficiente nell'inserimento di
+			 * viene fatto a lotti perche' e' piu' ï¿½ efficiente nell'inserimento di
 			 * collezioni composte da molti oggetti e contemporaneamente e' piu'
 			 * veloce rispetto al semplice inserimento singolo dato da un ciclo
 			 * for

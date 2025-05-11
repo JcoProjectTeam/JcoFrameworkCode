@@ -1,23 +1,16 @@
 package jcoql.engine.postgresql;
 
 import java.sql.Connection;
-import org.json.JSONObject;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +19,6 @@ import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
 import jco.ql.model.engine.IDatabase;
 import jco.ql.model.engine.IDocumentCollection;
-import jco.ql.model.engine.SimpleDocumentCollection;
 import jco.ql.model.value.ArrayValue;
 import jco.ql.model.value.DocumentValue;
 import jco.ql.model.value.EValueType;
@@ -44,9 +36,9 @@ public class PostgresDatabase implements IDatabase {
     public PostgresDatabase(String fullUrl, String dbName) {
             try {
                 this.connection = DriverManager.getConnection(fullUrl);
-                System.out.println("✅ Connessione al nuovo database '" + dbName + "' riuscita!");
+                System.out.println("Connessione al nuovo database '" + dbName + "' riuscita!");
             } catch (SQLException ex) {
-                System.err.println("❌ Errore durante la connessione al nuovo database: " + ex.getMessage());
+                System.err.println("Errore durante la connessione al nuovo database: " + ex.getMessage());
             }
         }
 
@@ -56,7 +48,7 @@ public class PostgresDatabase implements IDatabase {
             String sql = "CREATE DATABASE " + dbName;
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
-            System.err.println("❌ Errore durante la creazione del database '" + dbName + "': " + e.getMessage());
+            System.err.println("Errore durante la creazione del database '" + dbName + "': " + e.getMessage());
         }
     }
 
@@ -70,14 +62,14 @@ public class PostgresDatabase implements IDatabase {
 	    List<DocumentDefinition> docs = new ArrayList<>();
 	    boolean hasJsonDoc = false;
 
-	    // 1️⃣ Controllo se esiste la colonna json_doc
+	    // 1ï¸�âƒ£ Controllo se esiste la colonna json_doc
 	    try {
 	        ResultSet rsCol = connection.getMetaData()
 	            .getColumns(null, null, collectionName, "json_doc");
 	        hasJsonDoc = rsCol.next();
 	        rsCol.close();
 	    } catch (SQLException e) {
-	        // ignoro, poi lo gestisco più avanti
+	        // ignoro, poi lo gestisco piÃ¹ avanti
 	    }
 
 	    String sql;
@@ -97,7 +89,7 @@ public class PostgresDatabase implements IDatabase {
 	            docs.add(reconstructDocument(map));
 	        }
 	    } catch (Exception e) {
-	        System.err.println("❌ Errore getCollection(" + collectionName + "): " + e.getMessage());
+	        System.err.println("Errore getCollection(" + collectionName + "): " + e.getMessage());
 	    }
 	    return new PostgresCollection(collectionName, docs);
 	}
@@ -133,7 +125,7 @@ public class PostgresDatabase implements IDatabase {
 	    } else if (value == null) {
 	        return new SimpleValue(null, EValueType.NULL);
 	    } else {
-	        System.err.println("⚠️ Tipo non gestito: " + value.getClass().getSimpleName());
+	        System.err.println("Tipo non gestito: " + value.getClass().getSimpleName());
 	        return new SimpleValue(value.toString());
 	    }
 	}
@@ -145,7 +137,7 @@ public class PostgresDatabase implements IDatabase {
 	public void addCollection(IDocumentCollection collection, String collectionName) {
 	    try (Statement stmt = connection.createStatement()) {
 	        if (collectionExists(collectionName, connection)) {
-	            System.out.println("Collezione " + collectionName + " già esistente. Verifico vincoli...");
+	            System.out.println("Collezione " + collectionName + " gia'  esistente. Verifico vincoli...");
 	            dropCollection(collectionName, connection);
 	        }
 
@@ -153,7 +145,7 @@ public class PostgresDatabase implements IDatabase {
 	        insertDocuments(collection, collectionName, connection);
 
 	    } catch (SQLException e) {
-	        System.err.println("❌ Errore nella gestione della collezione: " + e.getMessage());
+	        System.err.println("Errore nella gestione della collezione: " + e.getMessage());
 	    }
 	}
 
@@ -161,7 +153,7 @@ public class PostgresDatabase implements IDatabase {
 	    String sql = "CREATE TABLE " + collectionName + " (id SERIAL PRIMARY KEY, json_doc JSONB NOT NULL)";
 	    try (Statement stmt = connection.createStatement()) {
 	        stmt.executeUpdate(sql);
-	        System.out.println("✅ Tabella " + collectionName + " creata con successo.");
+	        System.out.println("Tabella " + collectionName + " creata con successo.");
 	    }
 	}
 	
@@ -177,10 +169,10 @@ public class PostgresDatabase implements IDatabase {
 					String jsonString = objectMapper.writeValueAsString(clean);	
 					pstmt.setString(1, jsonString);
 					pstmt.executeUpdate();
-					System.out.println("📥 Documento inserito in " + tableName);
+					System.out.println("Documento inserito in " + tableName);
 				}
 			} catch (JsonProcessingException e) {
-				System.err.println("❌ Errore serializzazione JSON: " + e.getMessage());
+				System.err.println("Errore serializzazione JSON: " + e.getMessage());
 			}
 		}
 	
@@ -221,7 +213,7 @@ public class PostgresDatabase implements IDatabase {
     }
 
     private void dropCollection(String collectionName, Connection connection) throws SQLException {
-        // 1️⃣ Controlla se ci sono vincoli di chiave esterna
+        // 1 Controlla se ci sono vincoli di chiave esterna
         String checkFkConstraints = "SELECT conname FROM pg_constraint " +
                 "WHERE confrelid = (SELECT oid FROM pg_class WHERE relname = ?)";
 
@@ -230,16 +222,16 @@ public class PostgresDatabase implements IDatabase {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) { // Se trova vincoli
-                System.err.println("❌ Non posso eliminare la tabella " + collectionName + " perché ha vincoli relazionali.");
-                return; // ❌ Esce dalla funzione senza eliminare la tabella
+                System.err.println("Non posso eliminare la tabella " + collectionName + " perchÃ© ha vincoli relazionali.");
+                return; // Esce dalla funzione senza eliminare la tabella
             }
         }
 
-        // 2️⃣ Se non ci sono vincoli, elimina la tabella
+        // 2 Se non ci sono vincoli, elimina la tabella
         String sql = "DROP TABLE IF EXISTS " + collectionName;
         try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate(sql);
-            System.out.println("✅ Tabella " + collectionName + " eliminata con successo.");
+            System.out.println("Tabella " + collectionName + " eliminata con successo.");
         }
     }
 

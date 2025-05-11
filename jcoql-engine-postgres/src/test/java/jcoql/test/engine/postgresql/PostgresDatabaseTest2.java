@@ -26,10 +26,10 @@ public class PostgresDatabaseTest2 {
             database.addCollection(collection);
 
             IDocumentCollection retrievedCollection = database.getCollection("test_collection");
-            System.out.println("📂 Documenti recuperati: " + retrievedCollection.toString());
+            System.out.println("Documenti recuperati: " + retrievedCollection.toString());
 
         } catch (SQLException e) {
-            System.err.println("❌ Errore nel test: " + e.getMessage());
+            System.err.println("Errore nel test: " + e.getMessage());
         }
     }
 }

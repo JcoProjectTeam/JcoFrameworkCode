@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import java.util.List;
 
+import jco.ql.model.engine.JMH;
+
 public class collectionDescriptor {
 	private String name;
 	private String type;
@@ -50,7 +52,7 @@ public class collectionDescriptor {
 	  
 	public void removeUrl(int index) {
 		if((index+1) > this.urls.size())
-			System.out.println("index out of bounds");
+			JMH.addJCOMessage("Generic error on Collection description: index out of bounds");
 		else
 			this.urls.set(index,null);
 	}
