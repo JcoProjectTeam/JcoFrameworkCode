@@ -18,16 +18,19 @@ jco/ql/db/ds/server/collectionsDescriptor/Url.java
  jco.ql.db.ds.server.collectionsDescriptor.Url
 jco/ql/db/ds/server/command/AbstractCommand.java
  jco.ql.db.ds.server.command.AbstractCommand
-jco/ql/db/ds/server/command/SetUpdateTypeCommand.java
- jco.ql.db.ds.server.command.SetUpdateTypeCommand
+jco/ql/db/ds/server/service/impl/DataSourceServiceImpl.java
+ jco.ql.db.ds.server.service.impl.DataSourceServiceImpl
+ jco.ql.db.ds.server.service.impl.DataSourceServiceImpl$1
+ jco.ql.db.ds.server.service.impl.DataSourceServiceImpl$2
+ jco.ql.db.ds.server.service.impl.DataSourceServiceImpl$3
 jco/ql/db/ds/server/command/CreateDatabaseCommand.java
  jco.ql.db.ds.server.command.CreateDatabaseCommand
 jco/ql/db/ds/server/command/GetCollectionCommand.java
  jco.ql.db.ds.server.command.GetCollectionCommand
 jco/ql/db/ds/server/Server.java
  jco.ql.db.ds.server.Server
-jco/ql/db/ds/server/annotation/JcoDsCommand.java
- jco.ql.db.ds.server.annotation.JcoDsCommand
+jco/ql/db/ds/server/collectionsDescriptor/collectionDescriptor.java
+ jco.ql.db.ds.server.collectionsDescriptor.collectionDescriptor
 jco/ql/db/ds/server/command/ListCollectionsCommand.java
  jco.ql.db.ds.server.command.ListCollectionsCommand
 jco/ql/db/ds/server/command/CreateCollectionCommand.java
@@ -38,8 +41,8 @@ jco/ql/db/ds/server/command/PingCommand.java
  jco.ql.db.ds.server.command.PingCommand
 jco/ql/db/ds/server/command/CreateVirtualCollectionCommand.java
  jco.ql.db.ds.server.command.CreateVirtualCollectionCommand
-jco/ql/db/ds/server/command/ListUrlCommand.java
- jco.ql.db.ds.server.command.ListUrlCommand
+jco/ql/db/ds/server/collectionsDescriptor/CollectionsDescriptorManager.java
+ jco.ql.db.ds.server.collectionsDescriptor.CollectionsDescriptorManager
 jco/ql/db/ds/server/command/ICommand.java
  jco.ql.db.ds.server.command.ICommand
 jco/ql/db/ds/server/observer/Observer.java
@@ -62,12 +65,9 @@ jco/ql/db/ds/server/util/DirectoryFileFilter.java
  jco.ql.db.ds.server.util.DirectoryFileFilter
 jco/ql/db/ds/server/command/DeleteDatabaseCommand.java
  jco.ql.db.ds.server.command.DeleteDatabaseCommand
-jco/ql/db/ds/server/collectionsDescriptor/collectionDescriptor.java
- jco.ql.db.ds.server.collectionsDescriptor.collectionDescriptor
-jco/ql/db/ds/server/collectionsDescriptor/CollectionsDescriptorManager.java
- jco.ql.db.ds.server.collectionsDescriptor.CollectionsDescriptorManager
-jco/ql/db/ds/server/service/impl/DataSourceServiceImpl.java
- jco.ql.db.ds.server.service.impl.DataSourceServiceImpl
- jco.ql.db.ds.server.service.impl.DataSourceServiceImpl$1
- jco.ql.db.ds.server.service.impl.DataSourceServiceImpl$2
- jco.ql.db.ds.server.service.impl.DataSourceServiceImpl$3
+jco/ql/db/ds/server/command/SetUpdateTypeCommand.java
+ jco.ql.db.ds.server.command.SetUpdateTypeCommand
+jco/ql/db/ds/server/command/ListUrlCommand.java
+ jco.ql.db.ds.server.command.ListUrlCommand
+jco/ql/db/ds/server/annotation/JcoDsCommand.java
+ jco.ql.db.ds.server.annotation.JcoDsCommand
