@@ -19,6 +19,7 @@ import jco.ql.model.value.SimpleValue;
 import jco.ql.parser.model.condition.Condition;
 import jco.ql.parser.model.fuzzy.FuzzyPoint;
 import jco.ql.parser.model.predicate.Expression;
+import jco.ql.parser.model.predicate.FunctionFactor;
 import jco.ql.parser.model.predicate.UsingPredicate;
 import jco.ql.parser.model.util.AggregateClause;
 import jco.ql.parser.model.util.FESortArrayClause;
@@ -40,23 +41,22 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 	static final int NOK_DIV 	= -4;	
 
 	
-	public static SimpleValue evaluate (FuzzyEvaluatorCommand fec, UsingPredicate usingPredicate, Pipeline pipeline) {
-    	if (fec.getParameters().size() != usingPredicate.fuzzyFunctionParameters.size()) {
-    		JMH.addFuzzyMessage("Wrong number of parameters for " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+	public static JCOValue evaluateCrisp (FuzzyEvaluatorCommand fec, FunctionFactor functionCall, Pipeline pipeline) {
+    	if (fec.getParameters().size() != functionCall.functionParams.size()) {
+    		JMH.addJCOMessage("Wrong number of parameters for evalautor :\t" + fec.getFunctionEvaluatorName());
     		return new SimpleValue (); // null
     	}
     	
-    	DocumentDefinition feDoc = getActualParameters (fec, usingPredicate, pipeline);
+    	DocumentDefinition feDoc = getActualParameters (fec, functionCall.functionParams, pipeline);
     	if (!checkParameters (feDoc, fec)) {
-			JMH.addFuzzyMessage("Wrong type of parameters sent to " + fec.getFuzzyEvaluatorType() + ": " + fec.getFuzzyFunctionName());
+			JMH.addJCOMessage("Wrong type of parameters sent to " + fec.getFuzzyEvaluatorType() + ": " + fec.getFunctionEvaluatorName());
     		return new SimpleValue ();     		
     	}
-
     	Pipeline fePipeline = new Pipeline(pipeline);
     	fePipeline.setCurrentDoc(feDoc);
     	if (fec.getPreCondition() != null)
     		if (!ConditionEvaluator.matchCondition(fec.getPreCondition(), fePipeline)) {
-	    		JMH.addFuzzyMessage("Precondition not matched for " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+	    		JMH.addJCOMessage("Precondition not matched for " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
 	    		return new SimpleValue (); // null    		
 	    	}
 
@@ -65,16 +65,16 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
     			FESortArrayClause sac = (FESortArrayClause)fic;
         		int res = performSorting (sac, feDoc);				// feDoc is likely to be modified
         		if (res == NOK_ARRAY) 
-        			JMH.addFuzzyMessage("Impossible to sort non-array field in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        			JMH.addJCOMessage("Impossible to sort non-array field in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
         		else if (res == NOK_DIM) 
-        			JMH.addFuzzyMessage("Impossible to sort togheter array fields of different dimension in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        			JMH.addJCOMessage("Impossible to sort togheter array fields of different dimension in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
     			
     		}
     		else if (fic.isDeriveClause()) { 
     			FEDeriveClause dc = (FEDeriveClause) fic;
     			JCOValue jv = ExpressionPredicateEvaluator.calculate(dc.expression, fePipeline);
     			if (dc.isDeriveScalar() && !JCOValue.isNumericValue(jv))
-        			JMH.addFuzzyMessage("Non numerical result in DERIVE clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        			JMH.addJCOMessage("Non numerical result in DERIVE clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
     			FieldDefinition fd = new FieldDefinition(dc.alias, jv);
     			feDoc.addField(fd);
     		}
@@ -82,27 +82,83 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
     			FEForAllClause fac = (FEForAllClause) fic;
     			int res = evaluateForAll(fac, fePipeline);			
     			if (res == NOK_NUM)
-        			JMH.addFuzzyMessage("Non numerical range in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        			JMH.addJCOMessage("Non numerical range in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
     			else if (res == NOK_RANGE)
-        			JMH.addFuzzyMessage("Range error in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        			JMH.addJCOMessage("Range error in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
     			else if (res == NOK_RES)
-        			JMH.addFuzzyMessage("Non numerical result in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        			JMH.addJCOMessage("Non numerical result in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
     			else if (res == NOK_DIV)
-        			JMH.addFuzzyMessage("Division by 0 in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+        			JMH.addJCOMessage("Division by 0 in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
     		}
     			
     	JCOValue eval = ExpressionPredicateEvaluator.calculate(fec.getEvaluate(), fePipeline);
-    	SimpleValue membership = getMembership (eval, fec);
+    	if (fec.hasPolyline())
+    			eval = getPolylineValue (eval, fec);
+    	return eval;
+//    	return new SimpleValue ("qui");
+	}
+	public static SimpleValue evaluate (FuzzyEvaluatorCommand fec, UsingPredicate usingPredicate, Pipeline pipeline) {
+    	if (fec.getParameters().size() != usingPredicate.fuzzyFunctionParameters.size()) {
+    		JMH.addFuzzyMessage("Wrong number of parameters for " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+    		return new SimpleValue (); // null
+    	}
+    	
+    	DocumentDefinition feDoc = getActualParameters (fec, usingPredicate.fuzzyFunctionParameters, pipeline);
+    	if (!checkParameters (feDoc, fec)) {
+			JMH.addFuzzyMessage("Wrong type of parameters sent to " + fec.getFuzzyEvaluatorType() + ": " + fec.getFunctionEvaluatorName());
+    		return new SimpleValue ();     		
+    	}
+    	Pipeline fePipeline = new Pipeline(pipeline);
+    	fePipeline.setCurrentDoc(feDoc);
+    	if (fec.getPreCondition() != null)
+    		if (!ConditionEvaluator.matchCondition(fec.getPreCondition(), fePipeline)) {
+	    		JMH.addFuzzyMessage("Precondition not matched for " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+	    		return new SimpleValue (); // null    		
+	    	}
+
+    	for (FEInternalClause fic: fec.feInternalClauseList) 
+    		if (fic.isSortClause()) { 
+    			FESortArrayClause sac = (FESortArrayClause)fic;
+        		int res = performSorting (sac, feDoc);				// feDoc is likely to be modified
+        		if (res == NOK_ARRAY) 
+        			JMH.addFuzzyMessage("Impossible to sort non-array field in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+        		else if (res == NOK_DIM) 
+        			JMH.addFuzzyMessage("Impossible to sort togheter array fields of different dimension in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+    			
+    		}
+    		else if (fic.isDeriveClause()) { 
+    			FEDeriveClause dc = (FEDeriveClause) fic;
+    			JCOValue jv = ExpressionPredicateEvaluator.calculate(dc.expression, fePipeline);
+    			if (dc.isDeriveScalar() && !JCOValue.isNumericValue(jv))
+        			JMH.addFuzzyMessage("Non numerical result in DERIVE clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+    			FieldDefinition fd = new FieldDefinition(dc.alias, jv);
+    			feDoc.addField(fd);
+    		}
+    		else {
+    			FEForAllClause fac = (FEForAllClause) fic;
+    			int res = evaluateForAll(fac, fePipeline);			
+    			if (res == NOK_NUM)
+        			JMH.addFuzzyMessage("Non numerical range in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+    			else if (res == NOK_RANGE)
+        			JMH.addFuzzyMessage("Range error in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+    			else if (res == NOK_RES)
+        			JMH.addFuzzyMessage("Non numerical result in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+    			else if (res == NOK_DIV)
+        			JMH.addFuzzyMessage("Division by 0 in FOR ALL clause in " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFunctionEvaluatorName());
+    		}
+    			
+    	JCOValue eval = ExpressionPredicateEvaluator.calculate(fec.getEvaluate(), fePipeline);
+    	SimpleValue membership = getPolylineValue (eval, fec);
     	return membership;
 	}	
 	
 
 	// PF 2023.08.09
-	private static DocumentDefinition getActualParameters(FuzzyEvaluatorCommand fec, UsingPredicate usingEvaluatorPredicate, Pipeline pipeline) {
+	private static DocumentDefinition getActualParameters(FuzzyEvaluatorCommand fec, List<Expression> functionParams, Pipeline pipeline) {
 		DocumentDefinition d = new DocumentDefinition ();
-		
-		for (int i=0; i<usingEvaluatorPredicate.fuzzyFunctionParameters.size(); i++) {
-			Expression expr = usingEvaluatorPredicate.fuzzyFunctionParameters.get(i);
+//		List<Expression> functionParams = usingEvaluatorPredicate.fuzzyFunctionParameters;
+		for (int i=0; i<functionParams.size(); i++) {
+			Expression expr = functionParams.get(i);
 			JCOValue jv = ExpressionPredicateEvaluator.calculate(expr, pipeline);
 			FieldDefinition fd = new FieldDefinition(fec.getParameters().get(i).name, jv);
 			d.addField(fd);
@@ -310,12 +366,16 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 
 
  	
-	private static SimpleValue getMembership(JCOValue eval, FuzzyEvaluatorCommand fec) {
+	private static SimpleValue getPolylineValue(JCOValue eval, FuzzyEvaluatorCommand fec) {
 		double x0, x1, y0, y1, membership;
 		if (!JCOValue.isNumericValue(eval)) {
-    		JMH.addFuzzyMessage("EVALUATE expression returns wrong type value for " + fec.getFuzzyEvaluatorType() + ":\t" + fec.getFuzzyFunctionName());
+			if (fec.isCrispEvaluator())
+	    		JMH.addJCOMessage("EVALUATE expression returns an invalid type value for polyline in :\t" + fec.getFunctionEvaluatorName());
+			else
+				JMH.addFuzzyMessage("EVALUATE expression returns an invalid type value for polyline in :\t" + fec.getFunctionEvaluatorName());
     		return new SimpleValue (); // null    					
 		}
+
 		double ev = 0;
 		if (eval.getType() == EValueType.INTEGER) 
 			ev = (Long) eval.getValue();
@@ -357,14 +417,14 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 		
 		// controllo che coincida il numero di parametri
 		if (gfe.getParameters().size() != usingPredicate.fuzzyFunctionParameters.size()) {
-    		JMH.addFuzzyMessage("Wrong number of parameters for Fuzzy Evaluator:\t" + gfe.getFuzzyFunctionName());
+    		JMH.addFuzzyMessage("Wrong number of parameters for Fuzzy Evaluator:\t" + gfe.getFunctionEvaluatorName());
     		return null;
 		}
 		
 		// controllo che coincida il tipo dei parametri
 		actualParameters = getActualParameters (usingPredicate, pipeline);
     	if (!checkParameters (actualParameters, gfe.getParameters())) {
-    		JMH.addFuzzyMessage("Wrong type of parameters for Fuzzy Evaluator:\t" + gfe.getFuzzyFunctionName());
+    		JMH.addFuzzyMessage("Wrong type of parameters for Fuzzy Evaluator:\t" + gfe.getFunctionEvaluatorName());
     		return null;    		
     	}
     	
@@ -374,7 +434,7 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
     	fuzzyPipeline.setCurrentDoc(fuzzyDoc);
     	if (gfe.getPreCondition() != null)
     		if (!ConditionEvaluator.matchCondition(gfe.getPreCondition(), fuzzyPipeline)) {
-	    		JMH.addFuzzyMessage("Precondition not matched for Fuzzy Evaluator:\t" + gfe.getFuzzyFunctionName());
+	    		JMH.addFuzzyMessage("Precondition not matched for Fuzzy Evaluator:\t" + gfe.getFunctionEvaluatorName());
 	    		return null; // null    		
     		}
     	
@@ -384,16 +444,16 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
     			FESortArrayClause sac = (FESortArrayClause)fic;
         		int res = performSorting (sac, fuzzyDoc);				
         		if (res == NOK_ARRAY) 
-        			JMH.addFuzzyMessage("Impossible to sort non-array field in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFuzzyFunctionName());
+        			JMH.addFuzzyMessage("Impossible to sort non-array field in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFunctionEvaluatorName());
         		else if (res == NOK_DIM) 
-        			JMH.addFuzzyMessage("Impossible to sort togheter array fields of different dimension in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFuzzyFunctionName());
+        			JMH.addFuzzyMessage("Impossible to sort togheter array fields of different dimension in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFunctionEvaluatorName());
     			
     		}
     		else if (fic.isDeriveClause()) { 
     			FEDeriveClause dc = (FEDeriveClause) fic;
     			JCOValue jv = ExpressionPredicateEvaluator.calculate(dc.expression, fuzzyPipeline);
     			if (dc.isDeriveScalar() && !JCOValue.isNumericValue(jv))
-        			JMH.addFuzzyMessage("Non numerical result in DERIVE clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFuzzyFunctionName());
+        			JMH.addFuzzyMessage("Non numerical result in DERIVE clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFunctionEvaluatorName());
     			FieldDefinition fd = new FieldDefinition(dc.alias, jv);
     			fuzzyDoc.addField(fd);
     		}
@@ -401,13 +461,13 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
     			FEForAllClause fac = (FEForAllClause) fic;
     			int res = evaluateForAll(fac, fuzzyPipeline);			
     			if (res == NOK_NUM)
-        			JMH.addFuzzyMessage("Non numerical range in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFuzzyFunctionName());
+        			JMH.addFuzzyMessage("Non numerical range in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFunctionEvaluatorName());
     			else if (res == NOK_RANGE)
-        			JMH.addFuzzyMessage("Range error in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFuzzyFunctionName());
+        			JMH.addFuzzyMessage("Range error in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFunctionEvaluatorName());
     			else if (res == NOK_RES)
-        			JMH.addFuzzyMessage("Non numerical result in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFuzzyFunctionName());
+        			JMH.addFuzzyMessage("Non numerical result in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFunctionEvaluatorName());
     			else if (res == NOK_DIV)
-        			JMH.addFuzzyMessage("Division by 0 in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFuzzyFunctionName());
+        			JMH.addFuzzyMessage("Division by 0 in FOR ALL clause in " + gfe.getFuzzyEvaluatorType() + ":\t" + gfe.getFunctionEvaluatorName());
     		}
     	
     	// calcolo delle evaluates e memorizzo nella temp
@@ -481,7 +541,7 @@ public class FuzzyEvaluatorEvaluator implements JCOConstants {
 	private static SimpleValue getDegree(JCOValue eval, FuzzyEvaluatorCommand gfe, int pos) {
 		double x0, x1, y0, y1, membership;
 		if (eval.getType() != EValueType.INTEGER && eval.getType() != EValueType.DECIMAL) {
-    		JMH.addFuzzyMessage("EVALUATE expression returns wrong type value for Fuzzy Evaluator:\t" + gfe.getFuzzyFunctionName());
+    		JMH.addFuzzyMessage("EVALUATE expression returns wrong type value for Fuzzy Evaluator:\t" + gfe.getFunctionEvaluatorName());
     		return new SimpleValue ();    					
 		}
 		

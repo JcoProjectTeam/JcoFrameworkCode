@@ -19,21 +19,29 @@ public class FuzzyEvaluatorExecutor implements IExecutor<FuzzyEvaluatorCommand>{
 
 	@Override
 	public void execute(Pipeline pipeline, FuzzyEvaluatorCommand feCommand) throws ExecuteProcessException, ScriptException {
-    	// PF. 2022.03.24 - New Policy... in case of already existing Fuzzy Operator, a message is emitted and the newer version replace the old one
+    	// PF. 2022.03.24 - New Policy... in case of already existing Evaluator, 
+		// a message is emitted and the newer version replace the old one
     	
-		if (!feCommand.isGenericEvaluator()) { // GB
-			if (pipeline.getFuzzyFunctions().containsKey(feCommand.getFuzzyFunctionName()))
+		if (feCommand.isCrispEvaluator()) { // PF2026.01.29 
+	        if(pipeline.getUserFunctions().containsKey(feCommand.getFunctionEvaluatorName())) 
+	        	JMH.addJCOMessage("[" + feCommand.getInstruction().getInstructionName() + "]:\tdefinition of "  
+	        			+ feCommand.getFunctionEvaluatorName() + " function has been replaced.");        	
+	        pipeline.addUserFunction(feCommand);
+			JMH.addJCOMessage("[" + feCommand.getInstruction().getInstructionName() + "]:\t" 
+						+ feCommand.getFunctionEvaluatorName() + " function registered");			
+		}
+		else if (!feCommand.isGenericEvaluator()) { // GB
+			if (pipeline.getFuzzyFunctions().containsKey(feCommand.getFunctionEvaluatorName()))
 	    		JMH.addFuzzyMessage("[" + feCommand.getInstruction().getInstructionName() + "]: definition of " 
-	    				+ feCommand.getFuzzyFunctionName() + " has been replaced.");
-	
+	    				+ feCommand.getFunctionEvaluatorName() + " has been replaced.");
 	    	pipeline.addFuzzyFunction(feCommand);
-			JMH.addJCOMessage("[" + feCommand.getInstruction().getInstructionName() + "] executed:\t" + feCommand.getFuzzyFunctionName() 
-				+ " registered");
+			JMH.addJCOMessage("[" + feCommand.getInstruction().getInstructionName() + "] executed:\t" + feCommand.getFunctionEvaluatorName() 
+						+ " registered");
 		}
 		else {
 			// GB
 			String fuzzySetModel = feCommand.getFuzzySetModelName();
-			String evaluatorName = feCommand.getFuzzyFunctionName();
+			String evaluatorName = feCommand.getFunctionEvaluatorName();
 			FuzzySetModelCommand fsmc = pipeline.getFuzzySetModels().get(fuzzySetModel);
 			
 			if (fsmc == null)
@@ -48,10 +56,10 @@ public class FuzzyEvaluatorExecutor implements IExecutor<FuzzyEvaluatorCommand>{
 	    	else {
 	    		if (pipeline.getFuzzyFunctions().containsKey(evaluatorName))
 	    	   		JMH.addFuzzyMessage("[" + feCommand.getInstruction().getInstructionName() + "]: definition of " 
-	    	   				+ feCommand.getFuzzyFunctionName() + " has been replaced.");
+	    	   			+ feCommand.getFunctionEvaluatorName() + " has been replaced.");
 	    		pipeline.addFuzzyFunction(feCommand);
 	    		JMH.addJCOMessage("[" + feCommand.getInstruction().getInstructionName() + "] executed:\t Generic Fuzzy Evaluator " 
-	    				+ feCommand.getFuzzyFunctionName() + " registered");
+	    				+ feCommand.getFunctionEvaluatorName() + " registered");
 	    	}
 		}
 	}

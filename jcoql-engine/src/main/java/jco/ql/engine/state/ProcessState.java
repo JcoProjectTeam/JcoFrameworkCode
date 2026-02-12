@@ -3,8 +3,7 @@ package jco.ql.engine.state;
 import java.util.ArrayList;
 import java.util.List;
 
-import jco.ql.model.command.FunctionCommand;
-import jco.ql.model.command.FuzzyFunctionCommand;
+import jco.ql.model.command.FunctionEvaluatorInterface;
 import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.SimpleDocumentCollection;
@@ -48,9 +47,13 @@ public class ProcessState {
 		currentCollection = coll;
 	}
 
-	public ProcessState(FuzzyFunctionCommand fuzzyOp, IDocumentCollection coll) {
+	// PF - 2026-01-28
+	public ProcessState(FunctionEvaluatorInterface fuzzyOp, IDocumentCollection coll, boolean isFuzzy) {
 		this();
-		isCreateFuzzyFunction = true;
+		if (isFuzzy)
+			isCreateFuzzyFunction = true;
+		else
+			isCreateUserFunction = true;
 		currentCollection = coll;
 	}
 	
@@ -61,12 +64,6 @@ public class ProcessState {
 		isCreateFuzzySetModel = true;
 	}
 	
-
-	public ProcessState(FunctionCommand userFunction, IDocumentCollection coll) {
-		this();
-		isCreateUserFunction = true;
-		currentCollection = coll;
-	}
 
 	// ------------------------------------------------
 	

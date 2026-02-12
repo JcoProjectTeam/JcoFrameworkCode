@@ -52,19 +52,34 @@ public class GenerateCommandEvaluator implements JCOConstants {
 	}
 
 
+	// Added on 2026-01-26
+	private static JCOValue attributeValueToAssign (Pipeline pipeline, OutputFieldSpec ofs, List<FieldDefinition> outputList) {
+		JCOValue value = new SimpleValue();
+		if (ofs.type == OutputFieldSpec.OBJECT_STRUCTURE) {
+			List<FieldDefinition> tempList = evaluateBuildOS (pipeline, ofs.valueObjectStructure);
+			DocumentDefinition tempDoc = new DocumentDefinition (tempList);
+			value = new DocumentValue(tempDoc);
+		}
+		else {
+			value = ExpressionFactorEvaluator.evaluate(ofs.factor, pipeline);		
+			if (ofs.type == OutputFieldSpec.UNNEST) {	
+				if (JCOValue.isDocumentValue(value)) {
+					DocumentValue dv = (DocumentValue) value; 
+					outputList.addAll(dv.getFields());
+				}
+				value = new SimpleValue();	// attribute is already unnested so null value doesn't be added after
+			}
+		}
+		return value;
+	}
 
+	
 	private static List<FieldDefinition> evaluateBuildOS(Pipeline pipeline, ObjectStructure objectStructure) {
 		JCOValue value = new SimpleValue();
 		List<FieldDefinition> outputList = new ArrayList<FieldDefinition> ();
 		for (OutputFieldSpec ofs : objectStructure.outputList) {
-			if (ofs.type == OutputFieldSpec.OBJECT_STRUCTURE) {
-				List<FieldDefinition> tempList = evaluateBuildOS (pipeline, ofs.valueObjectStructure);
-				DocumentDefinition tempDoc = new DocumentDefinition (tempList);
-				value = new DocumentValue(tempDoc);
-			}
-			else
-				value = ExpressionFactorEvaluator.evaluate(ofs.factor, pipeline);				
-
+			// Modified on 2026-01-26
+			value = attributeValueToAssign (pipeline, ofs, outputList);
 			if (!JCOValue.isNull(value))
 				insertFieldValue (outputList, ofs.fieldRef, value);
 		}
@@ -72,20 +87,13 @@ public class GenerateCommandEvaluator implements JCOConstants {
 		return outputList;
 	}
 
-
-
+	
 	private static List<FieldDefinition> evaluateAddOS(Pipeline pipeline, ObjectStructure objectStructure) {
 		JCOValue value = new SimpleValue();
 		List<FieldDefinition> outputList = pipeline.getCurrentDoc().getFields();
 		for (OutputFieldSpec ofs : objectStructure.outputList) {
-			if (ofs.type == OutputFieldSpec.OBJECT_STRUCTURE) {
-				List<FieldDefinition> tempList = evaluateBuildOS (pipeline, ofs.valueObjectStructure);
-				DocumentDefinition tempDoc = new DocumentDefinition (tempList);
-				value = new DocumentValue(tempDoc);
-			}
-			else
-				value = ExpressionFactorEvaluator.evaluate(ofs.factor, pipeline);				
-
+			// Modified on 2026-01-26
+			value = attributeValueToAssign (pipeline, ofs, outputList);
 			if (!JCOValue.isNull(value))
 				insertFieldValue (outputList, ofs.fieldRef, value);
 		}

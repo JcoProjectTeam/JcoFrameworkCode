@@ -44,6 +44,7 @@ public interface JCOConstants {
 	public static final String LEFT_DOCUMENT_ALIAS 		= "~~left~Alias";
 	public static final String RIGHT_DOCUMENT_ALIAS 	= "~~right~Alias~~";
 
+	public static final String FROMFILE_COLLECTION_NAME			= "FromFileCollection";
 	public static final String FROMWEB_COLLECTION_NAME			= "FromWebCollection";
 	public static final String FILTER_COLLECTION_NAME			= "FilterCollection";
 	public static final String JOIN_COLLECTION_NAME				= "JoinCollection";

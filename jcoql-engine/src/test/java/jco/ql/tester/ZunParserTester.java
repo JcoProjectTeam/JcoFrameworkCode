@@ -14,31 +14,10 @@ public class ZunParserTester {
 	
 	public static void main(String[] args) {
 		JCoQLParser parser;
-//		String fileIn = "..\\.zunTestScripts\\testFQAS - stations and sensors.txt";
-//		String fileIn = "..\\.zunTestScripts\\t.txt";
-//		String fileIn = "..\\.zunTestScripts\\testInformation2021.txt";
-//		String fileIn = "..\\.zunTestScripts\\testFQAS.txt";
-//		String fileIn = "..\\.zunTestScripts\\testFQAS - normalize data2.txt";
 //  	String fileout = "..\\.zunTestScripts\\output.file";
 		String fileIn = ZunProperties.getScriptPath() + "testInformation2021 2-3.txt";
-		fileIn = ZunProperties.getScriptPath() + "scriptTest.txt";
-		fileIn = ZunProperties.getScriptPath() + "prova.txt";
-		fileIn = ZunProperties.getScriptPath() + "testAbdis.txt";
-		fileIn = ZunProperties.getScriptPath() + "5.TEST IJGI\\testIJGI.txt";
-		fileIn = ZunProperties.getScriptPath() + "5.TEST IJGI\\test.txt";
-		fileIn = ZunProperties.getScriptPath() + "\\testJava\\test.txt";
-		fileIn = ZunProperties.getScriptPath() + "\\2.TEST NeuroComputing\\1.testNeurocomputingJs.txt";
-//		fileIn = ZunProperties.getScriptPath() + "\\2.TEST NeuroComputing\\2.testNeurocomputingJavaEmbedded.txt";
-//		fileIn = ZunProperties.getScriptPath() + "\\2.TEST NeuroComputing\\3.testNeurocomputingJava.txt";
-		fileIn = ZunProperties.getScriptPath() + "\\10.TEST Soco 2023\\script.txt";
-		fileIn = ZunProperties.getScriptPath() + "\\scriptFA.txt";
-		fileIn = ZunProperties.getScriptPath() + ".\\12.TESTWebist Book 2024\\prolog.txt";
-		fileIn = ZunProperties.getScriptPath() + ".\\14.TEST Webist 2024\\script.txt";
-		fileIn = ZunProperties.getScriptPath() + ".\\8.TEST Neurocomputing 2023\\testFuzzyType2.txt";
-		fileIn = ZunProperties.getScriptPath() + ".\\15.TEST Ghent\\L-GradeTest2.txt";
-		fileIn = ZunProperties.getScriptPath() + ".\\16.TEST WebistBook 2025\\script.txt";
-		fileIn = ZunProperties.getScriptPath() + ".\\18.AFAND25\\script.txt";
-		fileIn = ZunProperties.getScriptPath() + ".\\19.Burgas 2025\\script.txt";
+		fileIn = ZunProperties.getScriptPath() + ".\\20.IPMU 2026\\ipmuScript.txt";
+		fileIn = ZunProperties.getScriptPath() + ".\\testGetSave\\test.txt";
 				
   	try {
   		// Inizializzazione del parser (antlr docet):

@@ -15,7 +15,7 @@ import jco.ql.parser.model.util.Parameter;
 *
 */
 
-public class GenericFuzzyOperatorCommand implements ICommand, FuzzyFunctionCommand {
+public class GenericFuzzyOperatorCommand implements ICommand, FunctionEvaluatorInterface {
 	private Instruction 		instruction = null;
     private String 				genericFuzzyOperatorName;
     private List<Parameter> 	parameters;
@@ -40,12 +40,12 @@ public class GenericFuzzyOperatorCommand implements ICommand, FuzzyFunctionComma
 
         
 	@Override
-	public int getType() {
-		return GENERIC_OPERATOR;
+	public int getFunctionEvaluatorType() {
+		return FUZZY_GENERIC_OPERATOR;
 	}
 
 	@Override
-	public String getFuzzyFunctionName() {
+	public String getFunctionEvaluatorName() {
         return genericFuzzyOperatorName;
 	}
 

@@ -19,6 +19,7 @@ import jco.ql.model.engine.IDatabase;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JMH;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MongoDbDatabase implements IDatabase {
@@ -85,11 +86,13 @@ public class MongoDbDatabase implements IDatabase {
 
 		MongoCollection<Document> coll = mongoDatabase.getCollection(collectionName);
 
-		// ZUN - CHECK 2025-05-11 - in case database doesn't exist an exception is raised and handled internally automatically... 
-		// to handle
-		if (coll != null) {
-			coll.drop();
-		}
+		// ZUN - Modified with ChatGPT on 2026-01-26
+		boolean exists = mongoDatabase
+							.listCollectionNames()
+							.into(new ArrayList<>())
+							.contains(collectionName);
+		if (exists) 
+		    coll.drop();
 		
 		mongoDatabase.createCollection(collectionName);
 

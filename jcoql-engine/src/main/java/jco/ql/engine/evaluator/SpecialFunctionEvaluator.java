@@ -137,14 +137,14 @@ public class SpecialFunctionEvaluator implements JCOConstants {
 	// TRANSLATE Strings values if it finds a match. 
 	// otherwise assign the DefaultTranslation OR it leaves the value unchanged, 
 	private static JCOValue getTranslationValue(TranslateFunction translateFunction, Pipeline pipeline) {
-		JCOValue valueToTraslate, defaultValue;
+		JCOValue valueToTranslate, defaultValue;
 		
-		valueToTraslate = ExpressionPredicateEvaluator.calculate(translateFunction.expression2translate, pipeline);
-		defaultValue = valueToTraslate;
+		valueToTranslate = ExpressionPredicateEvaluator.calculate(translateFunction.expression2translate, pipeline);
+		defaultValue = valueToTranslate;
 		if (translateFunction.dictionaryTranslateDefault != null)
 			defaultValue = new SimpleValue (translateFunction.dictionaryTranslateDefault);
 
-		String s = pipeline.getDictionaryValue(translateFunction.dictionary, valueToTraslate, translateFunction.dictionaryCaseSensitive);
+		String s = pipeline.getDictionaryValue(translateFunction.dictionary, valueToTranslate, translateFunction.dictionaryCaseSensitive);
 		if (s == null)
 			return defaultValue;
 		return new SimpleValue (s);

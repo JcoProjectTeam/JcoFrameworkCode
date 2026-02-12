@@ -30,13 +30,14 @@ public class JavaFunctionExecutor implements IExecutor<JavaFunctionCommand> {
     public void execute(Pipeline pipeline, JavaFunctionCommand command) throws ExecuteProcessException {
     	// PF. 2022.03.24 - New Policy... in case of already existing USER Defined Function, a message is emitted and the newer version replace the old one
         if (compileCode (command)) {
-	        if(pipeline.getUserFunctions().containsKey(command.getFunctionName())) 
-	        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\tdefinition of " + command.getFunctionName() + " function has been replaced.");        	
+	        if(pipeline.getUserFunctions().containsKey(command.getFunctionEvaluatorName())) 
+	        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\tdefinition of " + command.getFunctionEvaluatorName() + " function has been replaced.");        	
 	
 	        pipeline.addUserFunction(command);
+			JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\t" + command.getFunctionEvaluatorName() + " function registered");
         }
         else
-        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\tJava function " + command.getFunctionName() + " cannot be compiled.");        	
+        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\tJava function " + command.getFunctionEvaluatorName() + " cannot be compiled.");        	
     }
     
     
@@ -52,16 +53,16 @@ public class JavaFunctionExecutor implements IExecutor<JavaFunctionCommand> {
 	        int errors = compiler.run(null, null, compileErrors, javaFile.toFile().getAbsolutePath());
 	        // nok
 	        if (errors != 0) 
-				JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tJava function " + jfc.getFunctionName() + 
+				JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tJava function " + jfc.getFunctionEvaluatorName() + 
 	        		" in class " + jfc.getClassName() + " cannot be compiled\n" + compileErrors.toString());
 	        // code not compliant to specification
 	        else if (!validateFunction (jfc))
-				JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tJava function " + jfc.getFunctionName() + 
+				JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tJava function " + jfc.getFunctionEvaluatorName() + 
 									" in class " + jfc.getClassName() + " does not comply with definition");
 	        // ok
 	        else {
 	            jfc.setJavaClass (javaFile.getParent().resolve(jfc.getClassName() + ".class"));
-				JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tfunction " + jfc.getFunctionName() + " compiled and registered");
+				JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tfunction " + jfc.getFunctionEvaluatorName() + " compiled and registered");
 		        compileErrors.close();
 		        return true;
 	        } 
@@ -103,9 +104,9 @@ public class JavaFunctionExecutor implements IExecutor<JavaFunctionCommand> {
 
 			Method myMethod = null;
 			try {
-				myMethod = cls.getDeclaredMethod(jfc.getFunctionName(), cArg);
+				myMethod = cls.getDeclaredMethod(jfc.getFunctionEvaluatorName(), cArg);
 			} catch (NoSuchMethodException | SecurityException e1) {
-				String msg = "[" + jfc.getInstruction().getInstructionName() + "]:\tno " + jfc.getFunctionName() + " (";
+				String msg = "[" + jfc.getInstruction().getInstructionName() + "]:\tno " + jfc.getFunctionEvaluatorName() + " (";
 				StringJoiner sj = new StringJoiner(", ");
 	    		for (int i=0; i<jfc.getParameters().size(); i++) 
 	    			 sj.add(jfc.getParameters().get(i).type);
@@ -116,7 +117,7 @@ public class JavaFunctionExecutor implements IExecutor<JavaFunctionCommand> {
 			jfc.setMethodToInvoke(myMethod);
 	    	return true;
     	} catch (MalformedURLException | ClassNotFoundException e) {
-			JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tJava function " + jfc.getFunctionName() + 
+			JMH.addJSMessage("[" + jfc.getInstruction().getInstructionName() + "]:\tJava function " + jfc.getFunctionEvaluatorName() + 
 	        		" in class " + jfc.getClassName() + " not found\n" + e.toString());
     		return false;
     	}

@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.Socket;
+import java.util.Locale;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -27,6 +28,7 @@ public class Client {
 	public static void main(String[] args) {
 		UIManager.put("OptionPane.messageFont", new Font("Arial", Font.BOLD, 17));
 		UIManager.put("OptionPane.buttonFont", new Font("Arial", Font.PLAIN, 14));
+		Locale.setDefault(Locale.ENGLISH);
 		Client c = new Client();
 
 		Login login = new Login(c);

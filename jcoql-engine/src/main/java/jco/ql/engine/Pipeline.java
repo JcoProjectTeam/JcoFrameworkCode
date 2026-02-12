@@ -16,8 +16,7 @@ import jco.ql.engine.state.ProcessState;
 import jco.ql.model.Dictionary;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
-import jco.ql.model.command.FunctionCommand;
-import jco.ql.model.command.FuzzyFunctionCommand;
+import jco.ql.model.command.FunctionEvaluatorInterface;
 import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.engine.IDocumentCollection;
 import jco.ql.model.engine.JCOConstants;
@@ -32,7 +31,7 @@ import java.util.TreeMap;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-public class Pipeline implements  JCOConstants {
+public class Pipeline implements JCOConstants {
 	// Collections
 	private List<IDocumentCollection> collections;
 
@@ -61,9 +60,9 @@ public class Pipeline implements  JCOConstants {
 
 
 	// JavaScript/Java Function List
-	private Hashtable<String, FunctionCommand> userFunctions;
+	private Hashtable<String, FunctionEvaluatorInterface> userFunctions;
 	// Fuzzy Functions (Operator, Generic, Aggregator, Evaluator) List
-	private Hashtable<String, FuzzyFunctionCommand> fuzzyFunctions;
+	private Hashtable<String, FunctionEvaluatorInterface> fuzzyFunctions;
 	// added by Balicco on 27.1.2023
 	private Hashtable<String, FuzzySetModelCommand> fuzzySetModels;
 
@@ -88,8 +87,8 @@ public class Pipeline implements  JCOConstants {
 		ProcessState emptyState = new ProcessState();
 		state.add(emptyState);
 
-		fuzzyFunctions = new Hashtable<String, FuzzyFunctionCommand>();
-		userFunctions = new Hashtable<String, FunctionCommand>();
+		fuzzyFunctions = new Hashtable<String, FunctionEvaluatorInterface>();
+		userFunctions = new Hashtable<String, FunctionEvaluatorInterface>();
 		// added by Balicco on 27.01.2023
 		fuzzySetModels = new Hashtable<String, FuzzySetModelCommand>() ;
 
@@ -211,21 +210,21 @@ public class Pipeline implements  JCOConstants {
 	}
 
 	
-	// salva la nuova USER FUNCTION (Java or Javascript)
-	public void addUserFunction(FunctionCommand userFun) {
-		ProcessState s = new ProcessState(userFun, state.getLast().getCollection());
+	// salva la nuova USER FUNCTION (Java or Javascript, Crisp Evaluator)
+	public void addUserFunction(FunctionEvaluatorInterface userFun) {
+		ProcessState s = new ProcessState(userFun, state.getLast().getCollection(), false);
 		s.setInstruction(instructions.removeFirst());
 		state.add(s);
-		userFunctions.put(userFun.getFunctionName(), userFun);
+		userFunctions.put(userFun.getFunctionEvaluatorName(), userFun);
 	}
 
 	
-	// salva il nuovo FUZZY FUNCTION (OPERATOR, GENERIC OPERATOR, AGGREGATOR)
-	public void addFuzzyFunction(FuzzyFunctionCommand fuzzyFunction) {
-		ProcessState s = new ProcessState(fuzzyFunction, state.getLast().getCollection());
+	// salva il nuovo FUZZY FUNCTION (OPERATOR, GENERIC OPERATOR, AGGREGATOR, EVALUATOR)
+	public void addFuzzyFunction(FunctionEvaluatorInterface fuzzyFunction) {
+		ProcessState s = new ProcessState(fuzzyFunction, state.getLast().getCollection(), true);
 		s.setInstruction(instructions.removeFirst());
 		state.add(s);
-		fuzzyFunctions.put(fuzzyFunction.getFuzzyFunctionName(), fuzzyFunction);
+		fuzzyFunctions.put(fuzzyFunction.getFunctionEvaluatorName(), fuzzyFunction);
 	}
 
 
@@ -237,11 +236,11 @@ public class Pipeline implements  JCOConstants {
 		fuzzySetModels.put(fuzzyModel.getFuzzySetModelName(), fuzzyModel);
 	}
 
-	public Hashtable<String, FunctionCommand> getUserFunctions() {
+	public Hashtable<String, FunctionEvaluatorInterface> getUserFunctions() {
 		return userFunctions;
 	}
 
-	public Hashtable<String, FuzzyFunctionCommand> getFuzzyFunctions() {
+	public Hashtable<String, FunctionEvaluatorInterface> getFuzzyFunctions() {
 		return fuzzyFunctions;
 	}
 
@@ -258,7 +257,7 @@ public class Pipeline implements  JCOConstants {
 		if (alias.equals(TEMPORARY_COLLECTION_NAME)) 
 			return currentCollection;
 		else if (setIntermediateFiles.get(alias) != null) 			
-			return jsonHandler.createCollection(alias, setIntermediateFiles.get(alias));
+			return jsonHandler.readCollectionFromTemporary(alias, setIntermediateFiles.get(alias));
 		else {
 			// devo scorrere la lista degli stati
 			for (ProcessState s : state) {
@@ -342,7 +341,7 @@ public class Pipeline implements  JCOConstants {
 
 	public IDocumentCollection getIRCollection(String collectionName) {
 		if (setIntermediateFiles.get(collectionName) != null)
-			return jsonHandler.createCollection(collectionName, setIntermediateFiles.get(collectionName));
+			return jsonHandler.readCollectionFromTemporary(collectionName, setIntermediateFiles.get(collectionName));
 		else
 			throw new ExecuteProcessException(
 					"[GET IR COLLECTION]: IR collection " + collectionName + " does not exits");

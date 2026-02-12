@@ -11,7 +11,7 @@ import jco.ql.parser.model.fuzzy.FuzzyPoint;
 import jco.ql.parser.model.predicate.Expression;
 import jco.ql.parser.model.util.Parameter;
 
-public class FuzzyOperatorCommand implements ICommand, FuzzyFunctionCommand {
+public class FuzzyOperatorCommand implements ICommand, FunctionEvaluatorInterface {
 	private Instruction instruction = null;
     private String fuzzyOperatorName;
     private List<Parameter> parameters;
@@ -35,13 +35,13 @@ public class FuzzyOperatorCommand implements ICommand, FuzzyFunctionCommand {
 
         
 	@Override
-	public int getType() {
-		return OPERATOR;
+	public int getFunctionEvaluatorType() {
+		return FUZZY_OPERATOR;
 	}
 
 
 	@Override
-	public String getFuzzyFunctionName() {
+	public String getFunctionEvaluatorName() {
 		return fuzzyOperatorName;
 	}
 

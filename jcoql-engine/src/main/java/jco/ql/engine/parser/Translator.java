@@ -15,7 +15,7 @@ import jco.ql.model.command.IntersectCollectionsCommand;
 import jco.ql.model.command.JavaFunctionCommand;
 import jco.ql.model.command.JavascriptFunctionCommand;
 import jco.ql.model.command.MergeCollectionsCommand;
-import jco.ql.model.command.SaveAsCommand;
+import jco.ql.model.command.SaveCollectionCommand;
 import jco.ql.model.command.JoinCommand;
 import jco.ql.model.command.SubtractCollectionsCommand;
 import jco.ql.model.command.TrajectoryMatchingCommand;
@@ -37,7 +37,7 @@ import jco.ql.parser.model.JavaFunction;
 import jco.ql.parser.model.JavascriptFunction;
 import jco.ql.parser.model.MergeCollections;
 import jco.ql.parser.model.JoinCollections;
-import jco.ql.parser.model.SaveAs;
+import jco.ql.parser.model.SaveCollection;
 import jco.ql.parser.model.SubtractCollections;
 import jco.ql.parser.model.TrajectoryMatching;
 import jco.ql.parser.model.UseDb;
@@ -50,9 +50,9 @@ public class Translator implements JCOConstants {
 			GetCollection getCollectionInstr = (GetCollection) instr;
 			return new GetCollectionCommand(getCollectionInstr);
 		} 
-		else if (instr instanceof SaveAs) {
-			SaveAs sa = (SaveAs) instr;
-			return new SaveAsCommand (sa);
+		else if (instr instanceof SaveCollection) {
+			SaveCollection sc = (SaveCollection) instr;
+			return new SaveCollectionCommand (sc);
 		} 
 		else if(instr instanceof JoinCollections) {
 	        JoinCollections jc = (JoinCollections) instr;

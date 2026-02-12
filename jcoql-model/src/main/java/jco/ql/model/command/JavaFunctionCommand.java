@@ -9,7 +9,7 @@ import jco.ql.parser.model.condition.Condition;
 import jco.ql.parser.model.util.Parameter;
 import java.lang.reflect.Method;
 
-public class JavaFunctionCommand implements ICommand, FunctionCommand {
+public class JavaFunctionCommand implements ICommand, FunctionEvaluatorInterface {
 	private Instruction instruction = null;
 
     private String functionName;
@@ -39,13 +39,13 @@ public class JavaFunctionCommand implements ICommand, FunctionCommand {
 	}
 
 	@Override
-	public String getFunctionName() {
+	public String getFunctionEvaluatorName() {
         return functionName;
     }
 
 	
 	@Override
-	public int getType() {
+	public int getFunctionEvaluatorType() {
 		return JAVA_FUNCTION;
 	}
 

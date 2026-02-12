@@ -10,7 +10,7 @@ import jco.ql.parser.model.predicate.Expression;
 import jco.ql.parser.model.util.FEInternalClause;
 import jco.ql.parser.model.util.Parameter;
 
-public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
+public class FuzzyEvaluatorCommand implements ICommand, FunctionEvaluatorInterface {
 	private Instruction instruction = null;
 
 	private String fuzzyEvaluatorName;
@@ -30,11 +30,13 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 	public FuzzyEvaluatorCommand(FuzzyEvaluator fe) {
 		instruction = fe;
 		fuzzyEvaluatorName = fe.fuzzyEvaluatorName;
-		type = EVALUATOR;
-		if (fe.isFuzzyAggregator)
-			type = AGGREGATOR;
-		if (fe.fuzzyEvaluatorType != null)
-			type = GENERIC_EVALUATOR;
+		type = FUZZY_EVALUATOR;
+		if (fe.isFuzzyAggregator())
+			type = FUZZY_AGGREGATOR;
+		else if (fe.isGenericFuzzyEvaluator())
+			type = FUZZY_GENERIC_EVALUATOR;
+		else if (fe.isCrispEvaluator())
+			type = CRISP_EVALUATOR;
 		parameters = fe.parameters;
 		preCondition = fe.preCondition;
 		feInternalClauseList = fe.feInternalClauseList;
@@ -49,17 +51,17 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 	}
 
 	@Override
-	public int getType() {
+	public int getFunctionEvaluatorType() {
 		return type;
 	}
 
 	@Override
-	public String getFuzzyFunctionName() {
+	public String getFunctionEvaluatorName() {
 		return fuzzyEvaluatorName;
 	}
 
 	public String getFuzzyEvaluatorType() {
-		if (type == AGGREGATOR)
+		if (type == FUZZY_AGGREGATOR)
 			return "Fuzzy Aggregator";
 		return "Fuzzy Evaluator";	
 	}
@@ -79,9 +81,12 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 	public Expression getEvaluate() {
 		return evaluate;
 	}
-
+	
 	public FuzzyPolyline getPolyline() {
 		return polyline;
+	}
+	public boolean hasPolyline() {
+		return ((FuzzyEvaluator) instruction).hasPolyline();
 	}
 
 	// GB metodi di get generici mancanti 
@@ -102,7 +107,11 @@ public class FuzzyEvaluatorCommand implements ICommand, FuzzyFunctionCommand {
 	}
 	
 	public boolean isGenericEvaluator() {
-		return type == GENERIC_EVALUATOR;
+		return type == FUZZY_GENERIC_EVALUATOR;
+	}
+	
+	public boolean isCrispEvaluator() {
+		return type == CRISP_EVALUATOR;
 	}
 	
 	@Override

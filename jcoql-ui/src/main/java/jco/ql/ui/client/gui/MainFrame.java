@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -88,9 +89,10 @@ public class MainFrame extends JFrame {
 		setLocationRelativeTo(null);
 		setTitle("J-CO-UI: User Interface");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(756, 733);
+		setSize(756, 731);
 		setLocationRelativeTo(null);
-		contentPane = new JPanel();
+//		contentPane = new JPanel();
+		contentPane = new JPanel(new BorderLayout());
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -98,8 +100,9 @@ public class MainFrame extends JFrame {
 		JScrollPane commandAreaScroll = new JScrollPane(
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 	            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		commandAreaScroll.setBounds(10, 403, 600, 280);
 		contentPane.add(commandAreaScroll);
+		commandAreaScroll.setBounds(10, 403, 720, 280);
+		commandAreaScroll.setMinimumSize(new Dimension(720, 280));
 
 		// Command Area
 		JTextArea commandArea = new JTextArea();
@@ -118,7 +121,7 @@ public class MainFrame extends JFrame {
 		// Execute button
 		JButton btnExecute = new JButton("Execute");
 		btnExecute.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
-		btnExecute.setBounds(620, 403, 104, 38);
+		btnExecute.setBounds(607, 340, 104, 50);
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				client.executeJCO(commandArea.getText());
@@ -142,13 +145,13 @@ public class MainFrame extends JFrame {
 				console.setVisible(true);
 			}
 		});
-		btnShowConsole.setBounds(491, 340, 118, 50);
+		btnShowConsole.setBounds(462, 340, 118, 50);
 		contentPane.add(btnShowConsole);
 
 		// Backtrack button
 		JButton btnBacktrack = new JButton("Backtrack");
 		btnBacktrack.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
-		btnBacktrack.setBounds(10, 340, 118, 50);
+		btnBacktrack.setBounds(27, 340, 118, 50);
 		btnBacktrack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				client.backtrack();
@@ -174,19 +177,8 @@ public class MainFrame extends JFrame {
 				client.getIRList();
 			}
 		});
-		btnInspectProcessState.setBounds(171, 340, 118, 50);
+		btnInspectProcessState.setBounds(172, 340, 118, 50);
 		contentPane.add(btnInspectProcessState);
-
-		// Save button
-		JButton btnSave = new JButton("Save");
-		btnSave.setFont(new Font("Trebuchet MS", Font.PLAIN, 18));
-		btnSave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveFile();
-			}
-		});
-		btnSave.setBounds(620, 33, 104, 38);
-		contentPane.add(btnSave);
 
 		// Server Config button
 		JButton btnServerConfiguration = new JButton();
@@ -204,14 +196,19 @@ public class MainFrame extends JFrame {
 				serverconf = new ServerConfFrame(client.getServerConf(), client);
 			}
 		});
-		btnServerConfiguration.setBounds(332, 340, 118, 50);
+		btnServerConfiguration.setBounds(317, 340, 118, 50);
 		contentPane.add(btnServerConfiguration);
 
-		JScrollPane instructionAreaScroll = new JScrollPane(
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-	            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		instructionAreaScroll.setBounds(10, 33, 600, 285);
-		contentPane.add(instructionAreaScroll);
+//		JScrollPane instructionAreaScroll = new JScrollPane(
+//				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+//	            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+//		contentPane.add(instructionAreaScroll);
+		JScrollPane instructionAreaScroll = new JScrollPane(instructionArea,
+		        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+		        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		contentPane.add(instructionAreaScroll, BorderLayout.CENTER);		
+		instructionAreaScroll.setBounds(10, 33, 720, 296);
+		instructionAreaScroll.setMinimumSize(new Dimension(720,296));
 
 		// Instruction Areas
 		instructionArea = new JTextArea();
@@ -270,6 +267,150 @@ public class MainFrame extends JFrame {
 		mnSettings.setFont(font1);
 		menuBar.add(mnSettings);
 		mnSettings.setHorizontalAlignment(SwingConstants.LEFT);
+
+		// 2025-09-18 
+		JMenu mnIO = new JMenu("I/O");
+		mnIO.setFont(font1);
+		menuBar.add(mnIO);
+		mnIO.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		// 2025-09-18 --- Button to load a file in the current collection ---
+		JMenuItem bttLoad = new JMenuItem("Load Current Collection from file");
+		bttLoad.setFont(font1);
+		bttLoad.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        JFileChooser fileChooser = new JFileChooser();
+		        TxtFilter txt = new TxtFilter();
+		        fileChooser.setDialogTitle("Open");
+		        fileChooser.setFileFilter(txt);
+		        Component[] comp = fileChooser.getComponents();
+		        setFileChooserFont(comp);
+
+		        int result = fileChooser.showOpenDialog(MainFrame.this);
+		        if (result == JFileChooser.APPROVE_OPTION) {
+		            File file = fileChooser.getSelectedFile();
+		            try (BufferedReader reader = new BufferedReader(new java.io.FileReader(file))) {
+		                StringBuilder sb = new StringBuilder();
+		                String line;
+		                while ((line = reader.readLine()) != null) {
+		                    sb.append(line).append("\n");
+		                }
+		            	// ZUN dati da caricare
+		                instructionArea.setText(sb.toString());
+		            } catch (IOException ex) {
+		                ex.printStackTrace();
+		            }
+		        }
+		    }
+		});
+		mnIO.add(bttLoad);
+
+		JSeparator separator_x1 = new JSeparator();
+		mnIO.add(separator_x1);
+
+		// 2025-09-18 --- Button to save the current collection into a file ---
+		JMenuItem bttSave = new JMenuItem("Save Current Collection to file");
+		bttSave.setFont(font1);
+		bttSave.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        JFileChooser fileChooser = new JFileChooser();
+		        TxtFilter txt = new TxtFilter();
+		        fileChooser.setDialogTitle("Save");
+		        fileChooser.setFileFilter(txt);
+		        Component[] comp = fileChooser.getComponents();
+		        setFileChooserFont(comp);
+
+		        int result = fileChooser.showSaveDialog(MainFrame.this);
+		        if (result == JFileChooser.APPROVE_OPTION) {
+		            String path = fileChooser.getSelectedFile().getPath();
+		            if (!path.toLowerCase().endsWith(".json")) {
+		                path += ".json";
+		            }
+		            File file = new File(path);
+		            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+		            	// ZUN dati da salvare
+		                writer.write(commandArea.getText());
+		            } catch (IOException ex) {
+		                ex.printStackTrace();
+		            }
+		        }
+		    }
+		});
+		mnIO.add(bttSave);
+
+		JSeparator separator_x2 = new JSeparator();
+		mnIO.add(separator_x2);
+		JSeparator separator_x3 = new JSeparator();
+		mnIO.add(separator_x3);
+
+		// 2025-09-18 --- Button to load a file in the current collection ---
+		JMenuItem bttLoad2 = new JMenuItem("Load J-Co Script from file");
+		bttLoad2.setFont(font1);
+		bttLoad2.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        JFileChooser fileChooser = new JFileChooser();
+		        TxtFilter txt = new TxtFilter();
+		        fileChooser.setDialogTitle("Open");
+		        fileChooser.setFileFilter(txt);
+		        Component[] comp = fileChooser.getComponents();
+		        setFileChooserFont(comp);
+
+		        int result = fileChooser.showOpenDialog(MainFrame.this);
+		        if (result == JFileChooser.APPROVE_OPTION) {
+		            File file = fileChooser.getSelectedFile();
+		            try (BufferedReader reader = new BufferedReader(new java.io.FileReader(file))) {
+		                StringBuilder sb = new StringBuilder();
+		                String line;
+		                while ((line = reader.readLine()) != null) {
+		                    sb.append(line).append("\n");
+		                }
+		            	// ZUN dati da caricare
+		                instructionArea.setText(sb.toString());
+		            } catch (IOException ex) {
+		                ex.printStackTrace();
+		            }
+		        }
+		    }
+		});
+		mnIO.add(bttLoad2);
+
+		JSeparator separator_x4 = new JSeparator();
+		mnIO.add(separator_x4);
+		
+		// 2025-09-18 --- Button to save the current collection into a file ---
+		JMenuItem bttSave2 = new JMenuItem("Save J-Co Script to file");
+		bttSave2.setFont(font1);
+		bttSave2.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        JFileChooser fileChooser = new JFileChooser();
+		        TxtFilter txt = new TxtFilter();
+		        fileChooser.setDialogTitle("Save");
+		        fileChooser.setFileFilter(txt);
+		        Component[] comp = fileChooser.getComponents();
+		        setFileChooserFont(comp);
+
+		        int result = fileChooser.showSaveDialog(MainFrame.this);
+		        if (result == JFileChooser.APPROVE_OPTION) {
+		            String path = fileChooser.getSelectedFile().getPath();
+		            if (!path.toLowerCase().endsWith(".jco")) {
+		                path += ".jco";
+		            }
+		            File file = new File(path);
+		            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+		            	// ZUN dati da salvare
+		                writer.write(commandArea.getText());
+		            } catch (IOException ex) {
+		                ex.printStackTrace();
+		            }
+		        }
+		    }
+		});
+		mnIO.add(bttSave2);
+
 
 		JButton btnResetMessages = new JButton("ResetMessages");
 		btnResetMessages.setFont(font1);
@@ -451,38 +592,6 @@ public class MainFrame extends JFrame {
 		return serverconf;
 	}
 
-	private void saveFile() {
-		JFrame parentFrame = new JFrame();
-		parentFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		JFileChooser fileChooser = new JFileChooser();
-		TxtFilter txt = new TxtFilter();
-		fileChooser.setDialogTitle("Save");
-		fileChooser.setFileFilter(txt);
-		Component[] comp = fileChooser.getComponents();
-		setFileChooserFont(comp);
-
-		int userSelection = fileChooser.showSaveDialog(parentFrame);
-
-		if (userSelection == JFileChooser.APPROVE_OPTION) {
-			String path = "";
-			if (!fileChooser.getSelectedFile().getName().contains("."))
-				path = fileChooser.getSelectedFile().getPath() + ".txt";
-			else
-				path = fileChooser.getSelectedFile().getPath();
-
-			File fileToSave = new File(path);
-
-			try {
-				BufferedWriter out = new BufferedWriter(new FileWriter(fileToSave));
-				out.write(instructionArea.getText());
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		}
-	}
-
 	public void setFileChooserFont(Component[] comp) {
 		Font font = new Font("monospaced", Font.PLAIN, 17);
 		for (int x = 0; x < comp.length; x++) {
@@ -498,11 +607,13 @@ public class MainFrame extends JFrame {
 	public class TxtFilter extends FileFilter{
 	    @Override
 	    public boolean accept(File f){
-	        return f.getName().toLowerCase().endsWith(".txt")||f.isDirectory();
+	        return f.getName().toLowerCase().endsWith(".json")	||
+	        		f.getName().toLowerCase().endsWith(".geojson")	||
+	        		f.isDirectory();
 	    }
 	    @Override
 	    public String getDescription(){
-	        return "Text files (*.txt)";
+	        return "JSON files (*.json)";
 	    }
 	}
 

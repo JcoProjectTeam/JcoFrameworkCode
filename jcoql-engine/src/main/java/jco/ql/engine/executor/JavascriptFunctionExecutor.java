@@ -12,11 +12,11 @@ public class JavascriptFunctionExecutor implements IExecutor<JavascriptFunctionC
     @Override
     public void execute(Pipeline pipeline, JavascriptFunctionCommand command) throws ExecuteProcessException {
     	// PF. 2022.03.24 - New Policy... in case of already existing USER Defined Function, a message is emitted and the newer version replace the old one
-        if(pipeline.getUserFunctions().containsKey(command.getFunctionName())) 
-        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]: definition of " + command.getFunctionName() + " function has been replaced.");        	
+        if(pipeline.getUserFunctions().containsKey(command.getFunctionEvaluatorName())) 
+        	JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]: definition of " + command.getFunctionEvaluatorName() + " function has been replaced.");        	
 
         pipeline.addUserFunction(command);
 
-		JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\t" + command.getFunctionName() + " function registered");
+		JMH.addJSMessage("[" + command.getInstruction().getInstructionName() + "]:\t" + command.getFunctionEvaluatorName() + " function registered");
     }
 }

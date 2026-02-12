@@ -8,7 +8,7 @@ public class GetCollectionCommand implements ICommand {
 	private int type;
 	private String collectionName = null;
 	private String dbName = null;	
-	private String urlString = null;
+	private String resourceStr = null;
 	
 
 	
@@ -20,7 +20,7 @@ public class GetCollectionCommand implements ICommand {
 			collectionName = instr.collection.collection;						
 		}
 		else 
-			urlString = instr.urlString;
+			resourceStr = instr.resourceString;
 	}
 
 
@@ -35,8 +35,8 @@ public class GetCollectionCommand implements ICommand {
 		return collectionName;
 	}
 
-	public String getUrlString() {
-		return urlString;
+	public String getResourceStr() {
+		return resourceStr;
 	}
 
 	@Override

@@ -10,7 +10,8 @@ import javax.script.ScriptException;
 import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
-import jco.ql.model.command.FunctionCommand;
+import jco.ql.model.command.FunctionEvaluatorInterface;
+import jco.ql.model.command.FuzzyEvaluatorCommand;
 import jco.ql.model.command.JavaFunctionCommand;
 import jco.ql.model.command.JavascriptFunctionCommand;
 import jco.ql.model.engine.JMH;
@@ -31,7 +32,7 @@ public class UserDefinedFunctionEvaluator {
     		return value; // null
     	}
 
-    	FunctionCommand function = pipeline.getUserFunctions().get(functionCall.functionName);
+    	FunctionEvaluatorInterface function = pipeline.getUserFunctions().get(functionCall.functionName);
 
     	if (function instanceof JavaFunctionCommand) {
 	    	JavaFunctionCommand jf = (JavaFunctionCommand) function;
@@ -41,6 +42,10 @@ public class UserDefinedFunctionEvaluator {
 	    	JavascriptFunctionCommand jsf = (JavascriptFunctionCommand) function;
 	    	value = evaluateJavascriptFunction (jsf, functionCall, pipeline);
     	}
+    	else if (function instanceof FuzzyEvaluatorCommand) {
+    		FuzzyEvaluatorCommand fe = (FuzzyEvaluatorCommand) function;
+	    	value = FuzzyEvaluatorEvaluator.evaluateCrisp(fe, functionCall, pipeline);
+    	}
     	return value;
 	}
 
@@ -48,13 +53,13 @@ public class UserDefinedFunctionEvaluator {
 	static JCOValue evaluateJavaFunction(JavaFunctionCommand jfc, FunctionFactor functionCall, Pipeline pipeline) {
     	JCOValue value = new SimpleValue();		// null value	
     	if (jfc.getParameters().size() != functionCall.functionParams.size()) {
-    		JMH.addJSMessage("Wrong number of parameters for Javas function:\t" + jfc.getFunctionName());
+    		JMH.addJSMessage("Wrong number of parameters for Java function:\t" + jfc.getFunctionEvaluatorName());
     		return value; // null
     	}
 
     	List<JCOValue> actualParameters = getActualParameters (functionCall.functionParams, pipeline);
     	if (!checkParameters (actualParameters, jfc.getParameters())) {
-    		JMH.addJSMessage("Wrong type of parameters for Javas function:\t" + jfc.getBody());
+    		JMH.addJSMessage("Wrong type of parameters for Java function:\t" + jfc.getFunctionEvaluatorName());
     		return value; // null
     	}
 
@@ -63,7 +68,7 @@ public class UserDefinedFunctionEvaluator {
 	    	Pipeline jsPipeline = new Pipeline(pipeline);
 	    	jsPipeline.setCurrentDoc(jsDoc);
 	    	if (!ConditionEvaluator.matchCondition(jfc.getPreCondition(), jsPipeline)) {
-	    		JMH.addJSMessage("Precondition not matched for Javas function:\t" + jfc.getFunctionName());
+	    		JMH.addJSMessage("Precondition not matched for Java function:\t" + jfc.getFunctionEvaluatorName());
 	    		return value; // null
 	    	}
     	}
@@ -87,7 +92,7 @@ public class UserDefinedFunctionEvaluator {
 				value = new SimpleValue (javaRes.toString());
 
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-			JMH.addJSMessage("Cannot invoke Java function " + jfc.getFunctionName() + "\n" + e1.toString());
+			JMH.addJSMessage("Cannot invoke Java function " + jfc.getFunctionEvaluatorName() + "\n" + e1.toString());
 			e1.printStackTrace();
 		}
 
@@ -97,13 +102,13 @@ public class UserDefinedFunctionEvaluator {
 	
 	static JCOValue evaluateJavascriptFunction(JavascriptFunctionCommand jsf, FunctionFactor functionCall, Pipeline pipeline) {
     	if (jsf.getParameters().size() != functionCall.functionParams.size()) {
-    		JMH.addJSMessage("Wrong number of parameters for Javascript function:\t" + jsf.getFunctionName());
+    		JMH.addJSMessage("Wrong number of parameters for Javascript function:\t" + jsf.getFunctionEvaluatorName());
     		return new SimpleValue (); // null
     	}
 
     	List<JCOValue> actualParameters = getActualParameters (functionCall.functionParams, pipeline);
     	if (!checkParameters (actualParameters, jsf.getParameters())) {
-    		JMH.addJSMessage("Wrong type of parameters for Javascript function:\t" + jsf.getBody());
+    		JMH.addJSMessage("Wrong type of parameters for Javascript function:\t" + jsf.getFunctionEvaluatorName());
     		return new SimpleValue (); // null    		
     	}
 
@@ -112,7 +117,7 @@ public class UserDefinedFunctionEvaluator {
 	    	Pipeline jsPipeline = new Pipeline(pipeline);
 	    	jsPipeline.setCurrentDoc(jsDoc);
 	    	if (!ConditionEvaluator.matchCondition(jsf.getPreCondition(), jsPipeline)) {
-	    		JMH.addJSMessage("Precondition not matched for Javascript function:\t" + jsf.getFunctionName());
+	    		JMH.addJSMessage("Precondition not matched for Javascript function:\t" + jsf.getFunctionEvaluatorName());
 	    		return new SimpleValue (); // null    		
 	    	}
     	}
@@ -124,7 +129,7 @@ public class UserDefinedFunctionEvaluator {
             // TODO gestire anche valori diversi 
             return new SimpleValue(Double.parseDouble(jsResult));
         } catch (ScriptException e) {
-        	String st = "JS Exception in " + jsf.getFunctionName() + " at (" + e.getLineNumber() + ", " + e.getColumnNumber() + ")";
+        	String st = "JS Exception in " + jsf.getFunctionEvaluatorName() + " at (" + e.getLineNumber() + ", " + e.getColumnNumber() + ")";
         	st += "\n" + e.getMessage();
             JMH.addJSMessage(st);
         }   
@@ -143,7 +148,7 @@ public class UserDefinedFunctionEvaluator {
 
 	// by contruction actualParameters and parameters have the same number of element
 	private static boolean checkParameters(List<JCOValue> actualParameters, List<Parameter> parameters) {
-		// TODO - non appena definiti se ci sono tipi standard
+		// TODO - ZUN non appena definiti se ci sono tipi standard
 		for (int i=0; i<actualParameters.size(); i++) {
 			;
 		}
@@ -166,7 +171,7 @@ public class UserDefinedFunctionEvaluator {
     private static String getJSCode(JavascriptFunctionCommand jsFun, List<JCOValue> values) {
     	StringBuffer code = new StringBuffer (jsFun.getCode());
 
-    	code.append(jsFun.getFunctionName() + "(");
+    	code.append(jsFun.getFunctionEvaluatorName() + "(");
         for(int p = 0; p < values.size(); p++) {
         	JCOValue v = values.get(p);
         	String valueString = getValueString (v);

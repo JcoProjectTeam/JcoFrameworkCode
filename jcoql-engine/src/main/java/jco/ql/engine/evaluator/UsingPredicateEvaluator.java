@@ -7,7 +7,7 @@ import jco.ql.engine.Pipeline;
 import jco.ql.model.DocumentDefinition;
 import jco.ql.model.FieldDefinition;
 import jco.ql.model.command.FuzzyEvaluatorCommand;
-import jco.ql.model.command.FuzzyFunctionCommand;
+import jco.ql.model.command.FunctionEvaluatorInterface;
 import jco.ql.model.command.FuzzyOperatorCommand;
 import jco.ql.model.command.FuzzySetModelCommand;
 import jco.ql.model.command.GenericFuzzyOperatorCommand;
@@ -59,21 +59,25 @@ public class UsingPredicateEvaluator implements JCOConstants {
 	private static SimpleValue evaluateFuzzyFunction(UsingPredicate usingPredicate, Pipeline pipeline) {
 		SimpleValue outValue = new SimpleValue();
 		String operator = usingPredicate.fuzzyFunction;
-		FuzzyFunctionCommand ffc = pipeline.getFuzzyFunctions().get(operator);
+		FunctionEvaluatorInterface fei = pipeline.getFuzzyFunctions().get(operator);
 
-		if (ffc == null)
+		if (fei == null)
 			JMH.add("Generic Fuzzy Operator " + operator + " not defined");
-		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_OPERATOR) 
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_GENERIC_OPERATOR) 
 			JMH.add("Fuzzy Operator " + operator + " it is not supported for classical fuzzy set ");
-		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_EVALUATOR) 								// GB
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_GENERIC_EVALUATOR) 								// GB
 			JMH.add("Fuzzy Evaluator" + operator + " it is not supported for classical fuzzy set");
-		else if (ffc.getType() == FuzzyFunctionCommand.OPERATOR) {
-			FuzzyOperatorCommand foc = (FuzzyOperatorCommand) ffc;
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_OPERATOR) {
+			FuzzyOperatorCommand foc = (FuzzyOperatorCommand) fei;
 			outValue = FuzzyOperatorEvaluator.evaluate(foc, usingPredicate, pipeline);			
 		}
-		else if (ffc.getType() == FuzzyFunctionCommand.EVALUATOR || ffc.getType() == FuzzyFunctionCommand.AGGREGATOR) {
-			FuzzyEvaluatorCommand fec = (FuzzyEvaluatorCommand) ffc;
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_EVALUATOR || 
+				fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_AGGREGATOR) {
+			FuzzyEvaluatorCommand fec = (FuzzyEvaluatorCommand) fei;
 			outValue = FuzzyEvaluatorEvaluator.evaluate(fec, usingPredicate, pipeline);			
+		}
+		else {
+			JMH.add("Crisp Evaluator " + operator + " used in wrong context: " + fei.getFunctionEvaluatorName());			
 		}
 		
 		return outValue;
@@ -114,23 +118,23 @@ public class UsingPredicateEvaluator implements JCOConstants {
 	private static List<FieldDefinition> evaluateGenericFunction (UsingPredicate usingPredicate, Pipeline pipeline, String fuzzysetModel) {
 		List <FieldDefinition> value = new ArrayList<>();	// null type
 		String operator = usingPredicate.fuzzyFunction;
-		FuzzyFunctionCommand ffc = pipeline.getFuzzyFunctions().get(operator);
+		FunctionEvaluatorInterface fei = pipeline.getFuzzyFunctions().get(operator);
 
-		if (ffc == null)
+		if (fei == null)
 			JMH.add("Generic Fuzzy Operator OR Evaluator " + operator + " not defined");
-		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_OPERATOR) {
-			GenericFuzzyOperatorCommand gfoc = (GenericFuzzyOperatorCommand)ffc;
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_GENERIC_OPERATOR) {
+			GenericFuzzyOperatorCommand gfoc = (GenericFuzzyOperatorCommand)fei;
 			value = FuzzyOperatorEvaluator.evaluateGeneric(gfoc, usingPredicate, pipeline, fuzzysetModel);			
 		}
-		else if (ffc.getType() == FuzzyFunctionCommand.GENERIC_EVALUATOR) { 			// GB
-			FuzzyEvaluatorCommand gfe = (FuzzyEvaluatorCommand)ffc;
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_GENERIC_EVALUATOR) { 			// GB
+			FuzzyEvaluatorCommand gfe = (FuzzyEvaluatorCommand)fei;
 			value = FuzzyEvaluatorEvaluator.evaluateGeneric(gfe, usingPredicate, pipeline, fuzzysetModel);
 		}
-		else if (ffc.getType() == FuzzyFunctionCommand.OPERATOR)
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_OPERATOR)
 			JMH.add("Fuzzy Operator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
-		else if (ffc.getType() == FuzzyFunctionCommand.AGGREGATOR)
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_AGGREGATOR)
 			JMH.add("Fuzzy Aggregator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
-		else if (ffc.getType() == FuzzyFunctionCommand.EVALUATOR)
+		else if (fei.getFunctionEvaluatorType() == FunctionEvaluatorInterface.FUZZY_EVALUATOR)
 			JMH.add("Fuzzy Evaluator " + operator + " it is not supported for generic fuzzy set " + fuzzysetModel);
 
 		return value;		
