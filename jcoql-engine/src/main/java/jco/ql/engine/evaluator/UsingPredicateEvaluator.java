@@ -183,8 +183,8 @@ public class UsingPredicateEvaluator implements JCOConstants {
 		}
 		
 		//Derived degree
-		// GB posso non differenziare con l'utilizzo dei valutatori perché semplicemente usa l'operatore per il controllo
-		// dei gradi derivati, il procedimento è lo stesso sia per gli operatori sia per i valutatori
+		// GB posso non differenziare con l'utilizzo dei valutatori perche' semplicemente usa l'operatore per il controllo
+		// dei gradi derivati, il procedimento e' lo stesso sia per gli operatori sia per i valutatori
 		List<FieldDefinition> derivedDegrees = FuzzyOperatorEvaluator.derivedDegreesEvaluate(outValue, ft.getDerivedDegrees(), ft.getDerivedExpr(), pipeline);
     	if (!FuzzyOperatorEvaluator.checkConstraint(outValue, derivedDegrees, pipeline, ft.getConstraint())) {
 			JMH.add("Constraint is not respected for fuzzy set: [" + usingPredicate.fuzzySet + "]");
